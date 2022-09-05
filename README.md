@@ -1,6 +1,6 @@
 # ImmuCycReg-framework
 
-These code is for paper: 
+These code is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer
 
 The core code is the file: ImmuCycReg framework.R and L0Reg framework.R
 
