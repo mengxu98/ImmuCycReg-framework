@@ -14,7 +14,7 @@ The requirement of input data:
   
 ## DATA links:
 
-  Processed data are available in the reproducibility GitHub repository (https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data).
+  Processed data from this study are available in the reproducibility GitHub repository (https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data).
   
   The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare
   
@@ -65,4 +65,3 @@ The requirement of input data:
   
   GeneNetWeaver: http://gnw.sourceforge.net/
   
-
