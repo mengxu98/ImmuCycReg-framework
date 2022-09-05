@@ -33,35 +33,35 @@ The requirement of input data:
   
 ## The environment required:
   
-  R 4.1.2
-  
-  NMF==0.24.0
-  
-  DESeq2==1.32.0
-  
-  L0Learn==2.0.3
-  
-  e1071==1.7-11
-  
-  glmnet==4.1-4
-  
-  timeROC==0.4
-  
-  rms==6.3-0
-  
-  survival==3.3-1
-  
-  ggplot2==3.3.6
+    R 4.1.2
 
-  bedtools v2.27.167
-  
-  PROMO: http://alggen.lsi.upc.es/cgi-bin/promo_v3/promo/promoinit.cgi?dirDB=TF_8.3
+    NMF==0.24.0
 
-  Cytoscape 3.8.2
-  
-  ClueGo v2.5.9
+    DESeq2==1.32.0
 
-  JAVA v18.0.1.1
-  
-  GeneNetWeaver: http://gnw.sourceforge.net/
+    L0Learn==2.0.3
+
+    e1071==1.7-11
+
+    glmnet==4.1-4
+
+    timeROC==0.4
+
+    rms==6.3-0
+
+    survival==3.3-1
+
+    ggplot2==3.3.6
+
+    bedtools v2.27.167
+
+    PROMO: http://alggen.lsi.upc.es/cgi-bin/promo_v3/promo/promoinit.cgi?dirDB=TF_8.3
+
+    Cytoscape 3.8.2
+
+    ClueGo v2.5.9
+
+    JAVA v18.0.1.1
+
+    GeneNetWeaver: http://gnw.sourceforge.net/
   
