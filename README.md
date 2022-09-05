@@ -55,7 +55,7 @@ The requirement of input data:
 
     bedtools v2.27.167
 
-    PROMO: http://alggen.lsi.upc.es/cgi-bin/promo_v3/promo/promoinit.cgi?dirDB=TF_8.3
+    PROMO: (http://alggen.lsi.upc.es/cgi-bin/promo_v3/promo/promoinit.cgi?dirDB=TF_8.3)
 
     Cytoscape 3.8.2
 
