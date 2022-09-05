@@ -16,13 +16,13 @@ The requirement of input data:
 
   Processed data from this study are available in the reproducibility GitHub repository (https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data).
   
-  The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare
+  The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare.
   
-    (https://figshare.com/articles/dataset/Data_record_1/5330539; 
+     https://figshare.com/articles/dataset/Data_record_1/5330539; 
     
      https://figshare.com/articles/dataset/Data_record_2/5330575; 
      
-     https://figshare.com/articles/dataset/Data_record_3/5330593). 
+     https://figshare.com/articles/dataset/Data_record_3/5330593
      
   Transposase-Accessible Chromatin with high throughput sequencing (ATAC-seq) was downloaded from UCSC-Xena (https://atacseq.xenahubs.net). 
   
