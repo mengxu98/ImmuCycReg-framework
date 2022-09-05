@@ -18,9 +18,9 @@ The requirement of input data:
   
   The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare.
   
-     https://figshare.com/articles/dataset/Data_record_1/5330539; 
+     https://figshare.com/articles/dataset/Data_record_1/5330539
     
-     https://figshare.com/articles/dataset/Data_record_2/5330575; 
+     https://figshare.com/articles/dataset/Data_record_2/5330575
      
      https://figshare.com/articles/dataset/Data_record_3/5330593
      
