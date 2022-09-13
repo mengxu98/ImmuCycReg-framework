@@ -27,7 +27,6 @@ check_file.exists <- function(data, format_save = ".rds") {
   }
 }
 
-
 # Transformation of COUNT, TPM, FPKM
 countToTpm <- function(counts, effLen) {
   rate <- log(counts) - log(effLen)
@@ -47,6 +46,57 @@ fpkmToTpm <- function(fpkm) {
 countToEffCounts <- function(counts, len, effLen) {
   counts * (len / effLen)
 }
+
+survival_data <- function(cancer = NULL, immune_genes = NULL) {
+  if (is.null(cancer)) {
+    message("----- Pleasure ensure the cancer type! -----")
+  } else {
+    message(paste0("----- Choose ", cancer, "and prepare the data! -----"))
+    library(cgdsr)
+    library(DT)
+    mycgds <- CGDS("http://www.cbioportal.org/")
+    message(test(mycgds))
+    all <- getCancerStudies(mycgds)
+    DT::datatable(all)
+    getCaseLists(mycgds, cancer)[, c(1, 2)]
+    getGeneticProfiles(mycgds, cancer)[, 1]
+    getCaseLists(mycgds, cancer)[, 1]
+    getGeneticProfiles(mycgds, cancer)[, 1]
+    mycaselist <- "luad_tcga_rna_seq_v2_mrna"
+    mygeneticprofile <- paste0(cancer, "_rna_seq_v2_mrna")
+    # get expression data
+    if (is.null(immune_genes)) {
+      message("Pleasure select genes!")
+    } else {
+      expr <- getProfileData(mycgds, immune_genes, mygeneticprofile, mycaselist)
+      # get mutation data
+      mut_df <- getProfileData(mycgds, caseList = "luad_tcga_sequenced", geneticProfile = "luad_tcga_mutations", genes = immune_genes)
+      mut_df <- apply(mut_df, 2, as.factor)
+      mut_df[mut_df == "NaN"] <- ""
+      mut_df[is.na(mut_df)] <- ""
+      mut_df[mut_df != ""] <- "MUT"
+      # get copy number data
+      cna <- getProfileData(mycgds,
+        caseList = paste0(cancer, "_sequenced"),
+        geneticProfile = paste0(cancer, "_gistic"),
+        genes = immune_genes
+      )
+    }
+    rn <- rownames(cna)
+    cna <- apply(cna, 2, function(x) {
+      as.character(factor(x,
+        levels = c(-2:2),
+        labels = c("HOMDEL", "HETLOSS", "DIPLOID", "GAIN", "AMP")
+      ))
+    })
+    cna[is.na(cna)] <- ""
+    cna[cna == "DIPLOID"] <- ""
+    rownames(cna) <- rn
+    myclinicaldata <- getClinicalData(mycgds, mycaselist)
+    save(expr, myclinicaldata, cna, mut_df, file = paste0(path_save, "survival_input.Rdata"))
+  }
+}
+
 
 
 

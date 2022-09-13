@@ -31,8 +31,8 @@ colSums(raw_gtex)
 raw_gtex <- as.data.frame(raw_gtex)
 save(raw_gtex, file = "data/lung-rsem-TPM-gtex_normlized.Rdata")
 #------------------------------------------------------------------------------#
-load("data/luad-rsem-TPM-tcga-t_normlized.Rdata")
-load("data/lung-rsem-TPM-gtex_normlized.Rdata")
+tcga_luad <- readRDS(paste0(path_save, "tcga_luad.rds"))
+gtex_luad <- readRDS(paste0(path_save, "gtex.rds"))
 
 LM22_2.0_gene <- read.table("data/LM22_2.0_gene.txt",
   header = T,
