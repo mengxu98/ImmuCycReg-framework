@@ -1,7 +1,6 @@
 
 
 rm(list=ls())
-setwd('../results ATAC-seq')
 library(ggplot2)
 library(ggpubr)
 library(ComplexHeatmap)
@@ -10,103 +9,8 @@ library(ggpubr)
 library(ggthemes)
 library(rtracklayer)
 library(svglite)
-#------------------------------------------------------------------------------#
 
-load('../data/LUAD_raw/luad-rsem-count-tcga-t-drop-dupli-15.Rdata')
-load('../data/raw_tcga_gtex_mrna.RData')
-load('../data CNV/raw_tcga_cnv.Rdata')
-load('../data ATAC-seq/peak_luad.Rdata')
-load('../data ATAC-seq/genes_adj_peak.Rdata')
-load('../data ATAC-seq/allgene_tcga_mrna.Rdata')
-load('../data ATAC-seq/geneinfo_df.Rdata')
-
-candidate_peaks <- read.csv("all_peaks.csv")
-
-# countToTpm_function -----------------------------------------------------
-
-countToTpm <- function(counts, effLen)
-{
-  rate <- log(counts) - log(effLen)
-  denom <- log(sum(exp(rate)))
-  exp(rate - denom + log(1e6))
-}
-
-countToFpkm <- function(counts, effLen)
-{
-  N <- sum(counts)
-  exp( log(counts) + log(1e9) - log(effLen) - log(N) )
-}
-
-fpkmToTpm <- function(fpkm)
-{
-  exp(log(fpkm) - log(sum(fpkm)) + log(1e6))
-}
-
-countToEffCounts <- function(counts, len, effLen)
-{
-  counts * (len / effLen)
-}
-if (F) {
-  ####TCGA####
-  tcga_raw <- read.table('../data/LUAD_raw/luad-rsem-fpkm-tcga-t_normlized.txt.gz',
-                         header = T,
-                         sep='\t',
-                         row.names = 1,
-                         check.names=FALSE)
-  tcga_raw <- tcga_raw[,-1]
-  names(tcga_raw) <- substr(colnames(tcga_raw),1,15)
-  raw_tcga <- apply(tcga_raw,2,fpkmToTpm)
-  raw_tcga[1:3,]
-  colSums(raw_tcga)
-  raw_tcga <- as.data.frame(raw_tcga)
-  save(tcga_raw,file = '../data/LUAD_raw/luad-rsem-fpkm-tcga-t_normlized.Rdata')
-  # save(raw_tcga,file = '../data/LUAD_rawluad-rsem-TPM-tcga-t_normlized.Rdata')
-  ####GTEx####
-  gtex_raw <- read.table('../data/LUAD_raw/lung-rsem-fpkm-gtex_normlized.txt.gz',
-                         header = T,
-                         sep='\t',
-                         row.names = 1,
-                         check.names=FALSE)
-  gtex_raw <- gtex_raw[,-1]
-  names(gtex_raw) <- substr(colnames(gtex_raw),1,15)
-  raw_gtex <- apply(gtex_raw,2,fpkmToTpm)
-  raw_gtex[1:3,]
-  colSums(raw_gtex)s
-  raw_gtex <- as.data.frame(raw_gtex)
-  save(gtex_raw,file = '../data/LUAD_raw/lung-rsem-fpkm-gtex_normlized.Rdata')
-  # save(raw_gtex,file = '../data/LUAD_raw/lung-rsem-TPM-gtex_normlized.Rdata')
-  
-  ####TCGA####
-  tcga_raw <- read.table('../data/LUAD_raw/luad-rsem-fpkm-tcga-t_unnormlized.txt.gz',
-                         header = T,
-                         sep='\t',
-                         row.names = 1,
-                         check.names=FALSE)
-  tcga_raw <- tcga_raw[,-1]
-  names(tcga_raw) <- substr(colnames(tcga_raw),1,15)
-  raw_tcga <- apply(tcga_raw,2,fpkmToTpm)
-  raw_tcga[1:3,]
-  colSums(raw_tcga)
-  raw_tcga <- as.data.frame(raw_tcga)
-  save(tcga_raw,file = '../data/LUAD_raw/luad-rsem-fpkm-tcga-t_unnormlized.Rdata')
-  # save(raw_tcga,file = '../data/LUAD_rawluad-rsem-TPM-tcga-t_unnormlized.Rdata')
-  ####GTEx####
-  gtex_raw <- read.table('../data/LUAD_raw/lung-rsem-fpkm-gtex_unnormlized.txt.gz',
-                         header = T,
-                         sep='\t',
-                         row.names = 1,
-                         check.names=FALSE)
-  gtex_raw <- gtex_raw[,-1]
-  names(gtex_raw) <- substr(colnames(gtex_raw),1,15)
-  raw_gtex <- apply(gtex_raw,2,fpkmToTpm)
-  raw_gtex[1:3,]
-  colSums(raw_gtex)
-  raw_gtex <- as.data.frame(raw_gtex)
-  save(gtex_raw,file = '../data/LUAD_raw/lung-rsem-fpkm-gtex_unnormlized.Rdata')
-  # save(raw_gtex,file = '../data/LUAD_raw/lung-rsem-TPM-gtex_unnormlized.Rdata')
-}
 # Load --------------------------------------------------------------------
-
 if (T) {
   rm(list = ls())
   load("../data/LUAD_raw/luad-rsem-TPM-tcga-t_normlized.Rdata")
@@ -150,7 +54,6 @@ TCGA[TCGA>=2]=2
 TCGA[TCGA<=-2]=-2
 
 Heatmap(TCGA,
-        #matrix(rnorm(nrow(expmat) * ncol(expmat)), ncol = ncol(expmat)),
         name = "expr",
         show_column_names = F,
         col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
@@ -260,84 +163,32 @@ if (T) { #492 samples
   dev.off()
   
 }
-###
 
 TCGA <- raw_tcga[genes_list$x, samples_20$x]; #write.table(TCGA,"TCGA-20samples.txt", sep = "\t",quote = F)
 GTEX <- raw_gtex[genes_list$x, ]
-
-if (T) {
-  TCGA_20 <- t(scale(t(TCGA)))
-  TCGA_20[TCGA_20>=2]=2
-  TCGA_20[TCGA_20<=-2]=-2
-  
-  Heatmap(TCGA_20,
-          #matrix(rnorm(nrow(expmat) * ncol(expmat)), ncol = ncol(expmat)),
-          name = "Z-score",
-          show_column_names = T,
-          col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
-          width = unit(10, "cm")
-  )
-  
-}
-
-
+TCGA_20 <- t(scale(t(TCGA)))
+TCGA_20[TCGA_20>=2]=2
+TCGA_20[TCGA_20<=-2]=-2
+Heatmap(TCGA_20,
+        name = "Z-score",
+        show_column_names = T,
+        col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
+        width = unit(10, "cm")
+)
 # Load --------------------------------------------------------------------
-
-if (T) {
-  rm(list = ls())
-  load("../data/LUAD_raw/luad-rsem-TPM-tcga-t_normlized.Rdata")
-  load("../data/LUAD_raw/lung-rsem-TPM-gtex_normlized.Rdata")
-}
-if (T) {
-  rm(list = ls())
-  load("../data/LUAD_raw/luad-rsem-TPM-tcga-t_unnormlized.Rdata")
-  load("../data/LUAD_raw/lung-rsem-TPM-gtex_unnormlized.Rdata")
-}
-if (T) {
-  rm(list = ls())
-  load("../data/LUAD_raw/luad-rsem-fpkm-tcga-t_normlized.Rdata")
-  raw_tcga <- tcga_raw
-  load("../data/LUAD_raw/lung-rsem-fpkm-gtex_normlized.Rdata")
-  raw_gtex <- gtex_raw
-}
-if (T) {
-  rm(list = ls())
-  load("../data/LUAD_raw/luad-rsem-fpkm-tcga-t_unnormlized.Rdata")
-  raw_tcga <- tcga_raw
-  load("../data/LUAD_raw/lung-rsem-fpkm-gtex_unnormlized.Rdata")
-  raw_gtex <- gtex_raw
-}
-
-if (T) { #Count
-  rm(list = ls())
-  #load('../data/LUAD_raw/luad-rsem-count-tcga-t-drop-dupli-15.Rdata')
-  load('../data/raw_tcga_gtex_mrna.RData')
-  raw_tcga <- raw_tcga_mrna; rm(raw_tcga_mrna)
-  raw_gtex <- raw_gtex_mrna; rm(raw_gtex_mrna)
-}
+rm(list = ls())
+load("../data/LUAD_raw/luad-rsem-TPM-tcga-t_normlized.Rdata")
+load("../data/LUAD_raw/lung-rsem-TPM-gtex_normlized.Rdata")
 
 samples_20 <- read.csv("../data/samples/sample_20.csv")
 genes_list <- read.table("../data CNV/all genes.txt",header = T)
 
-TCGA <- raw_tcga[genes_list$x, samples_20$x]; #write.table(TCGA,"TCGA-20samples.txt", sep = "\t",quote = F)
+TCGA <- raw_tcga[genes_list$x, samples_20$x]
 GTEX <- raw_gtex[genes_list$x, ]
-TCGA <- raw_tcga[genes_list$x, ]; #write.table(TCGA,"TCGA-20samples.txt", sep = "\t",quote = F)
+TCGA <- raw_tcga[genes_list$x, ]
 GTEX <- raw_gtex[genes_list$x, ]
-
-if (F) {
-  GTEX <- t(scale(t(GTEX)))
-  GTEX[GTEX>=2]=2
-  GTEX[GTEX<=-2]=-2
-  GTEX <- as.data.frame(GTEX)
-  
-  TCGA <- t(scale(t(TCGA)))
-  TCGA[TCGA>=2]=2
-  TCGA[TCGA<=-2]=-2
-  TCGA <- as.data.frame(TCGA)
-}
 
 for (i in 1:nrow(genes_list)) {
-  # target_gene <- "FGL1"
   target_gene <- genes_list$x[i]
   data_tcga <- cbind.data.frame(t(TCGA[target_gene,]),rep("TCGA",ncol(TCGA[target_gene,])))
   names(data_tcga) <- c("Expression", "Group")
@@ -348,23 +199,9 @@ for (i in 1:nrow(genes_list)) {
   ggplot(data=data_plot, aes(x=Group,y=Expression))+
     geom_boxplot(aes(fill=Group))+
     ylab(paste0(target_gene," Expression"))+ 
-    stat_compare_means()+ ###添加P值 
-    theme_bw()+
-    #geom_jitter(color="gray")+
-    geom_jitter() #+
-    # geom_point(aes(color=Group, shape = Group, group = Group),
-    #            position=position_jitterdodge(dodge.width=0), size=0.8) #+
-    # geom_text(  aes(label = Sample))
-  
-  ggsave(paste0("results/boxplot/",target_gene,".pdf"),width = 3.5,height = 3.5)
-}
-
-if (F) {
-  
-  ggboxplot(EZH2_data, x = "Group", y = "EZH2_Expression",
-            color = "Group", palette = "npg", add = "jitter")+ 
-    stat_compare_means()+ ###添加P值 
-    #stat_compare_means(method = "t.test")+
+    stat_compare_means()+
     theme_bw()
+    geom_jitter()
+  ggsave(paste0("results/boxplot/",target_gene,".pdf"),width = 3.5,height = 3.5)
 }
 
