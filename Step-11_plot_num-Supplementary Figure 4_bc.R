@@ -11,8 +11,6 @@ library(svglite)
 library(patchwork)
 
 reg_num_all <- read.csv(paste0("results/", "Edge_reg_num.csv"))
-
-
 reg_num_all_dataset <- melt(reg_num_all[, c("Gene","ImmuCycReg_framework","Datasets")])
 
 p1 <- ggplot()+
