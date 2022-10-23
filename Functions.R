@@ -1,6 +1,6 @@
 
 
-# Check whether the file exists!
+# Check whether the file exists! ---------------
 check_file.exists <- function(data, format_save = ".rds") {
   if (exists("format_save")) {
     format_save <- format_save
@@ -27,7 +27,7 @@ check_file.exists <- function(data, format_save = ".rds") {
   }
 }
 
-# Transformation of COUNT, TPM, FPKM
+# Transformation of COUNT, TPM, FPKM ---------------
 countToTpm <- function(counts, effLen) {
   rate <- log(counts) - log(effLen)
   denom <- log(sum(exp(rate)))
@@ -47,6 +47,7 @@ countToEffCounts <- function(counts, len, effLen) {
   counts * (len / effLen)
 }
 
+# To obtain survival data of TCAGA samplse ---------------
 survival_data <- function(cancer = NULL, immune_genes = NULL) {
   if (is.null(cancer)) {
     message("----- Pleasure ensure the cancer type! -----")
@@ -96,8 +97,6 @@ survival_data <- function(cancer = NULL, immune_genes = NULL) {
     save(expr, myclinicaldata, cna, mut_df, file = paste0(path_save, "survival_input.Rdata"))
   }
 }
-
-
 
 
 Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
@@ -200,7 +199,6 @@ SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
   return(sample_level)
 }
 
-
 FrameRegulatoryTable <- function(res_frame_input) {
   ASPAR_hit <- c()
   encode_hit <- c()
@@ -254,7 +252,6 @@ FrameRegulatoryTable <- function(res_frame_input) {
   results_regulatory_table$TRANSFAC_Predicted <- TRANSFAC_Predicted_hit
   return(results_regulatory_table)
 }
-
 
 FramePositive <- function(res_frame_input) {
   ASPAR_hit <- c()
