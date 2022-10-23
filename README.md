@@ -1,17 +1,7 @@
 # ImmuCycReg-framework
 
-These code is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer
+The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer (In revision).
 
-The core code is the file: ImmuCycReg framework.R and L0Reg framework.R
-
-The requirement of input data:
-
-  The TCGA RNA-seq is necessary
-  
-  The ATAC-seq is necessary
-  
-  The CNV data is not required
-  
 ## DATA links:
 
   Processed data from this study are available in the reproducibility GitHub repository (https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data).
@@ -24,13 +14,20 @@ The requirement of input data:
      
      https://figshare.com/articles/dataset/Data_record_3/5330593
      
-  Transposase-Accessible Chromatin with high throughput sequencing (ATAC-seq) was downloaded from UCSC-Xena (https://atacseq.xenahubs.net). 
+  Transposase-Accessible Chromatin with high throughput sequencing(ATAC-seq) was downloaded from UCSC-Xena: https://atacseq.xenahubs.net
   
-  Copy number variations (CNV) dataset was downloaded from GISTIC2.0 (https://api.gdc.cancer.gov/data/7d64377f-2cea-4ee3-917f-8fcfbcd999e7).
+  Copy number variations (CNV) dataset was downloaded from GISTIC2.0: https://api.gdc.cancer.gov/data/7d64377f-2cea-4ee3-917f-8fcfbcd999e7
   
-  Genome annotation file was downloaded from hg38.ensGene.gtf (ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/).
+  Genome annotation file was downloaded from hg38.ensGene.gtf: ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/
 
+### The input data:
+
+  The TCGA RNA-seq is necessary
   
+  The ATAC-seq is necessary
+  
+  The CNV data is not required
+
 ## The environment required:
   
     R 4.1.2
