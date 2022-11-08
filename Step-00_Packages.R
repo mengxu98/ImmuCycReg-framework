@@ -1,80 +1,57 @@
 
 
 Sys.setenv(LANG="en_US.UTF-8")
+# Packages check, download and library --------------------------------------------------
+package.check <- function(packages) {
+  for (package in packages) {
+    if (!requireNamespace(package, quietly = TRUE)) {
+      if (!requireNamespace("dplyr", quietly = TRUE)) {
+        install.packages("dplyr")
+      }
+      library(dplyr)
+      if (!requireNamespace("rvest", quietly = TRUE)) {
+        install.packages("rvest")
+      }
+      library(rvest)
+      message("[", Sys.time(), "] -----: No package: ", package, " in R environment!")
+      CRANpackages <- available.packages() %>%
+        as.data.frame() %>%
+        select(Package) %>%
+        mutate(source = "CRAN")
+      url <- "https://www.bioconductor.org/packages/release/bioc/"
+      biocPackages <- url %>%
+        read_html() %>%
+        html_table() %>%
+        .[[1]] %>%
+        select(Package) %>%
+        mutate(source = "BioConductor")
+      if (package %in% CRANpackages$Package) {
+        message("[", Sys.time(), "] -----: Now install package: ", package, " from CRAN!")
+        install.packages(package)
+        library(package, character.only = T)
+      } else if (package %in% biocPackages$Package) {
+        message("[", Sys.time(), "] -----: Now install package: ", package, " from BioConductor!")
+        BiocManager::install(package)
+        library(package, character.only = T)
+      } else { # Bug
+        if (!requireNamespace("githubinstall", quietly = TRUE)) {
+          install.packages("githubinstall")
+        }
+        library(githubinstall)
+        # githubinstall(package)
+        gh_suggest(package)
+      }
+    } else {
+      library(package, character.only = T)
+    }
+  }
+}
 
-if (!requireNamespace("backports", quietly = TRUE))
-  install.packages('backports')
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-if (!requireNamespace("usethis", quietly = TRUE))
-  install.packages("usethis")
-if (!requireNamespace("devtools", quietly = TRUE))
-  # install.packages("devtools")
-  install.packages("devtools", type = "win.binary")
-if (!requireNamespace("dplyr", quietly = TRUE))
-  install.packages("dplyr")
-if (!requireNamespace("DT", quietly = TRUE))
-  install.packages('DT')
-if (!requireNamespace("feather", quietly = TRUE))
-  install.packages('feather')
-if (!requireNamespace("ggthemes", quietly = TRUE))
-  install.packages('ggthemes')
-if (!requireNamespace("gplots", quietly = TRUE))
-  install.packages("gplots")
-if (!requireNamespace("grImport2", quietly = TRUE))
-  install.packages('grImport2')
-if (!requireNamespace("gWidgetsRGtk2", quietly = TRUE))
-  install.packages("gWidgetsRGtk2")
-if (!requireNamespace("HH", quietly = TRUE))
-  install.packages('HH')
-if (!requireNamespace("igraph", quietly = TRUE))
-  install.packages("igraph")
-if (!requireNamespace("markdown", quietly = TRUE))
-  install.packages('markdown')
-if (!requireNamespace("Metrics", quietly = TRUE))
-  install.packages('Metrics')
-if (!requireNamespace("networkD3", quietly = TRUE))
-  install.packages('networkD3')
-if (!requireNamespace("plotly", quietly = TRUE))
-  install.packages('plotly')
-if (!requireNamespace("plotmo", quietly = TRUE))
-  install.packages('plotmo')
-if (!requireNamespace("processx", quietly = TRUE))
-  install.packages("processx")
-if (!requireNamespace("RColorBrewer", quietly = TRUE))
-  install.packages('RColorBrewer')
-if (!requireNamespace("rmarkdown", quietly = TRUE))
-  install.packages('rmarkdown')
-if (!requireNamespace("shiny", quietly = TRUE))
-  install.packages('shiny')
-if (!requireNamespace("shinycssloaders", quietly = TRUE))
-  install.packages('shinycssloaders')
-if (!requireNamespace("shinydashboard", quietly = TRUE))
-  install.packages('shinydashboard')
-if (!requireNamespace("tidymodels", quietly = TRUE))
-  install.packages('tidymodels')
-if (!requireNamespace("tidyverse", quietly = TRUE))
-  install.packages('tidyverse')
-if (!requireNamespace("yaml", quietly = TRUE))
-  install.packages('yaml')
-
-BiocManager::install('bgsmtr')
-BiocManager::install('BiocVersion')
-BiocManager::install("cgdsr")
-BiocManager::install('clusterProfiler')
-BiocManager::install("ComplexHeatmap")
-BiocManager::install('DESeq')
-BiocManager::install('edgeR')
-BiocManager::install('gage')
-BiocManager::install('gageData')
-BiocManager::install('limma')
-BiocManager::install('L0Learn')
-BiocManager::install('org.Hs.eg.db')
-BiocManager::install('pathview')
-BiocManager::install('pheatmap')
-BiocManager::install("rtracklayer")
-BiocManager::install("WGCNA")
-
-# devtools::install_github("tidyverse/ggplot2")
-# devtools::install_github('GuangchuangYu/clusterProfiler')
-
+packages <- c("backports", "BiocManager", "usethis", "devtools", "dplyr",
+             "DT", "feather", "ggthemes", "gplots", "grImport2",
+             "gWidgetsRGtk2", "HH", "igraph", "markdown", "Metrics",
+             "networkD3", "plotly", "plotmo", "processx", "RColorBrewer",
+             "rmarkdown", "tidymodels", "tidyverse", "bgsmtr", "BiocVersion",
+             "cgdsr", "clusterProfiler", "ComplexHeatmap", "DESeq", "pheatmap",
+             "pathview", "rtracklayer", "org.Hs.eg.db", "L0Learn")
+package.check(packages)
