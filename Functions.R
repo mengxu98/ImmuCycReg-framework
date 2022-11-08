@@ -100,8 +100,8 @@ survival_data <- function(cancer = NULL, immune_genes = NULL) {
     message("----- Pleasure ensure the cancer type! -----")
   } else {
     message(paste0("----- Choose ", cancer, "and prepare the data! -----"))
-    library(cgdsr)
-    library(DT)
+    package.check("cgdsr")
+    package.check("DT")
     mycgds <- CGDS("http://www.cbioportal.org/")
     message(test(mycgds))
     all <- getCancerStudies(mycgds)
