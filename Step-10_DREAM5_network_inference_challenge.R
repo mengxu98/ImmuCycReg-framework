@@ -1,7 +1,7 @@
 
 
 rm(list = ls())
-library(igraph)
+library("igraph")
 library(RColorBrewer)
 library(broom)
 library(olsrr)
