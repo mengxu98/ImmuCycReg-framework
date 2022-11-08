@@ -1,12 +1,9 @@
 
 
 rm(list = ls())
-
 source("Functions.R")
-
 path_read <- "data/"
 path_save <- "results/"
-
 # --------------------------------------------------
 tcga_luad <- read.table(paste0(path_read, "luad-rsem-count-tcga-t.txt.gz"),
      header = TRUE,
@@ -88,5 +85,4 @@ geneinfo_df <- dplyr::select(gtf_df, c(
 ))
 check_file.exists(geneinfo_df)
 
-survival_data(cancer = "luad_tcga", immune_genes = "IL2") # Immune genes need to be selected according to analysis!
-
+survival_data(cancer = "luad_tcga", immune_genes = "IL2") # Immune genes (accept genes list) need to be selected according to analysis!
