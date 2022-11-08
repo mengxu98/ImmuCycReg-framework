@@ -1,16 +1,13 @@
 
 
 library(openxlsx)
-
 des <- read.csv("DESeq2_log2FC_res.csv")
+imcy <- read.table("../data/immunecycle.txt",sep = "\t",header = T)
 des <- des[,-1]
 des <- des[,-6]
 des <- na.omit(des)
-
 des$reg <- ""
 genes <- des$gene
-imcy <- read.table("../data/immunecycle.txt",sep = "\t",header = T)
-
 for (i in 1:length(genes)) {
   gene <- genes[i]
   if (gene %in% imcy$GeneSymbol) {
@@ -190,13 +187,10 @@ for (i in 1:length(genes)) {
           des2$cluster4 >= 1) {
         des$reg[i] <- 'cluster3,4 UP'
       }
-      #
     }
   }
-  
 }
-
-write.csv(des,'DESeq2_log2FC_res.csv')
+# write.csv(des,'DESeq2_log2FC_res.csv')
 sheets2 = list(des)
 write.xlsx(sheets2,'DESeq2_log2FC_res.xlsx')
 
