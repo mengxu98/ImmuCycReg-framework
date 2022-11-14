@@ -10,4 +10,4 @@ packages <- c(
   "cgdsr", "clusterProfiler", "ComplexHeatmap", "DESeq", "pheatmap",
   "pathview", "rtracklayer", "org.Hs.eg.db", "L0Learn"
 )
-package.check(packages)
+package.check(packages) # Please load function 'package.check' from 'Function.R'
