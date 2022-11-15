@@ -1,7 +1,6 @@
 
-# select_genes <- up_reg_gene
-select_genes <- target_gene_list$gene
 
+select_genes <- target_gene_list$gene
 intersect_samples <- intersect(colnames(raw_tcga_cnv), common_samples)
 cnv_data <- raw_tcga_cnv[select_genes, high_exp_sample]
 expmat <- raw_tcga[select_genes, high_exp_sample]
