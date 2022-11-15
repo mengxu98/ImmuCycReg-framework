@@ -42,7 +42,7 @@ for (j in 1:4) {
     dir.create(file.path(paste0("results/cluster", j)))
   }
 
-  print(paste("------------cluster", j, "start------------", sep = " "))
+  message(paste0("------------cluster", j, "start------------"))
 
   if (T) {
     genes_list <- read.table(paste("data/genes_list", ".txt", sep = ""),
@@ -55,29 +55,23 @@ for (j in 1:4) {
       row.names = 1
     )
   }
-
   cluster <- sample_label[which(sample_label$V2 == j), 1]
-
   Y_raw <- raw_tcga[row.names(genes_list), cluster]
-
   maxSNVSize <- 100
   evaluate_cluster <- c()
   for (i in 1:nrow(genes_list)) {
     target_gene <- row.names(genes_list)[i]
     if (file.exists(paste("data/", target_gene, "_TFs_list.txt", sep = "")) == T) {
-      print(paste("---------- the cluster", j, ",", "number", i, "gene:", target_gene, "computation is start ! ----------", sep = " "))
+      message(paste0("---------- the cluster", j, ",", "number", i, "gene:", target_gene, "computation is start ! ----------"))
 
       TFs_list <- read.table(paste("data/", target_gene, "_TFs_list.txt", sep = ""),
         header = T,
         row.names = 1
       )
 
-      X <- raw_tcga[row.names(TFs_list), cluster]
-      X <- t(X) %>% as.matrix()
+      X <- t(raw_tcga[row.names(TFs_list), cluster]) %>% as.matrix()
       row.names(X) <- row.names(X)
-
-      Y <- raw_tcga[target_gene, cluster]
-      Y <- t(Y) %>% as.numeric()
+      Y <- t(raw_tcga[target_gene, cluster]) %>% as.numeric()
 
       # Validation --------------------------------------------------------------
       set.seed(2022)
@@ -88,15 +82,10 @@ for (j in 1:4) {
       test_data_Y <- Y[-train_idx]
 
       cvfit_L0_validation <- L0Learn.cvfit(train_data_X, train_data_Y, nFolds = 10)
-      plot(cvfit_L0_validation)
       fit_L0_validation <- L0Learn.fit(train_data_X, train_data_Y,
         penalty = "L0",
         maxSuppSize = maxSNVSize
       )
-      plot(fit_L0_validation)
-
-      print(fit_L0_validation)
-
       # Extract coefficient at middle lambda
       fit_L0_information <- as.data.frame(print(fit_L0_validation))
       fit_L0_information <- fit_L0_information[order(fit_L0_information$suppSize, decreasing = TRUE), ]
@@ -109,7 +98,6 @@ for (j in 1:4) {
         gamma = gamma_L0
       )
       test_data_y_hat <- as.vector(test_data_y_cat)
-      ###
 
       re_status <- cbind(test_data_Y, test_data_y_hat)
       head(re_status)
@@ -148,14 +136,11 @@ for (j in 1:4) {
       )
 
       if (peak_corr$p < 1 && peak_corr$r > 0) {
-
         #### L0####
         fit_L0 <- L0Learn.fit(X, Y,
           penalty = "L0",
           maxSuppSize = maxSNVSize
         )
-        print(fit_L0)
-
         fit_L0_information <- as.data.frame(print(fit_L0))
         fit_L0_information <- fit_L0_information[order(fit_L0_information$suppSize, decreasing = TRUE), ]
         lambda_L0 <- fit_L0_information$lambda[1]
@@ -207,7 +192,6 @@ for (j in 1:4) {
         res_data_f <- as.data.frame(res_data)
         res_data_f <- res_data_f[which(res_data_f$`Pr(>|t|)` <= 0.05), ]
 
-
         if (nrow(res_data_f) > 0) {
           if (rownames(res_data_f)[1] == "(Intercept)") {
             res_data_f <- res_data_f[-1, ]
@@ -231,11 +215,9 @@ for (j in 1:4) {
             "Cluster" = paste("Cluster", j, sep = ""),
             "Strength" = res_data_f$strength
           )
-          # res_TRN <- res_TRN[-1, ]
           res_TRN_cluster <- rbind(res_TRN_cluster, res_TRN)
           survival_tfs_gene <- rownames(res_data_f) %>% as.data.frame()
           survival_tfs <- rbind.data.frame(survival_tfs, survival_tfs_gene, target_gene)
-
 
           X <- raw_tcga[row.names(TFs_list), cluster]
           X <- rbind(X, Gene = Y_raw[target_gene, ]) %>% as.matrix()
@@ -316,7 +298,6 @@ for (j in 1:4) {
             vertex.size = c(35),
             edge.width = E(network)$weight * 20
           )
-
           plot(network_L0,
             vertex.color = color_L0,
             vertex.label.color = c("black"),
@@ -324,14 +305,12 @@ for (j in 1:4) {
             vertex.size = c(35),
             edge.width = E(network_L0)$weight * 20
           )
-
           legend("bottomleft",
             legend = levels(as.factor(V(network_L0)$carac)),
             col = coul, bty = "n", pch = 20, pt.cex = 3,
             cex = 1, text.col = coul, horiz = FALSE,
             inset = c(0, 0)
           )
-
           dev.off()
 
           # L0 VS GENIE3
@@ -341,11 +320,9 @@ for (j in 1:4) {
             L0 = cor(X["Gene", ], L0_matrix),
             GENIE3 = cor(X["Gene", ], GENIE3_matrix)
           )
-
           Contrast_cluster <- rbind.data.frame(Contrast_cluster, Contrast)
         }
       }
-
       print(paste("---------- The cluster", j, ",", "number", i, "gene:", target_gene, "computation is completed ! ----------", sep = " "))
     } else {
       print(paste("---------- No", target_gene, "TFs file ! ----------", sep = " "))
@@ -402,7 +379,7 @@ my_comparisons <- list(c("L0Reg framework", "GENIE3"))
 ggplot(data = Contrast_all_box, aes(x = Method, y = Correction)) +
   geom_boxplot(aes(fill = Method)) +
   # ylab(paste0(target_gene," Expression"))+
-  stat_compare_means() + ### 添加P值
+  stat_compare_means() +
   theme_bw() +
   # geom_jitter(color="gray")+
   geom_jitter()
