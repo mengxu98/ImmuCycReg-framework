@@ -17,12 +17,10 @@ library(RColorBrewer)
 library(ggthemes)
 library(psych)
 library(ggpubr)
-library(NMF)
 
 load("data/luad-rsem-count-tcga-t.Rdata")
 load("data/luad-rsem-fpkm-tcga-t_normlized.Rdata")
 raw_tcga <- scale(raw_tcga)
-
 
 sample_label <- read.table("../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv",
   header = FALSE,
@@ -72,7 +70,6 @@ for (c in 1:length(conditions)) {
       Y <- t(Y) %>% as.numeric()
 
       # Data -------------------------------------------------------------------
-
       if (condition == "TCGA-LUAD") {
         message("Use ", condition, " data")
       } else if (condition == "randomize") {
@@ -104,9 +101,6 @@ for (c in 1:length(conditions)) {
         penalty = "L0",
         maxSuppSize = maxSNVSize
       )
-      plot(fit_L0_validation)
-
-      print(fit_L0_validation)
 
       # Extract coefficient at middle lambda
       fit_L0_information <- as.data.frame(print(fit_L0_validation))
@@ -140,7 +134,6 @@ for (c in 1:length(conditions)) {
       )
 
       deg.data_cluster_train <- rbind.data.frame(deg.data_cluster_train, deg.data)
-
 
       test_data_y_cat <- predict(fit_L0_validation,
         newx = test_data_X,
