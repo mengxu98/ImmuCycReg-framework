@@ -1,3 +1,5 @@
+
+
 #' CIBERSORT R script v1.03 (last updated 07-10-2015)
 #' Note: Signature matrix construction is not currently available; use java version for full functionality.
 #' Author: Aaron M. Newman, Stanford University (amnewman@stanford.edu)
@@ -31,11 +33,10 @@
 #' @param X cell-specific gene expression
 #' @param y mixed expression per sample
 #' @export
+
 CoreAlg <- function(X, y){
-  
   #try different values of nu
   svn_itor <- 3
-  
   res <- function(i){
     if(i==1){nus <- 0.25}
     if(i==2){nus <- 0.5}
@@ -46,10 +47,8 @@ CoreAlg <- function(X, y){
   
   if(Sys.info()['sysname'] == 'Windows') out <- parallel::mclapply(1:svn_itor, res, mc.cores=1) else
     out <- parallel::mclapply(1:svn_itor, res, mc.cores=svn_itor)
-  
   nusvm <- rep(0,svn_itor)
   corrv <- rep(0,svn_itor)
-  
   #do cibersort
   t <- 1
   while(t <= svn_itor) {
@@ -210,8 +209,8 @@ CIBERSORT <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
   colnames(obj) <- c(colnames(X),"P-value","Correlation","RMSE")
   obj
 }
+
 CIBERSORT_all <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
-  
   #read in data
   X <- read.table(sig_matrix,header=T,sep="\t",row.names=1,check.names=F)
   Y <- read.table(mixture_file, header=T, sep="\t", row.names=1,check.names=F)
@@ -301,6 +300,7 @@ CIBERSORT_all <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
   colnames(obj) <- c(colnames(X),"P-value","Correlation","RMSE")
   obj
 }
+
 CIBERSORT_TCGA <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
   
   #read in data
