@@ -6,7 +6,7 @@ library(ggpubr)
 library(ggthemes)
 library(rtracklayer)
 library(svglite)
-source("myFunctions.R")
+source("Functions.R")
 #------------------------------------------------------------------------------#
 String_names <- read.table("../  data/String/9606.protein.info.v11.5.txt")
 String_score <- read.table("../  data/String/9606.protein.links.v11.5.txt.gz", header = T)
@@ -135,9 +135,9 @@ for (k in seq_along(t(target_gene_list))) {
     if (length(high_exp_sample) > 0) {
       for (sample_i in seq_along(high_exp_sample)) {
         target_sample <- high_exp_sample[sample_i]
-        #### CONDITION 1: PEAK SCORE IN QUANTILE
+        # CONDITION 1: PEAK SCORE IN QUANTILE
         up_thres <- quantile(peak_luad[, target_sample])[3]
-        #### CONDITION 2: TF MRNA UP
+        # CONDITION 2: TF MRNA UP
         up_reg_gene <- c()
         down_reg_gene <- c()
         t.test_res_sample <- c()
@@ -218,10 +218,10 @@ for (k in seq_along(t(target_gene_list))) {
         up_reg_gene <- c()
         down_reg_gene <- c()
         t.test_res_sample <- c()
-        #### CONDITION 1: PEAK SCORE IN QUANTILE
+        # CONDITION 1: PEAK SCORE IN QUANTILE
         up_thres <- quantile(peak_luad[, target_sample])[3]
         print(paste(peak_luad[candidate_peak_id, target_sample], up_thres, sep = "<------>"))
-        #### CONDITION 2: RP mRNA high
+        # CONDITION 2: RP mRNA high
         if (peak_luad[candidate_peak_id, target_sample] < up_thres) {
           for (i in seq_along(exsit_gene_list)) {
             t_res_temp <- t.test(gtex_temp[i, ], mu = tcga_temp[i, target_sample])
@@ -463,16 +463,15 @@ samples_score <- aggregate(as.numeric(samples_score[, 2]),
   by = list(SampleSelected = samples_score$`format_result_all$Score`), FUN = sum, simplify = TRUE
 )
 
-###
 Score_genes <- c()
 Score_genes_samples <- c()
 for (k in 1:nrow(target_gene_list)) {
   target_gene <- t(target_gene_list)[, k]
   score_gene <- format_result_all[which(format_result_all$target_gene == target_gene), ]
   if (nrow(score_gene) > 0) {
-    score_gene$FDR <- p.adjust(score_gene$Pvalue, # P值列表
+    score_gene$FDR <- p.adjust(score_gene$Pvalue,
       method = "BH"
-    ) # FDR校正的方法
+    )
     score_gene <- score_gene[which(score_gene$FDR < 0.001), ]
 
     freq_threshold <- 0
