@@ -7,7 +7,7 @@ library(openxlsx)
 
 path_read <- "data/"
 path_save <- "results/"
-path_samples <- paste0(path_save, "/NMF/cluster-nk-ligands-k=6/")
+path_samples <- paste0(path_save, "/NMF/cluster-rank=6/")
 
 genes_2230 <- read.table(paste0(path_read, "Genes_249.txt"))
 samples_cluster <- read.csv(paste0(path_samples, "data/sample_cluster_4.csv"), header = F)
@@ -202,4 +202,4 @@ DESeq2_volcano_list[[1]] +
     theme(text = element_text(size = 13)) +
     theme(text = element_text(family = "Times New Roman"))
 
-ggsave(paste0("../../../../manuscript_review/figure/", "Figure3.png"), width = 8, height = 8, dpi = 600)
+ggsave(paste0("figure/Figure3.png"), width = 8, height = 8, dpi = 600)
