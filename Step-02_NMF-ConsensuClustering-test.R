@@ -8,6 +8,10 @@ library(tidyr)
 library(tidyverse)
 library(survival)
 library(survminer)
+library(ggplot2)
+library(paletteer)
+library(Rtsne)
+library(tinyarray)
 
 path_read <- "data/"
 path_save <- "results/"
@@ -16,7 +20,6 @@ tcga_luad <- readRDS(paste0(path_save, "tcga_luad.rds"))
 feature_genes <- read.csv(paste0(path_read, "Genes_2230.csv"))
 dataset <- tcga_luad[feature_genes$Gene, ]
 
-# --------------------------------------------------
 # The test is to determine the rank value
 if (F) {
   seeds <- c(20220101, 2022)
@@ -45,7 +48,6 @@ if (F) {
       cophenetic_table_n <- c()
       for (n in 1:length(nruns)) {
         nrun <- nruns[n]
-
         process.check <- tryCatch(
           {
             res <- nmf(dataset, 2:6, nrun = nrun, seed = seed)
@@ -55,7 +57,6 @@ if (F) {
             print(1)
           }
         )
-
         cophenetic <- cbind.data.frame(
           percent_gene, seed, nrun,
           res$measures$cophenetic[1],
@@ -182,21 +183,15 @@ dataset <- dataset[rev(order(mads))[1:gene_no], ]
 dataset <- na.omit(dataset)
 res_4 <- nmf(dataset, 4, nrun = 60, seed = 2022)
 group <- predict(res_4)
-table(group)
 ###
-
 arg <- "samples" # “columns”, “rows”, “samples”, “features”, “consensus”
-
 si2 <- silhouette(res_2, what = arg)
 plot(si2)
-
 si3 <- silhouette(res_3, what = arg)
 plot(si3)
-
 si4 <- silhouette(res_4, what = arg)
 plot(si4)
 
-#
 w <- basis(res_4)
 dim(w)
 h <- coef(res_4)
@@ -212,25 +207,16 @@ consensusmap(res_4)
 consensusmap(res_4, annCol = dataset, tracks = NA)
 
 res_cluter4 <- read.csv("../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv", header = F)
-table(res_cluter4$V2)
-
-###
 exp <- dataset %>% as.data.frame()
 colnames(exp) <- gsub("-", ".", colnames(exp))
 exp <- exp[, samples]
-
 # PCA
-library(tinyarray)
 draw_pca(exp, Cluster$., addEllipses = F)
 # Tsne
-library(Rtsne)
 tsne_out <- Rtsne(t(exp), perplexity = 30)
 pdat <- data.frame(tsne_out$Y, factor(Cluster$.))
 colnames(pdat) <- c("Y1", "Y2", "group")
-head(pdat)
 
-library(ggplot2)
-library(paletteer)
 ggplot(pdat, aes(Y1, Y2)) +
   geom_point(aes(Y1, Y2, fill = group), shape = 21, color = "black") +
   stat_ellipse(aes(color = group, fill = group),
