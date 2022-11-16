@@ -190,7 +190,6 @@ for (i in 1:length(genes)) {
     }
   }
 }
-# write.csv(des,'DESeq2_log2FC_res.csv')
 sheets2 = list(des)
 write.xlsx(sheets2,'DESeq2_log2FC_res.xlsx')
 
