@@ -1,6 +1,7 @@
 
 
 Sys.setenv(LANG = "en_US.UTF-8")
+source("Functions.R")
 packages <- c(
   "backports", "BiocManager", "usethis", "devtools", "dplyr",
   "DT", "feather", "ggthemes", "gplots", "grImport2",
@@ -10,4 +11,4 @@ packages <- c(
   "cgdsr", "clusterProfiler", "ComplexHeatmap", "DESeq", "pheatmap",
   "pathview", "rtracklayer", "org.Hs.eg.db", "L0Learn"
 )
-package.check(packages) # Please load function 'package.check' from 'Functions.R'
+package.check(packages)
