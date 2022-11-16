@@ -11,7 +11,10 @@ library(tidyr)
 library(tidyverse)
 library(survival)
 library(survminer)
-
+library(ggplot2)
+library(paletteer)
+library(Rtsne)
+library(tinyarray)
 source("Functions.R")
 
 path_read <- "data/"
@@ -30,7 +33,7 @@ data_nmf <- data_nmf[rev(order(mads)), ]
 dataset <- data_nmf[1:gene_no, ]
 
 max_cluster_num <- 6
-title <- paste0(path_save, "/NMF/cluster-nk-ligands-k=6")
+title <- paste0(path_save, "/NMF/cluster-rank=6")
 results <- ConsensusClusterPlus(dataset,
   maxK = max_cluster_num,
   reps = 50,
@@ -66,7 +69,7 @@ for (i in Kvec) {
   M <- results[[i]]$consensusMatrix
   Fn <- ecdf(M[lower.tri(M)])
   PAC[i - 1] <- Fn(x2) - Fn(x1)
-} # end for i
+}
 
 # The optimal K
 optK <- Kvec[which.min(PAC)]
@@ -115,23 +118,17 @@ ggsurvplot(sfit,
 )
 
 ###
-
 exp <- dataset %>% as.data.frame()
 colnames(exp) <- gsub("-", ".", colnames(exp))
 exp <- exp[, samples]
 #
 # PCA
-library(tinyarray)
 draw_pca(exp, Cluster$., addEllipses = F)
 # Tsne
-library(Rtsne)
 tsne_out <- Rtsne(t(exp), perplexity = 30)
 pdat <- data.frame(tsne_out$Y, factor(Cluster$.))
 colnames(pdat) <- c("Y1", "Y2", "group")
-head(pdat)
 
-library(ggplot2)
-library(paletteer)
 ggplot(pdat, aes(Y1, Y2)) +
   geom_point(aes(Y1, Y2, fill = group), shape = 21, color = "black") +
   stat_ellipse(aes(color = group, fill = group),
@@ -143,8 +140,6 @@ ggplot(pdat, aes(Y1, Y2)) +
   scale_fill_paletteer_d("RColorBrewer::Set3") +
   theme_classic() +
   theme(legend.position = "top")
-
-##########
 sample_label <- read.table(paste(title, "/sample_cluster_4.csv", sep = ""),
   header = F,
   sep = ",",
