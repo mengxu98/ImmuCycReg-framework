@@ -6,13 +6,13 @@ library("enrichplot")
 library("ggplot2")
 library("GOplot")
 library("ggrepel")
-library(ggnewscale)
+library("ggnewscale")
 
 for (j in 1:4) {
-       if (dir.exists(paste("D:/test/immune landscape_LUAD/immune cycle/results/cluster", j, sep = "")) == F) {
-              dir.create(file.path("D:/test/immune landscape_LUAD/immune cycle/results", paste("cluster", j, sep = "")))
+       if (dir.exists(paste("immune cycle/results/cluster", j, sep = "")) == F) {
+              dir.create(file.path("immune cycle/results", paste("cluster", j, sep = "")))
        }
-       dir <- paste("D:/test/immune landscape_LUAD/immune cycle/results/cluster", j, sep = "")
+       dir <- paste("immune cycle/results/cluster", j, sep = "")
        # print(dir)
        setwd(dir)
 
@@ -113,8 +113,6 @@ for (j in 1:4) {
               height = 8
        )
        ####
-
-
        GO_ego <- read.table("GO/GO_kk.txt", header = T, sep = "\t", check.names = F)
 
        go <- data.frame(
@@ -131,16 +129,11 @@ for (j in 1:4) {
        symbol2id_go <- read.table("symbol2id.txt", sep = "\t", header = T, check.names = F)
        symbol2id_go <- symbol2id_go[is.na(symbol2id_go[, "entrezID"]) == F, ]
        ####
-
        GO_circ_data <- data.frame(ID = symbol2id_go$gene, logFC = symbol2id_go$logFC)
-
        row.names(GO_circ_data) <- GO_circ_data[, 1]
-
        GO_circ <- circle_dat(go, GO_circ_data)
-
        termNum <- 5
        geneNum <- nrow(GO_circ_data)
-
        chord <- chord_dat(GO_circ, GO_circ_data[1:geneNum, ], go$Term[1:termNum])
        # png(file="GO/GO_circ.png",width = 800,height = 600)
        # GOChord(chord,
@@ -210,7 +203,6 @@ for (j in 1:4) {
               pvalueCutoff = 0.05,
               qvalueCutoff = 0.05
        )
-
        write.table(kegg_kk, file = "KEGG/kegg_kk.txt", sep = "\t", quote = F, row.names = F)
 
        p5 <- barplot(kegg_kk,
