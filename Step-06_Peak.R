@@ -15,7 +15,6 @@ library(patchwork)
 #2:make bed file
 
 # Load data ---------------------------------------------------------------
-
 load("../data ATAC-seq/peak_luad.Rdata")
 if (TRUE) {
   load("../data ATAC-seq/genes_adj_peak.Rdata")
@@ -34,7 +33,6 @@ if (TRUE) {
 }
 
 # Run ---------------------------------------------------------------------
-
 peak_seq_pos_all <- c()
 volcano_plot_pvalue_list <- list()
 for (j in 1:length(target_genes_list)) {
@@ -42,9 +40,7 @@ for (j in 1:length(target_genes_list)) {
   if (!dir.exists('../results ATAC-seq/BED')) {
     dir.create('../results ATAC-seq/BED')
   }
-  
   target_gene <- target_genes_list[j]
-  
   peak_around_gene <- c()
   for(i in 1:nrow(genes_adj_peak)){
     bool_exsit <- target_gene%in%genes_list[[i]]
@@ -54,7 +50,6 @@ for (j in 1:length(target_genes_list)) {
   }
 
   # choice 1: correlation ---------------------------------------------------
-  
   if (!dir.exists(paste0('../results ATAC-seq/corrgram/',target_gene))) {
     dir.create(paste0('../results ATAC-seq/corrgram/', target_gene), recursive = TRUE)
   }
@@ -64,7 +59,6 @@ for (j in 1:length(target_genes_list)) {
   X <- t(peak_luad[peak_around_gene, sample_name]) %>% as.data.frame(); peak_name <- colnames(X)
 
   for (i in 1:length(peak_name)) {
-    
     peak <- X[,i]
     peak_data <- cbind.data.frame(Y,peak)
     names(peak_data) <- c(target_gene, peak_name[i])
@@ -80,7 +74,6 @@ for (j in 1:length(target_genes_list)) {
              height = 3)
     
   }
-  
   peak_corr_r <- c()
   peak_corr_p <- c()
   for(i in 1:length(peak_around_gene)){
@@ -120,7 +113,6 @@ for (j in 1:length(target_genes_list)) {
   # http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/
   
   pos_col_name <- c("chrom", "chromStart", "chromEnd", "strand")
-  
   temp_res <- geneinfo_df[which(geneinfo_df[, "gene_name"] == target_gene), c('seqnames',"type",'gene_id','start','end','width')]
   temp_res <- temp_res[which(temp_res[, "type"] == "transcript"),]
   #select the NEAREST long region
@@ -208,7 +200,6 @@ for (j in 1:length(target_genes_list)) {
   }
   
 }
-
 
 volcano_plot_pvalue_list[[1]] + 
   volcano_plot_pvalue_list[[2]] +  
