@@ -5,14 +5,13 @@ library(psych)
 library(ggcorrplot)
 
 load('../data/LUAD_raw/luad-rsem-count-tcga-t-drop-dupli-15.Rdata')
-load('../data CNV/raw_tcga_cnv.Rdata')#cnv
-#####################split data in the target genes and samples with mRNA data
+load('../data CNV/raw_tcga_cnv.Rdata')
 
+# Split data in the target genes and samples with mRNA data
 sample_label_sur <- read.table('../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv',
                                header = F,
                                sep=',',
                                check.names=FALSE)
-table(sample_label_sur$V2)
 
 correction_results_all <- c()
 for (k in 1:4) {
@@ -45,7 +44,6 @@ for (k in 1:4) {
     cor_results <- c(cor_results,corr_ligands$r)
     cor_results_p <- c(cor_results_p,corr_ligands$p)
   }
-  ####
   strong_cor_self <- order(cor_results,decreasing=TRUE)
   colnames(cnv_temp)[strong_cor_self[1:3]]
 
@@ -90,7 +88,6 @@ for (k in 1:4) {
   correction_results_all <- rbind.data.frame(correction_results_all, correction_results)
 
 }
-
 names(correction_results_all) <- c("Gene","CNVs","Cluster")
 write.csv(correction_results_all,"../L0/results/CNV.csv",row.names = F)
 
