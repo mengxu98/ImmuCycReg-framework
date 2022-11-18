@@ -1,24 +1,10 @@
 
 
 rm(list = ls())
-library(igraph)
-library(RColorBrewer)
-library(broom)
-library(olsrr)
-library(car)
-library(HH)
-library(Metrics)
-library(plotmo)
-library(L0Learn)
-library(tidyverse)
-library(caret)
-library(glmnet)
 library(tidyr)
 library(tidyverse)
-library(RColorBrewer)
-library(ggthemes)
-library(psych)
-library(ggpubr)
+library(L0Learn)
+library(glmnet)
 library(GENIE3)
 
 TRN_L0_all_list <- list()
@@ -108,7 +94,6 @@ for (d in c(1, 3, 4)) {
       temp <- which(temp != 0)
       temp <- colnames(X)[temp]
       temp <- na.omit(temp)
-      # temp
 
       if (length(temp) == 1) {
         X_Y <- cbind(X[, temp], Y)
@@ -168,6 +153,5 @@ for (d in c(1, 3, 4)) {
     sep = "\t",
     quote = F
   )
-  # }
 }
 
