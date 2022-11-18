@@ -3,18 +3,12 @@
 library(patchwork)
 library(ggplot2)
 library(reshape2)
-library(ggpubr)
 library(dplyr)
 library(tidyr)
-library(pheatmap)
-library(tidyverse)
-library(RColorBrewer)
 theme_set(theme_pubclean())
-pkgs <- c("matrixStats", "pheatmap", "RColorBrewer", "tidyverse", "cowplot","ggpubr","bslib","ggthemes")
+pkgs <- c("matrixStats", "pheatmap", "RColorBrewer", "tidyverse", "cowplot", "ggpubr", "bslib", "ggthemes")
 lapply(pkgs, library, character.only = T)
-
 #------------------------------------------------------------------------------#
-
 data_ALL_group <- read.table('data/data_ALL_group.txt',
                              row.names = 1,
                              header = T,
@@ -53,9 +47,7 @@ p_list <- list()
 cells <- c("Plasma.cells","Th.cell", "Macrophages.M2","NK") #,"Plasma"
 
 for (i in 1:length(cells)) {
-  
   CIBERSORT_Results_select <- CIBERSORT_Results_all[,c(cells[i],"group")]
-  
   CIBERSORT_barplot_all <- CIBERSORT_Results_select %>%
     as.data.frame() %>%
     pivot_longer(cols = 1:c(ncol(CIBERSORT_Results_select)-1),
