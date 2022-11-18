@@ -16,7 +16,7 @@ colSums(raw_tcga)
 raw_tcga <- as.data.frame(raw_tcga)
 write.table(raw_tcga, "data/luad-rsem-TPM-tcga-t_normlized.txt", quote = F, sep = "\t")
 save(raw_tcga, file = "data/luad-rsem-TPM-tcga-t_normlized.Rdata")
-#### GTEx####
+# GTEx
 gtex_raw <- read.table("data/lung-rsem-fpkm-gtex_normlized.txt.gz",
   header = T,
   sep = "\t",
@@ -68,13 +68,12 @@ Cibersort_data_tcga_gtex <- cbind.data.frame(
   tcga_cluster4,
   raw_gtex
 )
-# write.csv(Cibersort_data_tcga_gtex,'TPM.csv')
 write.table(Cibersort_data_tcga_gtex, "data/Cibersort_data_ALL.txt",
   sep = "\t",
   quote = F,
   row.names = T
 )
-### -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 tcga_cluster1_t <- as.data.frame(t(tcga_cluster1))
 tcga_cluster2_t <- as.data.frame(t(tcga_cluster2))
 tcga_cluster3_t <- as.data.frame(t(tcga_cluster3))
@@ -92,7 +91,7 @@ tcga_cluster2_g <- as.data.frame(t(tcga_cluster2_t))
 tcga_cluster3_g <- as.data.frame(t(tcga_cluster3_t))
 tcga_cluster4_g <- as.data.frame(t(tcga_cluster4_t))
 raw_gtex_g <- as.data.frame(t(raw_gtex_t))
-### -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 data_ALL_group <- cbind.data.frame(
   tcga_cluster1_g,
   tcga_cluster2_g,
@@ -105,7 +104,7 @@ write.table(data_ALL_group, "data/data_ALL_group.txt",
   quote = F,
   row.names = T
 )
-### -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 sample_label_20 <- read.table("data/sample_20.csv",
   sep = ",",
   header = T,
