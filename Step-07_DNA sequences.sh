@@ -22,10 +22,10 @@
 # sudo -s
 bedtools getfasta -fi hg38.fa -bed allBED.bed > results.fa
 
-# 3) samtool tool is more convenient and the results are consistent with bedtools
-# samtools faidx hg38.fa chr4:122548477-122548979
+  # 3) samtool tool is more convenient and the results are consistent with bedtools
+  # samtools faidx hg38.fa chr4:122548477-122548979
 
-# 4) Obtain the TFs list
+# 4) Obtain TFs list from PROMO (a web tool)
 # http://alggen.lsi.upc.es/cgi-bin/promo_v3/promo/promoinit.cgi?dirDB=TF_8.3
 
 # 5) Determine the gene name
