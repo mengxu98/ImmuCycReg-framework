@@ -52,7 +52,7 @@ icl[["itemConsensus"]][4:6, ]
 
 for (i in 2:max_cluster_num) {
   write.table(results[[i]][["consensusClass"]],
-    file = paste(title, paste(paste("sample_cluster_", as.character(i), sep = ""), ".csv", sep = ""), sep = "//"),
+    file = paste(title, paste(paste0("sample_cluster_", as.character(i), sep = ""), ".csv"), sep = "//"),
     na = "",
     col.names = FALSE,
     sep = ","
@@ -63,7 +63,7 @@ Kvec <- 2:6
 x1 <- 0.1
 x2 <- 0.9 # threshold defining the intermediate sub-interval
 PAC <- rep(NA, length(Kvec))
-names(PAC) <- paste("K=", Kvec, sep = "") # from 2 to maxK
+names(PAC) <- paste0("K=", Kvec) # from 2 to maxK
 
 for (i in Kvec) {
   M <- results[[i]]$consensusMatrix
@@ -140,7 +140,7 @@ ggplot(pdat, aes(Y1, Y2)) +
   scale_fill_paletteer_d("RColorBrewer::Set3") +
   theme_classic() +
   theme(legend.position = "top")
-sample_label <- read.table(paste(title, "/sample_cluster_4.csv", sep = ""),
+sample_label <- read.table(paste0(title, "/sample_cluster_4.csv"),
   header = F,
   sep = ",",
   check.names = FALSE
