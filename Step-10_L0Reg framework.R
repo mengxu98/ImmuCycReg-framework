@@ -3,14 +3,8 @@
 rm(list = ls())
 library("igraph")
 library("RColorBrewer")
-library("broom")
-library("olsrr")
-library("car")
-library("HH")
 library("Metrics")
-library("plotmo")
 library("L0Learn")
-library("caret")
 library("glmnet")
 library("tidyr")
 library("tidyverse")
@@ -22,7 +16,7 @@ library("GENIE3")
 load("data/luad-rsem-fpkm-tcga-t_normlized.Rdata")
 raw_tcga <- scale(raw_tcga)
 
-sample_label <- read.table("../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv",
+sample_label <- read.table("NMF/cluster-rank=8/sample_cluster_4.csv",
   header = FALSE,
   sep = ",",
   check.names = FALSE
@@ -44,17 +38,11 @@ for (j in 1:4) {
 
   message(paste0("------------cluster", j, "start------------"))
 
-  if (T) {
-    genes_list <- read.table(paste("data/genes_list", ".txt", sep = ""),
-      header = TRUE,
-      row.names = 1
-    )
-  } else {
-    genes_list <- read.table(paste("data/genes_list_cluster", j, ".txt", sep = ""),
-      header = TRUE,
-      row.names = 1
-    )
-  }
+  genes_list <- read.table(paste("data/genes_list", ".txt", sep = ""),
+    header = TRUE,
+    row.names = 1
+  )
+
   cluster <- sample_label[which(sample_label$V2 == j), 1]
   Y_raw <- raw_tcga[row.names(genes_list), cluster]
   maxSNVSize <- 100
@@ -136,7 +124,7 @@ for (j in 1:4) {
       )
 
       if (peak_corr$p < 1 && peak_corr$r > 0) {
-        #### L0####
+        #L0
         fit_L0 <- L0Learn.fit(X, Y,
           penalty = "L0",
           maxSuppSize = maxSNVSize
@@ -151,10 +139,7 @@ for (j in 1:4) {
           lambda = lambda_L0,
           gamma = gamma_L0
         )
-
         y_hat <- as.vector(y_cat)
-        plot(fit_L0, gamma = gamma_L0, showLines = TRUE)
-
         temp <- coef(fit_L0,
           lambda = lambda_L0,
           gamma = gamma_L0
@@ -163,7 +148,6 @@ for (j in 1:4) {
         temp <- temp[-1]
         temp <- which(temp != 0)
         temp <- colnames(X)[temp]
-        temp
 
         if (length(temp) == 1) {
           X_Y <- cbind(X[, temp], Y)
@@ -354,15 +338,6 @@ names(Contrast_all_box_data) <- c("L0Reg framework", "GENIE3")
 mean(Contrast_all_box_data$`L0Reg framework`)
 mean(Contrast_all_box_data$GENIE3)
 
-library(patchwork)
-library(ggplot2)
-library(reshape2)
-library(ggpubr)
-library(dplyr)
-library(tidyr)
-library(pheatmap)
-library(tidyverse)
-library(RColorBrewer)
 theme_set(theme_pubclean())
 pkgs <- c("matrixStats", "pheatmap", "RColorBrewer", "tidyverse", "cowplot", "ggpubr", "bslib", "ggthemes")
 lapply(pkgs, library, character.only = T)
