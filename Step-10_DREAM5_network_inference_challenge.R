@@ -1,7 +1,7 @@
 
 
 rm(list = ls())
-library("igraph")
+library(igraph)
 library(RColorBrewer)
 library(broom)
 library(olsrr)
@@ -18,8 +18,8 @@ library(tidyverse)
 library(RColorBrewer)
 library(ggthemes)
 library(psych)
-library("ggpubr")
-library("GENIE3")
+library(ggpubr)
+library(GENIE3)
 
 TRN_L0_all_list <- list()
 links_list <- list()
@@ -42,9 +42,7 @@ for (d in c(1, 3, 4)) {
       verbose = TRUE
     )
     time_GRN <- proc.time() - pre_time
-
     links <- getLinkList(weightMat)
-
     write.table(links,
       paste0(
         "results/GENIE3/DREAM5_NetworkInference_myteam_Network",
@@ -56,7 +54,6 @@ for (d in c(1, 3, 4)) {
       sep = "\t",
       quote = F
     )
-
     links_list[[d]] <- links
   }
 
@@ -81,14 +78,12 @@ for (d in c(1, 3, 4)) {
       bestModel <- glmnet::glmnet(X, Y, family = "gaussian", lambda = cross$lambda.min, standardize = FALSE)
       wghts <- abs(as.vector(bestModel$beta))
 
-      #### L0####
+      #L0
       cvfit_L0 <- L0Learn.cvfit(X, Y, nFolds = 10)
       fit_L0 <- L0Learn.fit(X, Y,
         penalty = "L0",
         maxSuppSize = maxSNVSize
       )
-      # print(fit_L0)
-
       # Extract coefficient at middle lambda
       fit_L0_information <- as.data.frame(print(fit_L0))
       fit_L0_information <- fit_L0_information[order(fit_L0_information$suppSize, decreasing = TRUE), ]
@@ -102,7 +97,6 @@ for (d in c(1, 3, 4)) {
       )
 
       y_hat <- as.vector(y_cat)
-      # plot(fit_L0, gamma = gamma_L0, showLines=TRUE)
 
       temp <- coef(fit_L0,
         lambda = lambda_L0,
@@ -128,8 +122,6 @@ for (d in c(1, 3, 4)) {
       lmfit <- lm(Y ~ ., data = X_Y_frame)
       fit_temp <- summary(lmfit)
       res_data <- as.matrix(fit_temp$coefficients)
-      # res_data
-
       res_data_f <- as.data.frame(res_data)
       res_data_f <- res_data_f[which(res_data_f$`Pr(>|t|)` <= 0.05), ]
 
@@ -137,9 +129,7 @@ for (d in c(1, 3, 4)) {
         if (rownames(res_data_f)[1] == "(Intercept)") {
           res_data_f <- res_data_f[-1, ]
         }
-
         res_data_f$strength <- abs(res_data_f$Estimate)
-
         for (k in 1:nrow(res_data_f)) {
           if (res_data_f$Estimate[k] < 0) {
             res_data_f$reg[k] <- "2"
