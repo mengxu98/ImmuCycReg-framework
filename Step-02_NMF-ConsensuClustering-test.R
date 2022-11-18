@@ -20,7 +20,7 @@ tcga_luad <- readRDS(paste0(path_save, "tcga_luad.rds"))
 feature_genes <- read.csv(paste0(path_read, "Genes_2230.csv"))
 dataset <- tcga_luad[feature_genes$Gene, ]
 
-# The test is to determine the rank value
+# Determine the rank value
 if (F) {
   seeds <- c(20220101, 2022)
   percent_genes <- c(0.05, 0.1, 0.15, 0.2, 30, 50, 100)
@@ -111,7 +111,7 @@ write.table(Cluster,
 )
 
 Cluster$sample <- rownames(Cluster)
-load("../SurvivalAnalysis/survival_LUAD.Rdata")
+load("SurvivalAnalysis/survival_LUAD.Rdata")
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
 samples <- intersect(rownames(Cluster), rownames(myclinicaldata))
 Cluster <- Cluster[samples, ] %>% as.data.frame()
@@ -144,7 +144,6 @@ ggsurvplot(sfit,
   xlab = "Survival time (month)"
 )
 
-###
 dataset <- as.matrix(data_derived)
 dataset <- log(dataset + 1, 2)
 gene_no <- dim(dataset)[1] * 0.1
@@ -173,7 +172,6 @@ consensusmap(res_4,
   annColors = list(cluster = c("1" = jco[1], "2" = jco[2], "3" = jco[3], "4" = jco[4]))
 )
 
-###
 dataset <- as.matrix(data_derived)
 dataset <- log(dataset + 1, 2)
 gene_no <- dim(dataset)[1] * 0.15
@@ -206,7 +204,7 @@ par(opar)
 consensusmap(res_4)
 consensusmap(res_4, annCol = dataset, tracks = NA)
 
-res_cluter4 <- read.csv("../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv", header = F)
+res_cluter4 <- read.csv("cluster-rank=8/sample_cluster_4.csv", header = F)
 exp <- dataset %>% as.data.frame()
 colnames(exp) <- gsub("-", ".", colnames(exp))
 exp <- exp[, samples]
