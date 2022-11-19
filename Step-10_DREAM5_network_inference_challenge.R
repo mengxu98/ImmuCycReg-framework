@@ -10,14 +10,15 @@ library(GENIE3)
 TRN_L0_all_list <- list()
 links_list <- list()
 for (d in c(1, 3, 4)) {
-  dataset <- read.table(paste0(
-    "DREAM5_network_inference_challenge/Network",
-    d,
-    "/input data/net",
-    d,
-    "_expression_data.tsv"
-  ),
-  header = T
+  dataset <- read.table(
+    paste0(
+      "DREAM5_network_inference_challenge/Network",
+      d,
+      "/input data/net",
+      d,
+      "_expression_data.tsv"
+    ),
+    header = T
   )
   if (T) {
     genie3_data <- as.matrix(dataset) %>% t()
@@ -64,7 +65,7 @@ for (d in c(1, 3, 4)) {
       bestModel <- glmnet::glmnet(X, Y, family = "gaussian", lambda = cross$lambda.min, standardize = FALSE)
       wghts <- abs(as.vector(bestModel$beta))
 
-      #L0
+      # L0
       cvfit_L0 <- L0Learn.cvfit(X, Y, nFolds = 10)
       fit_L0 <- L0Learn.fit(X, Y,
         penalty = "L0",
@@ -154,4 +155,3 @@ for (d in c(1, 3, 4)) {
     quote = F
   )
 }
-

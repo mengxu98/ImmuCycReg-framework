@@ -46,7 +46,7 @@ load("data/allgene_tcga_mrna.Rdata")
 load("data/geneinfo_df.Rdata")
 
 candidate_peaks <- read.csv("all_peaks.csv")
-negative_gene <- c('CCL22','CCL20','CCL28','EZH2','NT5E','LAG3','RAET1G')
+negative_gene <- c("CCL22", "CCL20", "CCL28", "EZH2", "NT5E", "LAG3", "RAET1G")
 
 target_gene_list <- read.table("genes.txt", header = T)
 format_result_all <- c()
@@ -91,7 +91,7 @@ for (k in seq_along(t(target_gene_list))) {
   if (!dir.exists("../results ATAC-seq/T-test")) {
     dir.create("../results ATAC-seq/T-test")
   }
-  
+
   high_exp_sample <- c()
   down_exp_sample <- c()
   gene_sample <- c()
@@ -502,7 +502,6 @@ for (k in 1:nrow(target_gene_list)) {
     score_genes <- cbind.data.frame(target_gene, Score)
     Score_genes <- rbind.data.frame(Score_genes, score_genes)
   }
-
 }
 
 write.table(Score_genes,
@@ -511,4 +510,3 @@ write.table(Score_genes,
   row.names = F,
   col.names = T
 )
-

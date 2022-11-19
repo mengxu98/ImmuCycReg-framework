@@ -119,4 +119,3 @@ write.table(data_20samples, "data/Cibersort_data_20samples.txt",
   quote = F,
   row.names = T
 )
-

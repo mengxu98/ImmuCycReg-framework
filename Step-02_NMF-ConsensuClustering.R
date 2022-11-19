@@ -145,4 +145,3 @@ sample_label <- read.table(paste0(title, "/sample_cluster_4.csv"),
   sep = ",",
   check.names = FALSE
 )
-
