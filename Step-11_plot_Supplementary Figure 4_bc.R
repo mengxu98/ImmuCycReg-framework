@@ -10,7 +10,7 @@ library(rtracklayer)
 library(svglite)
 library(patchwork)
 
-reg_num_all <- read.csv(paste0("results/", "Edge_reg_num.csv"))
+reg_num_all <- read.csv("results/Edge_reg_num.csv")
 reg_num_all_dataset <- melt(reg_num_all[, c("Gene", "ImmuCycReg_framework", "Datasets")])
 
 p1 <- ggplot() +
@@ -42,11 +42,11 @@ p1 / p2 +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom") +
     theme(text = element_text(size = 12))
-theme(text = element_text(family = "Times New Roman")) # ,face = "bold"
+theme(text = element_text(family = "Times New Roman"))
 
 ggsave(paste0("../manuscript_review/figure/", "Supplementary Figure 4_bc.png"),
   width = 7.5, height = 3, dpi = 600
 )
 ggsave(paste0("../manuscript_review/figure/", "Supplementary Figure 4_bc.pdf"),
-  width = 9, height = 3
+  width = 7.5, height = 3, dpi = 600
 )
