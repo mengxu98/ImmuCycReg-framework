@@ -2,12 +2,9 @@
 
 rm(list = ls())
 library(reshape)
-library(psych)
 library(ggplot2)
 library(ggpubr)
 library(ggthemes)
-library(rtracklayer)
-library(svglite)
 library(patchwork)
 
 reg_num_all <- read.csv("results/Edge_reg_num.csv")
