@@ -4,7 +4,7 @@
 # 1) Download hg38.fa file (938M)
 # ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/
 
-# 2) Install bedtools：
+# 2) Install bedtools (Note: please run it on LINUX OS):
   # Way 1:
   # sudo apt-get update
   # apt install bedtools
@@ -13,8 +13,10 @@
   # tar xzvf bedtools-v2.30.0 
   # cd bedtools2
   # make
-  # # sudo apt install build-essential # if missing gcc
-  # # sudo apt-get install zlib1g-dev # if missing Zlib.h
+  # # If you encounter this problem: missing gcc, please:
+  # # sudo apt install build-essential
+  # # If you encounter this problem: missing Zlib.h, please:
+  # # sudo apt-get install zlib1g-dev
   # cd bin/
   # export PATH=$PWD:$PATH
 
