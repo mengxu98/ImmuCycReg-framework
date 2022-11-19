@@ -145,7 +145,6 @@ survival_data <- function(cancer = NULL, immune_genes = NULL) {
   }
 }
 
-
 Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
   up_thres <- quantile(peak_luad[, target_sample_input])[3]
   # print(up_thres)
@@ -406,63 +405,4 @@ FrameNegative <- function(res_frame_input) {
   res_frame_negative$TRANSFAC_Curated <- TRANSFAC_Curated_hit
   res_frame_negative$TRANSFAC_Predicted <- TRANSFAC_Predicted_hit
   return(res_frame_negative)
-}
-
-regulation_score_calculation <- function(results_summary_input,
-                                         target_gene,
-                                         target_sample,
-                                         common_samples,
-                                         raw_tcga,
-                                         immune_cell,
-                                         CIBERSORT_Results_tcga) {
-  immune_score_all <- c()
-  immune_score_res <- 0
-  if (length(results_summary_input) > 1) {
-    q <- 1
-    while (q <= length(results_summary_input)) {
-      p <- 1
-      while (p <= length(immune_cell)) {
-        cor_res <- corr.test(t(raw_tcga[target_gene, common_samples]),
-          CIBERSORT_Results_tcga[common_samples, immune_cell[p]],
-          method = "spearman",
-          adjust = "none"
-        )
-        # cor_res$r # r值表示在样本中变量间的相关系数，表示相关性的大小
-        # cor_res$p # p值是检验值，是检验两变量在样本来自的总体中是否存在和样本一样的相关性
-        if (i %in% c("1", "2", "4", "5", "6", "7", "8", "10", "11", "12", "13", "14", "15", "17")) {
-          if (abs(cor_res$p) < 0.05) { # abs(cor_res$r) > 0.6 &
-            immune_score_res <- immune_score_res + CIBERSORT_Results_tcga[target_sample, p]
-          }
-        } else {
-          if (abs(cor_res$p) < 0.05) {
-            immune_score_res <- immune_score_res - CIBERSORT_Results_tcga[target_sample, p]
-          }
-        }
-        p <- p + 1
-      }
-      ImmuneScore <- length(results_summary_input[[q]]) / nrow(gene_list) / 20 + immune_score_res
-      SampleSelected <- names(results_summary_input)[q]
-      immune_score_sample <- cbind.data.frame(SampleSelected, ImmuneScore)
-      immune_score_all <- rbind.data.frame(immune_score_all, immune_score_sample)
-      q <- q + 1
-    }
-  }
-  immune_score_all <- as.data.frame(immune_score_all)
-  return(immune_score_all)
-}
-
-immune_score_calculation <- function(results_summary_input) {
-  immune_score_all <- c()
-  if (length(results_summary_input) > 1) {
-    q <- 1
-    while (q <= length(results_summary_input)) {
-      ImmuneScore <- length(results_summary_input[[q]]) / nrow(gene_list) / 10
-      SampleSelected <- names(results_summary_input)[q]
-      immune_score_sample <- cbind.data.frame(SampleSelected, ImmuneScore)
-      immune_score_all <- rbind.data.frame(immune_score_all, immune_score_sample)
-      q <- q + 1
-    }
-  }
-  immune_score_all <- as.data.frame(immune_score_all)
-  return(immune_score_all)
 }
