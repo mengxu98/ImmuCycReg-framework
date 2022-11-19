@@ -1,14 +1,12 @@
 
 
 rm(list = ls())
+library(reshape)
 library(ggplot2)
 library(ggpubr)
-library(ComplexHeatmap)
-library(psych)
-library(ggpubr)
 library(ggthemes)
-library(rtracklayer)
-library(svglite)
+library(patchwork)
+library(ComplexHeatmap)
 
 # Load --------------------------------------------------------------------
 if (T) {
