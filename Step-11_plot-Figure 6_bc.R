@@ -1,7 +1,12 @@
 
 
-library(patchwork)
+rm(list = ls())
 library(reshape)
+library(ggplot2)
+library(ggpubr)
+library(ggthemes)
+library(patchwork)
+
 genes_list <- read.table(paste("data/genes_list", ".txt", sep = ""),
   header = TRUE
 )
