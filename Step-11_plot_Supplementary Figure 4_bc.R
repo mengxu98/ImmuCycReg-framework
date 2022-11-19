@@ -11,8 +11,8 @@ library(svglite)
 library(patchwork)
 
 reg_num_all <- read.csv("results/Edge_reg_num.csv")
-reg_num_all_dataset <- melt(reg_num_all[, c("Gene", "ImmuCycReg_framework", "Datasets")])
 
+reg_num_all_dataset <- melt(reg_num_all[, c("Gene", "ImmuCycReg_framework", "Datasets")])
 p1 <- ggplot() +
   geom_bar(
     data = reg_num_all_dataset,
