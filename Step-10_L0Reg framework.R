@@ -124,7 +124,7 @@ for (j in 1:4) {
       )
 
       if (peak_corr$p < 1 && peak_corr$r > 0) {
-        #L0
+        # L0
         fit_L0 <- L0Learn.fit(X, Y,
           penalty = "L0",
           maxSuppSize = maxSNVSize
@@ -358,4 +358,3 @@ ggplot(data = Contrast_all_box, aes(x = Method, y = Correction)) +
   theme_bw() +
   # geom_jitter(color="gray")+
   geom_jitter()
-
