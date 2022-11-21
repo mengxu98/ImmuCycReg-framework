@@ -42,8 +42,12 @@ p1 / p2 +
 theme(text = element_text(family = "Times New Roman"))
 
 ggsave(paste0("../manuscript_review/figure/", "Supplementary Figure 4_bc.png"),
-  width = 7.5, height = 3, dpi = 600
+  width = 7.5,
+  height = 3,
+  dpi = 600
 )
 ggsave(paste0("../manuscript_review/figure/", "Supplementary Figure 4_bc.pdf"),
-  width = 7.5, height = 3, dpi = 600
+  width = 7.5,
+  height = 3,
+  dpi = 600
 )
