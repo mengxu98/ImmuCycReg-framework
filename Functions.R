@@ -211,7 +211,7 @@ formatNegativeResult <- function(results_summary_input) {
 SampleHit <- function(results_summary_input, hit_tf) {
   hit_count <- c()
   sample_level <- c()
-  for (i in 1:length(results_summary_input)) { # each sample
+  for (i in 1:length(results_summary_input)) {
     j <- 1
     count_temp <- 0
     while (j <= length(results_summary_input[[i]])) {
@@ -233,7 +233,7 @@ SampleHit <- function(results_summary_input, hit_tf) {
 SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
   sample_level <- c()
   # tem_ind=0
-  for (i in high_exp_sample_input) { # each sample
+  for (i in high_exp_sample_input) {
     if (hit_tf %in% row.names(raw_tcga_cnv) & i %in% colnames(raw_tcga_cnv)) {
       # tem_ind=tem_ind+1
       # print(tem_ind)
