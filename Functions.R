@@ -41,7 +41,7 @@ package.check <- function(packages) {
         gh_suggest(package)
       }
     } else {
-      library(package, character.only = T)
+      library(package, character.only = TRUE)
     }
   }
 }
