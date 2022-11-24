@@ -140,8 +140,8 @@ survival_data <- function(cancer = NULL, immune_genes = NULL) {
     cna[is.na(cna)] <- ""
     cna[cna == "DIPLOID"] <- ""
     rownames(cna) <- rn
-    myclinicaldata <- getClinicalData(mycgds, mycaselist)
-    save(expr, myclinicaldata, cna, mut_df, file = paste0(path_save, "survival_input.Rdata"))
+    myClinicalData <- getClinicalData(mycgds, mycaselist)
+    save(expr, myClinicalData, cna, mut_df, file = paste0(path_save, "survival_input.Rdata"))
   }
 }
 
