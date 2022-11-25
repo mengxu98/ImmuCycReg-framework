@@ -43,16 +43,12 @@ colors <- structure(1:5, names = c("-2", "-1", "0", "1", "2"))
 colors <- circlize::colorRamp2(c(-2, 0, 2), c("blue", "white", "red"))
 Heatmap(cnv_data, col = colors)
 
-
-
 mat <- as.matrix(cnv_data)
 mat[which(mat == -2)] <- "HOMDEL"
 mat[which(mat == -1)] <- "AMP"
 mat[which(mat == 0)] <- ""
 mat[which(mat == 1)] <- "AMP1"
 mat[which(mat == 2)] <- "MUT1"
-
-
 
 col <- c("HOMDEL" = "#330099", "AMP" = "#0099cc", "AMP1" = "#ff6600", "MUT1" = "#ff0066")
 alter_fun <- list(
@@ -189,5 +185,4 @@ ht_list <- Heatmap(log10(expmat1 + 1),
   column_title = column_title,
   heatmap_legend_param = heatmap_legend_param
 )
-
 draw(ht_list, n = 2)
