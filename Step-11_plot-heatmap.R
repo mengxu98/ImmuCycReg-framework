@@ -21,16 +21,16 @@ mat[which(mat == 2)] <- "MUT1"
 
 Heatmap(log10(expmat + 1),
   name = "expr",
-  show_column_names = F,
+  show_column_names = FALSE,
   col = circlize::colorRamp2(c(0, 3, 5), c("#2c58af", "white", "#d43a35")),
-  width = unit(8, "cm"), cluster_rows = T, cluster_columns = T, show_row_dend = F, show_column_dend = T
+  width = unit(8, "cm"), cluster_rows = TRUE, cluster_columns = TRUE, show_row_dend = FALSE, show_column_dend = TRUE
 ) + oncoPrint(
   mat,
   alter_fun = alter_fun,
   col = col,
   column_title = column_title,
   heatmap_legend_param = heatmap_legend_param,
-  show_column_names = F,
+  show_column_names = FALSE,
   width = unit(8, "cm")
 )
 
@@ -120,7 +120,7 @@ oncoPrint(
 
 
 sample_label <- read.table("../results/2191/NMF/cluster-nk-ligands-k=8_raw/sample_cluster_4.csv",
-  header = F,
+  header = FALSE,
   sep = ",",
   check.names = FALSE
 )
@@ -150,32 +150,32 @@ mat4 <- mat[, cluster4]
 ht_list <- Heatmap(log10(expmat1 + 1),
   # matrix(rnorm(nrow(expmat) * ncol(expmat)), ncol = ncol(expmat)),
   name = "expr",
-  show_column_names = F,
+  show_column_names = FALSE,
   # clustering_distance_rows = "spearman",
   col = circlize::colorRamp2(c(0, 3, 5), c("#2c58af", "white", "#d43a35")),
   width = unit(5, "cm")
 ) + Heatmap(log10(expmat2 + 1),
   # matrix(rnorm(nrow(expmat) * ncol(expmat)), ncol = ncol(expmat)),
   name = "expr",
-  show_column_names = F,
+  show_column_names = FALSE,
   col = circlize::colorRamp2(c(0, 3, 5), c("#2c58af", "white", "#d43a35")),
   width = unit(5, "cm")
 ) + Heatmap(log10(expmat3 + 1),
   # matrix(rnorm(nrow(expmat) * ncol(expmat)), ncol = ncol(expmat)),
   name = "expr",
-  show_column_names = F,
+  show_column_names = FALSE,
   col = circlize::colorRamp2(c(0, 3, 5), c("#2c58af", "white", "#d43a35")),
   width = unit(5, "cm")
 ) + Heatmap(log10(expmat4 + 1),
   # matrix(rnorm(nrow(expmat) * ncol(expmat)), ncol = ncol(expmat)),
   name = "expr",
-  show_column_names = F,
+  show_column_names = FALSE,
   col = circlize::colorRamp2(c(0, 3, 5), c("#2c58af", "white", "#d43a35")),
   width = unit(5, "cm")
 ) + Heatmap(log10(expmat5 + 1),
   # matrix(rnorm(nrow(expmat) * ncol(expmat)), ncol = ncol(expmat)),
   name = "expr",
-  show_column_names = F,
+  show_column_names = FALSE,
   col = circlize::colorRamp2(c(0, 3, 5), c("#2c58af", "white", "#d43a35")),
   width = unit(5, "cm")
 ) + oncoPrint(
