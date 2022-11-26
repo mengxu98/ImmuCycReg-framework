@@ -10,7 +10,7 @@ library("reshape2")
 library("RColorBrewer")
 mycol <- c("gray", "white")
 
-results_10nets <- read.csv(paste0("evaluation_gnw_10_", 1, ".csv"))
+results_10nets <- read.csv("evaluation_gnw_10_1.csv")
 results_10nets <- results_10nets[, -1]
 
 df_res10 <- melt(results_10nets, id = "Dataset", variable.name = "Method", value.name = "AUROC")
@@ -27,7 +27,7 @@ p2 <- ggplot(df_res10, aes(x = Dataset, y = AUROC, fill = Method)) +
   theme_bw() +
   ylim(0, 1)
 
-results_5nets <- read.csv(paste0("evaluation_gnw_5_", 2, ".csv"))
+results_5nets <- read.csv("evaluation_gnw_5_2.csv")
 results_5nets <- results_5nets[, -1]
 
 df_res5 <- melt(results_5nets, id = "Dataset", variable.name = "Method", value.name = "AUROC")
