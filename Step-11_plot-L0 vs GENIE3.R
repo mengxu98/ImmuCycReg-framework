@@ -53,4 +53,4 @@ p1 + p2 + plot_layout(widths = c(1, 2)) +
     theme(text = element_text(size = 12)) +
     # theme(legend.title = element_text(color="134", size=16, face="bold"))+
     theme(text = element_text(family = "Times New Roman")) # ,face = "bold"
-# ggsave("../../manuscript_review/figure/Supplementary Figure 7.png",width = 8, height = 4, dpi =600)
+# ggsave("../Results/figure/Supplementary Figure 7.png",width = 8, height = 4, dpi =600)
