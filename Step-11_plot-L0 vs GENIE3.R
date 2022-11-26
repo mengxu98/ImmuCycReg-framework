@@ -8,7 +8,6 @@ library("ggthemes")
 library("patchwork")
 library("reshape2")
 library("RColorBrewer")
-
 mycol <- c("gray", "white")
 
 results_10nets <- read.csv(paste0("evaluation_gnw_10_", 1, ".csv"))
