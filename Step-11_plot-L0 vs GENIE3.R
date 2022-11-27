@@ -52,6 +52,5 @@ p_list[[1]] +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom") +
     theme(text = element_text(size = 17)) +
-    # theme(legend.title = element_text(color="134", size=16, face="bold"))+
     theme(text = element_text(family = "Times New Roman"))
 # ggsave("../Results/figure/Supplementary Figure 7.png",width = 8, height = 4, dpi =600)
