@@ -43,12 +43,15 @@ p1 <- ggplot(df_res5, aes(x = Dataset, y = AUROC, fill = Method)) +
   theme_bw() +
   ylim(0, 1)
 
-p1 + p2 + plot_layout(widths = c(1, 2)) +
+p_list[[1]] +
+  p_list[[2]] +
+  p_list[[3]] +
+  p_list[[4]] +
+  plot_layout(ncol = 4) +
   plot_annotation(tag_levels = "a") +
-  # plot_layout(ncol = 2) +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom") +
-    theme(text = element_text(size = 12)) +
+    theme(text = element_text(size = 17)) +
     # theme(legend.title = element_text(color="134", size=16, face="bold"))+
-    theme(text = element_text(family = "Times New Roman")) # ,face = "bold"
+    theme(text = element_text(family = "Times New Roman"))
 # ggsave("../Results/figure/Supplementary Figure 7.png",width = 8, height = 4, dpi =600)
