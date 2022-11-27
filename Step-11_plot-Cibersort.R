@@ -72,22 +72,27 @@ for (i in 1:length(cells)) {
   ) +
     guides(fill = guide_legend(title = NULL)) +
     stat_compare_means(
-      method = "wilcox.test", # wilcox.test, t.test
-      label = "p.signif", # "p.signif"-*, "p.format"-p
+      method = "wilcox.test", # wilcox.test
+      label = "p.signif",
       # label.y = 0.2,
       comparisons = my_comparisons,
+      # label.y = c(max(CIBERSORT_barplot_all$Composition)-0.09,
+      #             max(CIBERSORT_barplot_all$Composition)-0.07,
+      #             max(CIBERSORT_barplot_all$Composition)-0.05,
+      #             max(CIBERSORT_barplot_all$Composition)),
       label.y = c(
-        max(CIBERSORT_barplot_all$Composition) - 0.18,
-        max(CIBERSORT_barplot_all$Composition) - 0.12,
-        max(CIBERSORT_barplot_all$Composition) - 0.06,
-        max(CIBERSORT_barplot_all$Composition)
+        0.6,
+        0.55,
+        0.5,
+        0.45
       ),
       # step.increase = 0.01,
-      bracket.size = 0.6,
+      bracket.size = 0.3,
       sizen = 4,
       color = "#6699cc"
     ) + # steelblue
-    ylim(0, max(CIBERSORT_barplot_all$Composition) + 0.07) +
+    # ylim(0, max(CIBERSORT_barplot_all$Composition) + 0.07) +
+    ylim(0, 0.65) +
     labs(
       x = "",
       y = "Percentage"
