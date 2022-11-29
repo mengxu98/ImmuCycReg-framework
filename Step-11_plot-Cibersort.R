@@ -14,7 +14,6 @@ pkgs <- c("matrixStats", "pheatmap", "RColorBrewer", "tidyverse", "cowplot", "gg
 lapply(pkgs, library, character.only = T)
 
 #------------------------------------------------------------------------------#
-
 data_ALL_group <- read.table("data/data_ALL_group.txt",
   row.names = 1,
   header = T,
