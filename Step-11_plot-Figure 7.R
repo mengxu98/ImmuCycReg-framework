@@ -220,8 +220,8 @@ p_list[[1]] +
   plot_annotation(tag_levels = "a") +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom") +
-    theme(text = element_text(size = 17)) +
+    theme(text = element_text(size = 15)) +
     theme(text = element_text(family = "Times New Roman"))
 
-ggsave(paste0("../manuscript_review1/figure/", "Fig7.png"), width = 9, height = 4.2)
-ggsave(paste0("../manuscript_review1/figure/", "Fig7.pdf"), width = 9, height = 4.2)
+ggsave(paste0("../manuscript_review1/figure/", "Fig. 7.png"), width = 9, height = 4.2)
+ggsave(paste0("../manuscript_review1/figure/", "Fig, 7.pdf"), width = 9, height = 4.2)
