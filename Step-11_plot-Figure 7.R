@@ -223,5 +223,5 @@ p_list[[1]] +
     theme(text = element_text(size = 15)) +
     theme(text = element_text(family = "Times New Roman"))
 
-ggsave(paste0("../manuscript_review1/figure/", "Fig. 7.png"), width = 9, height = 4.2)
+ggsave(paste0("../manuscript_review1/figure/", "Fig. 7.png"), width = 9, height = 4.2, dpi = 600)
 ggsave(paste0("../manuscript_review1/figure/", "Fig, 7.pdf"), width = 9, height = 4.2)
