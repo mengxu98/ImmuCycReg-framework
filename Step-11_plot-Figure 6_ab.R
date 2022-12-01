@@ -58,5 +58,5 @@ p2 <- ggplot() +
 p2 + p1 + plot_layout(widths = c(1, 1)) +
   plot_annotation(tag_levels = "a")
 
-ggsave(paste0("figure/", "CNV_TFs.pdf"), width = 5.5, height = 5)
-ggsave(paste0("figure/", "CNV_TFs.png"), width = 5.5, height = 5)
+ggsave(paste0("figure/", "Fig. 6-CNV_TFs.pdf"), width = 5.5, height = 5)
+ggsave(paste0("figure/", "Fig. 6-CNV_TFs.png"), width = 5.5, height = 5, dpi = 600)
