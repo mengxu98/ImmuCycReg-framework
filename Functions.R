@@ -112,18 +112,18 @@ survival.data <- function(cancerType = NULL, immuneGene = NULL) {
     getGeneticProfiles(mycgds, cancerType)[, 1]
     mycaselist <- paste0(cancerType, "_tcga_rna_seq_v2_mrna")
     mygeneticprofile <- paste0(cancerType, "_rna_seq_v2_mrna")
-    # get expression data
     if (is.null(immuneGene)) {
       message("Pleasure select genes!")
     } else {
+      # Get expression data
       expr <- getProfileData(mycgds, immuneGene, mygeneticprofile, mycaselist)
-      # get mutation data
+      # Get mutation data
       mut_df <- getProfileData(mycgds, caseList = "luad_tcga_sequenced", geneticProfile = "luad_tcga_mutations", genes = immuneGene)
       mut_df <- apply(mut_df, 2, as.factor)
       mut_df[mut_df == "NaN"] <- ""
       mut_df[is.na(mut_df)] <- ""
       mut_df[mut_df != ""] <- "MUT"
-      # get copy number data
+      # Get copy number data
       cna <- getProfileData(mycgds,
         caseList = paste0(cancerType, "_sequenced"),
         geneticProfile = paste0(cancerType, "_gistic"),
