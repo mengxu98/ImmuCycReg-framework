@@ -96,38 +96,38 @@ countToEffCounts <- function(counts, len, effLen) {
 # To obtain survival data of TCAGA samplse ---------------
 # It is required to specify the gene (accept genes list) to obtain survival data
 survival.data <- function(cancerType = NULL, immuneGene = NULL) {
-  if (is.null(cancer)) {
+  if (is.null(cancerType)) {
     message("----- Pleasure ensure the cancer type! -----")
   } else {
-    message(paste0("----- Choose ", cancer, "and prepare the data! -----"))
+    message(paste0("----- Choose ", cancerType, "and prepare the data! -----"))
     package.check("cgdsr")
     package.check("DT")
     mycgds <- CGDS("http://www.cbioportal.org/")
     message(test(mycgds))
     all <- getCancerStudies(mycgds)
     DT::datatable(all)
-    getCaseLists(mycgds, cancer)[, c(1, 2)]
-    getGeneticProfiles(mycgds, cancer)[, 1]
-    getCaseLists(mycgds, cancer)[, 1]
-    getGeneticProfiles(mycgds, cancer)[, 1]
+    getCaseLists(mycgds, cancerType)[, c(1, 2)]
+    getGeneticProfiles(mycgds, cancerType)[, 1]
+    getCaseLists(mycgds, cancerType)[, 1]
+    getGeneticProfiles(mycgds, cancerType)[, 1]
     mycaselist <- "luad_tcga_rna_seq_v2_mrna"
-    mygeneticprofile <- paste0(cancer, "_rna_seq_v2_mrna")
+    mygeneticprofile <- paste0(cancerType, "_rna_seq_v2_mrna")
     # get expression data
-    if (is.null(immune_genes)) {
+    if (is.null(immuneGene)) {
       message("Pleasure select genes!")
     } else {
-      expr <- getProfileData(mycgds, immune_genes, mygeneticprofile, mycaselist)
+      expr <- getProfileData(mycgds, immuneGene, mygeneticprofile, mycaselist)
       # get mutation data
-      mut_df <- getProfileData(mycgds, caseList = "luad_tcga_sequenced", geneticProfile = "luad_tcga_mutations", genes = immune_genes)
+      mut_df <- getProfileData(mycgds, caseList = "luad_tcga_sequenced", geneticProfile = "luad_tcga_mutations", genes = immuneGene)
       mut_df <- apply(mut_df, 2, as.factor)
       mut_df[mut_df == "NaN"] <- ""
       mut_df[is.na(mut_df)] <- ""
       mut_df[mut_df != ""] <- "MUT"
       # get copy number data
       cna <- getProfileData(mycgds,
-        caseList = paste0(cancer, "_sequenced"),
-        geneticProfile = paste0(cancer, "_gistic"),
-        genes = immune_genes
+        caseList = paste0(cancerType, "_sequenced"),
+        geneticProfile = paste0(cancerType, "_gistic"),
+        genes = immuneGene
       )
     }
     rn <- rownames(cna)
