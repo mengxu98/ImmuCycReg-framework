@@ -85,4 +85,4 @@ geneinfo_df <- dplyr::select(gtf_df, c(
 ))
 check.file.exists(geneinfo_df)
 
-survival_data(cancer = "luad_tcga", immune_genes = "IL2") # Immune genes (accept genes list) need to be selected according to analysis!
+survival.data(cancer = "luad_tcga", immune_genes = "IL2") # Immune genes (accept genes list) need to be selected according to analysis!
