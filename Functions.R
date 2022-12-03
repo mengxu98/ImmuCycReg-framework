@@ -27,11 +27,11 @@ package.check <- function(packages) {
       if (package %in% CRANpackages$Package) {
         message("[", Sys.time(), "] -----: Now install package: ", package, " from CRAN!")
         install.packages(package)
-        library(package, character.only = T)
+        library(package, character.only = TRUE)
       } else if (package %in% biocPackages$Package) {
         message("[", Sys.time(), "] -----: Now install package: ", package, " from BioConductor!")
         BiocManager::install(package)
-        library(package, character.only = T)
+        library(package, character.only = TRUE)
       } else { # Bug
         if (!requireNamespace("githubinstall", quietly = TRUE)) {
           install.packages("githubinstall")
