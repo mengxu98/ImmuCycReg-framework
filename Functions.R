@@ -7,11 +7,11 @@ package.check <- function(packages) {
       if (!requireNamespace("dplyr", quietly = TRUE)) {
         install.packages("dplyr")
       }
-      library(dplyr)
+      library("dplyr")
       if (!requireNamespace("rvest", quietly = TRUE)) {
         install.packages("rvest")
       }
-      library(rvest)
+      library("rvest")
       message("[", Sys.time(), "] -----: No package: ", package, " in R environment!")
       CRANpackages <- available.packages() %>%
         as.data.frame() %>%
@@ -36,7 +36,7 @@ package.check <- function(packages) {
         if (!requireNamespace("githubinstall", quietly = TRUE)) {
           install.packages("githubinstall")
         }
-        library(githubinstall)
+        library("githubinstall")
         # githubinstall(package)
         gh_suggest(package)
       }
