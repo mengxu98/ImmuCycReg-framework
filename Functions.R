@@ -110,7 +110,7 @@ survival.data <- function(cancerType = NULL, immuneGene = NULL) {
     getGeneticProfiles(mycgds, cancerType)[, 1]
     getCaseLists(mycgds, cancerType)[, 1]
     getGeneticProfiles(mycgds, cancerType)[, 1]
-    mycaselist <- "luad_tcga_rna_seq_v2_mrna"
+    mycaselist <- paste0(cancerType, "_tcga_rna_seq_v2_mrna")
     mygeneticprofile <- paste0(cancerType, "_rna_seq_v2_mrna")
     # get expression data
     if (is.null(immuneGene)) {
