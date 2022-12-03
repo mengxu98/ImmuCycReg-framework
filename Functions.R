@@ -95,7 +95,7 @@ countToEffCounts <- function(counts, len, effLen) {
 
 # To obtain survival data of TCAGA samplse ---------------
 # It is required to specify the gene (accept genes list) to obtain survival data
-survival.data <- function(cancer = NULL, immune_genes = NULL) {
+survival.data <- function(cancerType = NULL, immuneGene = NULL) {
   if (is.null(cancer)) {
     message("----- Pleasure ensure the cancer type! -----")
   } else {
