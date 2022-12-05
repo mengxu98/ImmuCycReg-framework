@@ -100,7 +100,7 @@ countToEffCounts <- function(counts, len, effLen) {
   counts * (len / effLen)
 }
 
-# To obtain survival data of TCAGA samplse ---------------
+# To obtain survival data of TCAGA samples ---------------
 # It is required to specify the single gene or genes list to obtain survival data
 survival.data <- function(cancerType = NULL, immuneGene = NULL) {
   if (is.null(cancerType)) {
