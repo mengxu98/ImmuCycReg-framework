@@ -47,7 +47,11 @@ package.check <- function(packages) {
 }
 
 # Save R object
-
+save.file <- function(object){
+  if (TRUE) {
+    print(1)
+  }
+}
 
 # Check whether the file exists! ---------------
 check.file.exists <- function(data, format_save = ".rds") {
