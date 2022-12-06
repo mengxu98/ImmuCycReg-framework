@@ -47,20 +47,9 @@ package.check <- function(packages) {
 }
 
 # Save R object
-save.file <- function(object) {
-  if (TRUE) {
-    gsub("[.]", "2022.2")
-    grep("[a-z]", letters)
-    deparse(substitute("2022.txt"))
-    grep("2022.txt", pattern = ".gz$")
-    grep("2022.txt", pattern = ".txt$")
-    txt <- c("arm", "foot", "lefroo", "bafoobar")
-    if (length(i <- grep("foo", txt))) {
-      cat("'foo' appears at least once in\n\t", txt, "\n")
-    }
-    i # 2 and 4
-    txt[i]
-    print(1)
+save.file <- function(object, fileName) {
+  if (grepl(fileName, pattern = ".txt$")) {
+    grepl(fileName, pattern = ".gz$")
   }
 }
 
