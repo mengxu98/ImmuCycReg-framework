@@ -47,11 +47,17 @@ package.check <- function(packages) {
 }
 
 # Save R object
-save.file <- function(object, fileName) {
-  if (grepl(fileName, pattern = ".txt$")) {
-    grepl(fileName, pattern = ".gz$")
+save.file <- function(..., fileName, pathway = NULL) {
+  if (as.numeric(...length()) > 1) {
+    if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
+      save(..., file = fileName)
+    } else {
+      newname <- sub(".Rdata$", ".Rdata", fileName)
+      save(..., file = fileName)
+    }
   }
 }
+save.file(data, data2, fileName = "test1.Rdata")
 
 # Check whether the file exists! ---------------
 check.file.exists <- function(data, format_save = ".rds") {
