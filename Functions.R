@@ -47,7 +47,7 @@ package.check <- function(packages) {
 }
 
 # Save R object
-save.file <- function(..., fileName, pathway = NULL) {
+save.file <- function(..., fileName, pathWay = NULL) {
   if (as.numeric(...length()) > 1) {
     if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
       save(..., file = fileName)
