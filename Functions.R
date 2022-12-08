@@ -55,6 +55,8 @@ save.file <- function(..., fileName, pathWay = NULL) {
       newname <- sub(".Rdata$", ".Rdata", fileName)
       save(..., file = fileName)
     }
+  }else{
+    save(..., file = fileName)
   }
 }
 save.file(data, data2, fileName = "test1.Rdata")
