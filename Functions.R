@@ -47,6 +47,7 @@ package.check <- function(packages) {
 }
 
 # Save R object
+# Example: save.file(data, data2, fileName = "test1.Rdata")
 save.file <- function(..., fileName, pathWay = NULL) {
   if (as.numeric(...length()) > 1) {
     if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
@@ -59,7 +60,6 @@ save.file <- function(..., fileName, pathWay = NULL) {
     save(..., file = fileName)
   }
 }
-save.file(data, data2, fileName = "test1.Rdata")
 
 # Check whether the file exists! ---------------
 check.file.exists <- function(data, format_save = ".rds") {
