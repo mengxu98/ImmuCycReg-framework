@@ -54,13 +54,13 @@ save.file <- function(..., fileName, pathWay = NULL) {
   }
   if (as.numeric(...length()) > 1) {
     if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
-      save(..., file = fileName)
+      save(..., file = paste0(pathWay, fileName))
     } else {
       newFileName <- sub(".Rdata$", ".Rdata", fileName)
-      save(..., file = newFileName)
+      save(..., file = paste0(pathWay, newFileName))
     }
   } else {
-    save(..., file = fileName)
+    save(..., file = paste0(pathWay, fileName))
   }
 }
 
