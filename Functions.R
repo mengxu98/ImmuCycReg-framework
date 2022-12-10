@@ -56,8 +56,8 @@ save.file <- function(..., fileName, pathWay = NULL) {
     if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
       save(..., file = fileName)
     } else {
-      newname <- sub(".Rdata$", ".Rdata", fileName)
-      save(..., file = fileName)
+      newFileName <- sub(".Rdata$", ".Rdata", fileName)
+      save(..., file = newFileName)
     }
   } else {
     save(..., file = fileName)
