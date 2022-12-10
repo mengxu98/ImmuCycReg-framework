@@ -47,8 +47,11 @@ package.check <- function(packages) {
 }
 
 # Save R object
-# Example: save.file(data, data2, fileName = "test1.Rdata")
+# Example: save.file(data, data2, fileName = "test.Rdata")
 save.file <- function(..., fileName, pathWay = NULL) {
+  if (is.null(pathWay)) {
+    pathWay <- ""
+  }
   if (as.numeric(...length()) > 1) {
     if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
       save(..., file = fileName)
@@ -56,7 +59,7 @@ save.file <- function(..., fileName, pathWay = NULL) {
       newname <- sub(".Rdata$", ".Rdata", fileName)
       save(..., file = fileName)
     }
-  }else{
+  } else {
     save(..., file = fileName)
   }
 }
