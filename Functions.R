@@ -60,38 +60,11 @@ save.file <- function(..., fileName, pathWay = NULL) {
     if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
       save(..., file = paste0(pathWay, fileName))
     } else {
-      newFileName <- sub(".Rdata$", ".Rdata", fileName)
+      newFileName <- sub("$", ".Rdata", fileName)
       save(..., file = paste0(pathWay, newFileName))
     }
   } else {
     save(..., file = paste0(pathWay, fileName))
-  }
-}
-
-# Check whether the file exists! ---------------
-check.file.exists <- function(data, format_save = ".rds") {
-  if (exists("format_save")) {
-    format_save <- format_save
-  }
-  data_name <- deparse(substitute(data))
-  if (file.exists(paste0(path_save, data_name, format_save))) {
-    message("----- The file: ", data_name, format_save, " has exist! -----")
-  } else {
-    if (format_save %in% c(".txt", ".csv")) {
-      if (format_save == ".csv") {
-        write.csv(data, paste0(path_save, data_name, format_save), quote = FALSE)
-      }
-      if (format_save == ".txt") {
-        write.table(data, paste0(path_save, data_name, format_save), quote = FALSE, sep = "\t")
-      }
-    } else {
-      if (dir.exists(path_save)) {
-        saveRDS(data, paste0(path_save, data_name, format_save))
-      } else {
-        dir.create(path_save)
-        saveRDS(data, paste0(path_save, data_name, format_save))
-      }
-    }
   }
 }
 
