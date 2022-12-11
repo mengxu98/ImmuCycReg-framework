@@ -13,7 +13,7 @@ tcga_luad <- read.table(paste0(pathRead, "luad-rsem-count-tcga-t.txt.gz"),
 )
 colnames(tcga_luad) <- substr(colnames(tcga_luad), 1, 15)
 tcga_luad <- tcga_luad[, -1]
-check.file.exists(tcga_luad)
+save.file(tcga_luad, fileName = "TCGA-LUAD.Rdata", pathWay = "../Results/")
 # tcga_luad <- readRDS(paste0(pathSave, "tcga_luad.rds"))
 
 # --------------------------------------------------

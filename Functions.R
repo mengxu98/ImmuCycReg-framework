@@ -51,6 +51,10 @@ package.check <- function(packages) {
 save.file <- function(..., fileName, pathWay = NULL) {
   if (is.null(pathWay)) {
     pathWay <- ""
+  }else{
+    if(!dir.exists(pathWay)){
+      dir.create(pathWay, recursive = TRUE)
+    }
   }
   if (as.numeric(...length()) > 1) {
     if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
