@@ -8,7 +8,7 @@ packages <- c(
   "gWidgetsRGtk2", "HH", "igraph", "markdown", "Metrics",
   "networkD3", "plotly", "plotmo", "processx", "RColorBrewer",
   "rmarkdown", "tidymodels", "tidyverse", "bgsmtr", "BiocVersion",
-  "cgdsr", "clusterProfiler", "ComplexHeatmap", "DESeq", "pheatmap",
+  "cgdsr", "clusterProfiler", "ComplexHeatmap", "DESeq2", "pheatmap",
   "pathview", "rtracklayer", "org.Hs.eg.db", "L0Learn"
 )
 package.check(packages)
