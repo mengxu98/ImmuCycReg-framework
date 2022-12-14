@@ -9,7 +9,7 @@ load("../data CNV/raw_tcga_cnv.Rdata")
 
 # Split data in the target genes and samples with mRNA data
 sample_label_sur <- read.table("../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv",
-  header = F,
+  header = FALSE,
   sep = ",",
   check.names = FALSE
 )
@@ -24,7 +24,7 @@ for (k in 1:4) {
     )
   } else {
     gene_list <- read.table(sprintf("../L0/data/genes_list_cluster%s.txt", k),
-      header = T,
+      header = TRUE,
       row.names = 1
     )
   }
@@ -95,4 +95,4 @@ for (k in 1:4) {
   correction_results_all <- rbind.data.frame(correction_results_all, correction_results)
 }
 names(correction_results_all) <- c("Gene", "CNVs", "Cluster")
-write.csv(correction_results_all, "../L0/results/CNV.csv", row.names = F)
+write.csv(correction_results_all, "../L0/results/CNV.csv", row.names = FALSE)
