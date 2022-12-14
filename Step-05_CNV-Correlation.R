@@ -4,8 +4,8 @@ rm(list = ls())
 library(psych)
 library(ggcorrplot)
 
-load("../data/LUAD_raw/luad-rsem-count-tcga-t-drop-dupli-15.Rdata")
-load("../data CNV/raw_tcga_cnv.Rdata")
+load(paste0(pathSave, "TCGA-LUAD.Rdata"))
+load(paste0(pathSave, "CNV-LUAD.Rdata"))
 
 # Split data in the target genes and samples with mRNA data
 sample_label_sur <- read.table("../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv",
