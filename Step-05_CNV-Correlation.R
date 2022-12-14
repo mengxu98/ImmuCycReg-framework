@@ -41,9 +41,11 @@ for (k in 1:4) {
   cor_results <- c()
   cor_results_p <- c()
   for (i in 1:num_ligands) {
-    corr_ligands <- corr.test(cnv_temp[, i],
+    corr_ligands <- corr.test(
+      cnv_temp[, i],
       mrna_temp[, i],
-      method = "spearman", adjust = "fdr"
+      method = "spearman",
+      adjust = "fdr"
     )
     cor_results <- c(cor_results, corr_ligands$r)
     cor_results_p <- c(cor_results_p, corr_ligands$p)
