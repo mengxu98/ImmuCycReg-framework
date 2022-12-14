@@ -85,7 +85,7 @@ for (k in 1:4) {
     correction_results <- rbind(correction_results, correction_results1)
   }
   write.table(correction_results,
-    sprintf("../results CNV/correction_results_cluster%s.txt", k),
+    paste0(pathSave, "correction_results_cluster", k, ".txt"),
     sep = "\t",
     quote = FALSE,
     row.names = FALSE
@@ -95,4 +95,4 @@ for (k in 1:4) {
   correction_results_all <- rbind.data.frame(correction_results_all, correction_results)
 }
 names(correction_results_all) <- c("Gene", "CNVs", "Cluster")
-write.csv(correction_results_all, "../L0/results/CNV.csv", row.names = FALSE)
+write.csv(correction_results_all, paste0(pathSave, "CNV values.csv"), row.names = FALSE)
