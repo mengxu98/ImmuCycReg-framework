@@ -17,7 +17,7 @@ sample_label_sur <- read.table("../results/2191/NMF/cluster-nk-ligands-k=8/sampl
 correction_results_all <- c()
 for (k in 1:4) {
   cluster <- sample_label_sur[which(sample_label_sur$V2 == k), 1]
-  if (T) {
+  if (TRUE) {
     gene_list <- read.table(paste("../data CNV/all genes", ".txt", sep = ""),
       header = TRUE,
       row.names = 1
