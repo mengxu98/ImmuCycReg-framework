@@ -52,18 +52,18 @@ for (k in 1:4) {
   }
   strong_cor_self <- order(cor_results, decreasing = TRUE)
   colnames(cnv_temp)[strong_cor_self[1:3]]
-
   colnames(cnv_temp)[strong_cor_self[length(strong_cor_self)]]
-
   negative_value <- cor_results[strong_cor_self[length(strong_cor_self)]]
 
   intercor_matrix <- c()
   for (i in 1:num_ligands) {
     intercor_results <- c()
     for (j in 1:num_ligands) {
-      corr_ligands <- cor(cnv_temp[, i],
+      corr_ligands <- cor(
+        cnv_temp[, i],
         mrna_temp[, j],
-        method = "spearman", use = "pairwise.complete.obs"
+        method = "spearman",
+        use = "pairwise.complete.obs"
       )
       intercor_results <- c(intercor_results, corr_ligands)
     }
@@ -87,8 +87,8 @@ for (k in 1:4) {
   write.table(correction_results,
     sprintf("../results CNV/correction_results_cluster%s.txt", k),
     sep = "\t",
-    quote = F,
-    row.names = F
+    quote = FALSE,
+    row.names = FALSE
   )
   correction_results <- as.data.frame(correction_results)
   correction_results$Clsuer <- paste0("Cluster", k)
