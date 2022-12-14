@@ -8,7 +8,7 @@ load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "CNV-LUAD.Rdata"))
 
 # Split data in the target genes and samples with mRNA data
-sample_label_sur <- read.table("../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv",
+sample_label_sur <- read.table(paste0(pathSave, "NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv"),
   header = FALSE,
   sep = ",",
   check.names = FALSE
