@@ -1,8 +1,8 @@
 
 
 rm(list = ls())
-library(psych)
-library(ggcorrplot)
+library("psych")
+library("ggcorrplot")
 
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "CNV-LUAD.Rdata"))

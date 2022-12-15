@@ -2,14 +2,14 @@
 
 rm(list = ls())
 
-library(psych)
-library(ggpubr)
-library(ggthemes)
-library(rtracklayer)
-library(corrgram)
-library(GGally)
-library(ggplot2)
-library(patchwork)
+library("psych")
+library("ggpubr")
+library("ggthemes")
+library("rtracklayer")
+library("corrgram")
+library("GGally")
+library("ggplot2")
+library("patchwork")
 
 # 1:select peak
 # 2:make bed file
