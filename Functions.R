@@ -51,8 +51,8 @@ package.check <- function(packages) {
 save.file <- function(..., fileName, pathWay = NULL) {
   if (is.null(pathWay)) {
     pathWay <- ""
-  }else{
-    if(!dir.exists(pathWay)){
+  } else {
+    if (!dir.exists(pathWay)) {
       dir.create(pathWay, recursive = TRUE)
     }
   }
