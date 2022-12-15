@@ -217,7 +217,7 @@ volcano_plot_pvalue_list[[1]] +
   volcano_plot_pvalue_list[[7]] +
   volcano_plot_pvalue_list[[8]] +
   plot_layout(ncol = 4)
-ggsave(paste0("../results ATAC-seq/results/boxplot/", "peaks1.png"), width = 12, height = 6)
+ggsave(paste0("../results ATAC-seq/results/boxplot/", "peaks1.png"), width = 12, height = 6, dpi = 600)
 ggsave(paste0("../results ATAC-seq/results/boxplot/", "peaks1.pdf"), width = 12, height = 6)
 
 volcano_plot_pvalue_list[[9]] +
@@ -231,9 +231,8 @@ volcano_plot_pvalue_list[[9]] +
   volcano_plot_pvalue_list[[17]] +
   plot_layout(ncol = 4)
 
-ggsave(paste0("../results ATAC-seq/results/boxplot/", "peaks2.png"), width = 12, height = 9)
+ggsave(paste0("../results ATAC-seq/results/boxplot/", "peaks2.png"), width = 12, height = 9, dpi = 600)
 ggsave(paste0("../results ATAC-seq/results/boxplot/", "peaks2.pdf"), width = 12, height = 9)
-
 
 peak_seq_pos_all$peak <- row.names(peak_seq_pos_all)
 write.table(peak_seq_pos_all[, 1:3],
