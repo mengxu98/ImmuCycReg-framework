@@ -138,7 +138,7 @@ for (j in 1:length(target_genes_list)) {
 
   # choice 3:get top peaks in score BUT SCORE IS SAMPLE LEVEL
   top_k <- min(1, length(peak_around_gene))
-  target_sample <- "TCGA-73-A9RS-01" # TCGA-86-A4D0-01
+  target_sample <- "TCGA-73-A9RS-01"
 
   order_peak_id <- peak_around_gene[order(peak_luad[peak_around_gene, target_sample], decreasing = TRUE)]
   highest_score_peak <- order_peak_id[1:top_k]
