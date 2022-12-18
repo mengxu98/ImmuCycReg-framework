@@ -54,8 +54,6 @@ peak_luad <- peak_all[
      grep(pattern = "LUAD", rownames(peak_all)),
      intersect(colnames(tcga_luad), colnames(peak_all))
 ]
-check.file.exists(peak_luad)
-
 tcga_luad_peak_samples <- tcga_luad[, which(colnames(tcga_luad) %in% colnames(peak_luad))]
 save.file(tcga_luad_peak_samples, fileName = "Peak-LUAD.Rdata", pathWay = pathSave)
 
