@@ -1,23 +1,23 @@
 
 
 rm(list = ls())
-library(NMF)
-library(doMPI)
-library(pheatmap)
-library(tidyr)
-library(tidyverse)
-library(survival)
-library(survminer)
-library(ggplot2)
-library(paletteer)
-library(Rtsne)
-library(tinyarray)
+library("NMF")
+library("doMPI")
+library("pheatmap")
+library("tidyr")
+library("tidyverse")
+library("survival")
+library("survminer")
+library("ggplot2")
+library("paletteer")
+library("Rtsne")
+library("tinyarray")
 
-path_read <- "data/"
-path_save <- "results/"
+pathRead <- "data/"
+pathSave <- "../results/"
 # --------------------------------------------------
-tcga_luad <- readRDS(paste0(path_save, "tcga_luad.rds"))
-feature_genes <- read.csv(paste0(path_read, "Genes_2230.csv"))
+load(paste0(pathSave, "TCGA-LUAD.Rdata"))
+feature_genes <- read.csv(paste0(pathRead, "Genes_2230.csv"))
 dataset <- tcga_luad[feature_genes$Gene, ]
 
 # Determine the rank value
