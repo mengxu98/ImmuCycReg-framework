@@ -1,6 +1,6 @@
 # &#x1F534;ImmuCycReg-framework
 
-The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer (In revision).
+The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer (In revision).<br/>
 
 ## &#x1F539;DATA links:
   Processed data from this study are available in the reproducibility GitHub repository (https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data).<br/>
@@ -12,7 +12,7 @@ The code repository is for paper: Integration of single sample and population an
   Copy number variations (CNV) dataset was downloaded from GISTIC2.0: https://api.gdc.cancer.gov/data/7d64377f-2cea-4ee3-917f-8fcfbcd999e7<br/>
   Genome annotation file was downloaded from hg38.ensGene.gtf: ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/<br/>
 
-### &#x1F539;The input data:
+## &#x1F539;The input data:
   The TCGA RNA-seq is necessary<br/>
   The ATAC-seq is necessary<br/>
   The CNV data is not required<br/>
