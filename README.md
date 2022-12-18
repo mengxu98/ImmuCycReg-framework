@@ -8,11 +8,11 @@ The code repository is for paper: Integration of single sample and population an
   
   The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare.
   
-     https://figshare.com/articles/dataset/Data_record_1/5330539
+     &#x1F539;https://figshare.com/articles/dataset/Data_record_1/5330539
     
-     https://figshare.com/articles/dataset/Data_record_2/5330575
+     &#x1F539;https://figshare.com/articles/dataset/Data_record_2/5330575
      
-     https://figshare.com/articles/dataset/Data_record_3/5330593
+     &#x1F539;https://figshare.com/articles/dataset/Data_record_3/5330593
      
   Transposase-Accessible Chromatin with high throughput sequencing(ATAC-seq) was downloaded from UCSC-Xena: https://atacseq.xenahubs.net
   
