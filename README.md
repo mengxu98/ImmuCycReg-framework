@@ -2,17 +2,17 @@
 
 The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer (In revision).
 
-## DATA links:
+## &#x1F539;DATA links:
 
   Processed data from this study are available in the reproducibility GitHub repository (https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data).
   
   The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare.
   
-     &#x1F539;https://figshare.com/articles/dataset/Data_record_1/5330539
+     https://figshare.com/articles/dataset/Data_record_1/5330539
     
-     &#x1F539;https://figshare.com/articles/dataset/Data_record_2/5330575
+     https://figshare.com/articles/dataset/Data_record_2/5330575
      
-     &#x1F539;https://figshare.com/articles/dataset/Data_record_3/5330593
+     https://figshare.com/articles/dataset/Data_record_3/5330593
      
   Transposase-Accessible Chromatin with high throughput sequencing(ATAC-seq) was downloaded from UCSC-Xena: https://atacseq.xenahubs.net
   
@@ -20,7 +20,7 @@ The code repository is for paper: Integration of single sample and population an
   
   Genome annotation file was downloaded from hg38.ensGene.gtf: ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/
 
-### The input data:
+### &#x1F539;The input data:
 
   The TCGA RNA-seq is necessary
   
@@ -28,7 +28,7 @@ The code repository is for paper: Integration of single sample and population an
   
   The CNV data is not required
 
-## The environment required:
+## &#x1F539;The environment required:
   
     R 4.1.2
 
