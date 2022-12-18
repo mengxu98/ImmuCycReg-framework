@@ -4,9 +4,9 @@ The code repository is for paper: Integration of single sample and population an
 ## &#x1F539;DATA links:
   Processed data from this study are available in the reproducibility GitHub repository: `https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data`<br/>
   The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare.<br/>
-     &nbsp;`https://figshare.com/articles/dataset/Data_record_1/5330539<br/>
-     https://figshare.com/articles/dataset/Data_record_2/5330575<br/>
-     https://figshare.com/articles/dataset/Data_record_3/5330593`<br/>
+     &nbsp;&nbsp;`https://figshare.com/articles/dataset/Data_record_1/5330539`<br/>
+     &nbsp;&nbsp;`https://figshare.com/articles/dataset/Data_record_2/5330575`<br/>
+     &nbsp;&nbsp;`https://figshare.com/articles/dataset/Data_record_3/5330593`<br/>
   Transposase-Accessible Chromatin with high throughput sequencing (ATAC-seq) was downloaded from UCSC-Xena: `https://atacseq.xenahubs.net`<br/>
   Copy number variations (CNV) dataset was downloaded from GISTIC2.0: `https://api.gdc.cancer.gov/data/7d64377f-2cea-4ee3-917f-8fcfbcd999e7`<br/>
   Genome annotation file was downloaded from hg38.ensGene.gtf: `ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/`<br/>
