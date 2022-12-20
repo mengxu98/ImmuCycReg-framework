@@ -7,7 +7,8 @@ The code repository is for paper: Integration of single sample and population an
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
     ```html 
     https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data
-    ``` <br/>
+    ``` 
+    <br/>
   &#x1F538;The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare:<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`https://figshare.com/articles/dataset/Data_record_1/5330539`<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`https://figshare.com/articles/dataset/Data_record_2/5330575`<br/>
