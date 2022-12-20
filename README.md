@@ -4,21 +4,17 @@ The code repository is for paper: Integration of single sample and population an
 <img src="https://github.com/mengxu98/ImmuCycReg-framework/blob/main/Workflow.png"/><br/>
 ## &#x1F537;DATA links:
   &#x1F538;Processed data from this study are available in the reproducibility GitHub repository:<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-    ```html 
-    https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data
-    ``` 
-    <br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data`<br/>
   &#x1F538;The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare:<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`https://figshare.com/articles/dataset/Data_record_1/5330539`<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`https://figshare.com/articles/dataset/Data_record_2/5330575`<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`https://figshare.com/articles/dataset/Data_record_3/5330593`<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://figshare.com/articles/dataset/Data_record_1/5330539`<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://figshare.com/articles/dataset/Data_record_2/5330575`<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://figshare.com/articles/dataset/Data_record_3/5330593`<br/>
   &#x1F538;Transposase-Accessible Chromatin with high throughput sequencing (ATAC-seq) was downloaded from UCSC-Xena:<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`https://atacseq.xenahubs.net`<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://atacseq.xenahubs.net`<br/>
   &#x1F538;Copy number variations (CNV) dataset was downloaded from GISTIC2.0:<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`https://api.gdc.cancer.gov/data/7d64377f-2cea-4ee3-917f-8fcfbcd999e7`<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://api.gdc.cancer.gov/data/7d64377f-2cea-4ee3-917f-8fcfbcd999e7`<br/>
   &#x1F538;Genome annotation file was downloaded from hg38.ensGene.gtf:<br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/`<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/`<br/>
 ## &#x1F537;The input data:
   &#x1F538;The TCGA RNA-seq is necessary<br/>
   &#x1F538;The ATAC-seq is necessary<br/>
