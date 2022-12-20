@@ -85,6 +85,12 @@ plot(res_list[[5]])
 nrun <- 50
 seed <- 20220101
 
+data_nmf <- log(data_nmf + 1, 10)
+gene_no <- 30
+mads <- apply(data_nmf, 1, mad)
+data_nmf <- data_nmf[rev(order(mads)), ]
+dataset <- data_nmf[1:gene_no, ]
+
 rand <- nmfEstimateRank(dataset, 2:6, nrun = nrun, stop = FALSE, seed = seed, verbose = T)
 res <- nmf(dataset, 2:6, nrun = nrun, seed = seed)
 plot(res)
