@@ -84,7 +84,7 @@ Cluster <- predict(res_4) %>% as.data.frame()
 Cluster <- results[[4]]$consensusClass %>% as.data.frame()
 
 Cluster$sample <- rownames(Cluster)
-load("../SurvivalAnalysis/survival_LUAD.Rdata")
+load("survival_LUAD.Rdata")
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
 samples <- intersect(rownames(Cluster), rownames(myclinicaldata))
 Cluster <- Cluster[samples, ] %>% as.data.frame()
