@@ -19,7 +19,7 @@ source("Functions.R")
 pathRead <- "data/"
 pathSave <- "../Results/"
 
-tcga_luad <- readRDS(paste0(pathSave, "tcga_luad.rds"))
+load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 genes_2230 <- read.csv(paste0(pathRead, "Genes_2230.csv"))
 data_nmf <- tcga_luad[genes_2230$Gene, ] %>% as.matrix()
 
