@@ -32,7 +32,7 @@ data_nmf <- data_nmf[rev(order(mads)), ]
 dataset <- data_nmf[1:gene_no, ]
 
 max_cluster_num <- 6
-title <- paste0(pathSave, "/NMF/cluster-rank=6")
+title <- paste0(pathSave, "NMF")
 results <- ConsensusClusterPlus(dataset,
   maxK = max_cluster_num,
   reps = 50,
