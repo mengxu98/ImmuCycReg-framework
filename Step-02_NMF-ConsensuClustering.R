@@ -1,27 +1,26 @@
 
 
 rm(list = ls())
-
-library(NMF)
-library(ConsensusClusterPlus)
-library(limma)
-library(doMPI)
-library(pheatmap)
-library(tidyr)
-library(tidyverse)
-library(survival)
-library(survminer)
-library(ggplot2)
-library(paletteer)
-library(Rtsne)
-library(tinyarray)
+library("NMF")
+library("ConsensusClusterPlus")
+library("limma")
+library("doMPI")
+library("pheatmap")
+library("tidyr")
+library("tidyverse")
+library("survival")
+library("survminer")
+library("ggplot2")
+library("paletteer")
+library("Rtsne")
+library("tinyarray")
 source("Functions.R")
 
-path_read <- "data/"
-path_save <- "results/"
+pathRead <- "data/"
+pathSave <- "../Results/"
 
-tcga_luad <- readRDS(paste0(path_save, "tcga_luad.rds"))
-genes_2230 <- read.csv(paste0(path_read, "Genes_2230.csv"))
+tcga_luad <- readRDS(paste0(pathSave, "tcga_luad.rds"))
+genes_2230 <- read.csv(paste0(pathRead, "Genes_2230.csv"))
 data_nmf <- tcga_luad[genes_2230$Gene, ] %>% as.matrix()
 
 # --------------------------------------------------
@@ -33,7 +32,7 @@ data_nmf <- data_nmf[rev(order(mads)), ]
 dataset <- data_nmf[1:gene_no, ]
 
 max_cluster_num <- 6
-title <- paste0(path_save, "/NMF/cluster-rank=6")
+title <- paste0(pathSave, "/NMF/cluster-rank=6")
 results <- ConsensusClusterPlus(dataset,
   maxK = max_cluster_num,
   reps = 50,
@@ -113,7 +112,7 @@ sfit <- survfit(Surv(OS_MONTHS, OS_STATUS == "1") ~ Cluster,
   data = meta
 )
 ggsurvplot(sfit,
-  pval = T,
+  pval = TRUE,
   palette = c("#0050ef", "#008a00", "#fa6800", "#ffff88")
 )
 
@@ -141,7 +140,7 @@ ggplot(pdat, aes(Y1, Y2)) +
   theme_classic() +
   theme(legend.position = "top")
 sample_label <- read.table(paste0(title, "/sample_cluster_4.csv"),
-  header = F,
+  header = FALSE,
   sep = ",",
   check.names = FALSE
 )
