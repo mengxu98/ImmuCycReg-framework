@@ -32,7 +32,7 @@ data_nmf <- data_nmf[rev(order(mads)), ]
 dataset <- data_nmf[1:gene_no, ]
 
 max_cluster_num <- 6
-title <- paste0(pathSave, "NMF")
+title <- paste0(pathSave, "NMF/")
 results <- ConsensusClusterPlus(dataset,
   maxK = max_cluster_num,
   reps = 50,
@@ -46,12 +46,11 @@ results <- ConsensusClusterPlus(dataset,
   plot = "pdf"
 )
 icl <- calcICL(results, title = title, plot = "pdf")
-
-icl[["itemConsensus"]][4:6, ]
+icl[["itemConsensus"]][1:6, ]
 
 for (i in 2:max_cluster_num) {
   write.table(results[[i]][["consensusClass"]],
-    file = paste(title, paste(paste0("sample_cluster_", as.character(i), sep = ""), ".csv"), sep = "//"),
+    file = paste0(title, "sample_cluster_", as.character(i), ".csv"),
     na = "",
     col.names = FALSE,
     sep = ","
@@ -76,12 +75,9 @@ optK
 
 table(results[[4]]$consensusClass)
 
-Cluster <- predict(res_2) %>% as.data.frame()
-Cluster <- predict(res_3) %>% as.data.frame()
 Cluster <- predict(res_4) %>% as.data.frame()
 
 Cluster <- results[[4]]$consensusClass %>% as.data.frame()
-
 Cluster$sample <- rownames(Cluster)
 load("survival_LUAD.Rdata")
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
