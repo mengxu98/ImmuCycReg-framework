@@ -90,7 +90,7 @@ countToEffCounts <- function(counts, len, effLen) {
 
 # To obtain survival data of TCAGA samples ---------------
 # It is required to specify the single gene or genes list to obtain survival data
-survival.data <- function(cancerType = NULL, immuneGene = NULL) {
+survival.data <- function(cancerType = NULL, immuneGene = NULL, pathWay = NULL) {
   if (is.null(cancerType)) {
     message("----- Pleasure ensure the cancer type! -----")
   } else {
@@ -136,7 +136,7 @@ survival.data <- function(cancerType = NULL, immuneGene = NULL) {
     cna[cna == "DIPLOID"] <- ""
     rownames(cna) <- rn
     myClinicalData <- getClinicalData(mycgds, mycaselist)
-    save(expr, myClinicalData, cna, mut_df, file = paste0(path_save, "survival_input.Rdata"))
+    save(expr, myClinicalData, cna, mut_df, file = paste0(pathWay, "survival_input.Rdata"))
   }
 }
 
