@@ -90,7 +90,14 @@ countToEffCounts <- function(counts, len, effLen) {
 
 # To obtain survival data of TCAGA samples ---------------
 # It is required to specify the single gene or genes list to obtain survival data
-survival.data <- function(cancerType = NULL, immuneGene = NULL, pathWay = NULL) {
+survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
+  if (is.null(pathWay)) {
+    pathWay <- ""
+  } else {
+    if (!dir.exists(pathWay)) {
+      dir.create(pathWay, recursive = TRUE)
+    }
+  }
   if (is.null(cancerType)) {
     message("----- Pleasure ensure the cancer type! -----")
   } else {
@@ -107,13 +114,13 @@ survival.data <- function(cancerType = NULL, immuneGene = NULL, pathWay = NULL) 
     getGeneticProfiles(mycgds, cancerType)[, 1]
     mycaselist <- paste0(cancerType, "_tcga_rna_seq_v2_mrna")
     mygeneticprofile <- paste0(cancerType, "_rna_seq_v2_mrna")
-    if (is.null(immuneGene)) {
-      message("Pleasure select genes!")
+    if (is.null(genes)) {
+      message("----- Pleasure input a single gene or gene list! -----")
     } else {
       # Get expression data
-      expr <- getProfileData(mycgds, immuneGene, mygeneticprofile, mycaselist)
+      expr <- getProfileData(mycgds, genes, mygeneticprofile, mycaselist)
       # Get mutation data
-      mut_df <- getProfileData(mycgds, caseList = "luad_tcga_sequenced", geneticProfile = "luad_tcga_mutations", genes = immuneGene)
+      mut_df <- getProfileData(mycgds, caseList = "luad_tcga_sequenced", geneticProfile = "luad_tcga_mutations", genes = genes)
       mut_df <- apply(mut_df, 2, as.factor)
       mut_df[mut_df == "NaN"] <- ""
       mut_df[is.na(mut_df)] <- ""
@@ -122,7 +129,7 @@ survival.data <- function(cancerType = NULL, immuneGene = NULL, pathWay = NULL) 
       cna <- getProfileData(mycgds,
         caseList = paste0(cancerType, "_sequenced"),
         geneticProfile = paste0(cancerType, "_gistic"),
-        genes = immuneGene
+        genes = genes
       )
     }
     rn <- rownames(cna)
