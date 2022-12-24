@@ -15,11 +15,12 @@ library("tinyarray")
 
 pathRead <- "data/"
 pathSave <- "../results/"
-# --------------------------------------------------
+
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 feature_genes <- read.csv(paste0(pathRead, "Genes_2230.csv"))
 dataset <- tcga_luad[feature_genes$Gene, ]
 
+# --------------------------------------------------
 # Determine the rank value
 if (F) {
   seeds <- c(20220101, 2022)
