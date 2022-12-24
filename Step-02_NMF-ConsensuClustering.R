@@ -79,13 +79,14 @@ Cluster <- predict(res_4) %>% as.data.frame()
 
 Cluster <- results[[4]]$consensusClass %>% as.data.frame()
 Cluster$sample <- rownames(Cluster)
-survival.data(cancerType = "luad_tcga", immuneGene = "IL2")
-load("survival_LUAD.Rdata")
+
+survival.data(cancerType = "luad_tcga", genes = "IL2", pathWay = pathSave)
+load(paste0(pathSave, "survival_input.Rdata"))
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
-samples <- intersect(rownames(Cluster), rownames(myclinicaldata))
+samples <- intersect(rownames(Cluster), rownames(myClinicalData))
 Cluster <- Cluster[samples, ] %>% as.data.frame()
-myclinicaldata <- myclinicaldata[samples, ]
-identical(rownames(Cluster), rownames(myclinicaldata))
+myClinicalData <- myClinicalData[samples, ]
+identical(rownames(Cluster), rownames(myClinicalData))
 choose_columns <- c(
   "AJCC_METASTASIS_PATHOLOGIC_PM",
   "AJCC_NODES_PATHOLOGIC_PN",
@@ -98,8 +99,8 @@ choose_columns <- c(
   "DFS_MONTHS",
   "DFS_STATUS"
 )
-myclinicaldata <- myclinicaldata[, choose_columns]
-meta <- myclinicaldata
+myClinicalData <- myClinicalData[, choose_columns]
+meta <- myClinicalData
 meta$OS_STATUS <- gsub("1:DECEASED", "1", meta$OS_STATUS)
 meta$OS_STATUS <- gsub("0:LIVING", "0", meta$OS_STATUS)
 
