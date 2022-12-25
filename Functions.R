@@ -107,12 +107,10 @@ survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
     mycgds <- CGDS("http://www.cbioportal.org/")
     message(test(mycgds))
     all <- getCancerStudies(mycgds)
-    DT::datatable(all)
     getCaseLists(mycgds, cancerType)[, c(1, 2)]
     getGeneticProfiles(mycgds, cancerType)[, 1]
     getCaseLists(mycgds, cancerType)[, 1]
-    getGeneticProfiles(mycgds, cancerType)[, 1]
-    mycaselist <- paste0(cancerType, "_tcga_rna_seq_v2_mrna")
+    mycaselist <- paste0(cancerType, "_rna_seq_v2_mrna")
     mygeneticprofile <- paste0(cancerType, "_rna_seq_v2_mrna")
     if (is.null(genes)) {
       message("----- Pleasure input a single gene or gene list! -----")
