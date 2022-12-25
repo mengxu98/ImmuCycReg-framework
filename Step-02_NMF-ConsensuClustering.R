@@ -137,8 +137,4 @@ ggplot(pdat, aes(Y1, Y2)) +
   scale_fill_paletteer_d("RColorBrewer::Set3") +
   theme_classic() +
   theme(legend.position = "top")
-sample_label <- read.table(paste0(title, "/sample_cluster_4.csv"),
-  header = FALSE,
-  sep = ",",
-  check.names = FALSE
-)
+
