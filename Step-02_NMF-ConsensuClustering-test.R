@@ -100,20 +100,18 @@ estim.r.random <- nmf(V.random, 2:6, nrun = nrun, seed = seed)
 plot(res, estim.r.random)
 
 # --------------------------------------------------
-Cluster <- predict(res_2) %>% as.data.frame()
-Cluster <- predict(res_3) %>% as.data.frame()
 Cluster <- predict(res_4) %>% as.data.frame()
 table(Cluster)
-# write.csv(Cluster,"../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv")
 write.table(Cluster,
-  file = "../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv",
+  file = paste0(title, "sample_cluster_4.csv"),
   na = "",
   col.names = FALSE,
   sep = ","
 )
 
 Cluster$sample <- rownames(Cluster)
-load("SurvivalAnalysis/survival_LUAD.Rdata")
+survival.data(cancerType = "luad_tcga", genes = "IL2", pathWay = pathSave)
+load(paste0(pathSave, "survival_input.Rdata"))
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
 samples <- intersect(rownames(Cluster), rownames(myclinicaldata))
 Cluster <- Cluster[samples, ] %>% as.data.frame()
@@ -164,11 +162,6 @@ NMF.Exp.rank4 <- na.omit(NMF.Exp.rank4)
 
 consensusmap(res_4,
   labRow = NA,
-  labCol = NA
-)
-
-consensusmap(res_4,
-  labRow = NA,
   labCol = NA,
   annCol = data.frame("cluster" = group[colnames(NMF.Exp.rank4)]),
   annColors = list(cluster = c("1" = jco[1], "2" = jco[2], "3" = jco[3], "4" = jco[4]))
@@ -205,26 +198,3 @@ coefmap(res_4)
 par(opar)
 consensusmap(res_4)
 consensusmap(res_4, annCol = dataset, tracks = NA)
-
-res_cluter4 <- read.csv("cluster-rank=8/sample_cluster_4.csv", header = F)
-exp <- dataset %>% as.data.frame()
-colnames(exp) <- gsub("-", ".", colnames(exp))
-exp <- exp[, samples]
-# PCA
-draw_pca(exp, Cluster$., addEllipses = F)
-# Tsne
-tsne_out <- Rtsne(t(exp), perplexity = 30)
-pdat <- data.frame(tsne_out$Y, factor(Cluster$.))
-colnames(pdat) <- c("Y1", "Y2", "group")
-
-ggplot(pdat, aes(Y1, Y2)) +
-  geom_point(aes(Y1, Y2, fill = group), shape = 21, color = "black") +
-  stat_ellipse(aes(color = group, fill = group),
-    geom = "polygon",
-    alpha = 0.3,
-    linetype = 2
-  ) +
-  scale_color_paletteer_d("RColorBrewer::Set3") +
-  scale_fill_paletteer_d("RColorBrewer::Set3") +
-  theme_classic() +
-  theme(legend.position = "top")
