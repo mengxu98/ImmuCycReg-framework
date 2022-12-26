@@ -33,7 +33,7 @@ if (F) {
     res_list_p <- list()
     cophenetic_table_p <- c()
     for (p in 1:length(percent_genes)) {
-      percent_gene <- percent_genes[P]
+      percent_gene <- percent_genes[p]
       dataset <- as.matrix(data_derived)
       dataset <- log(dataset + 1, 2)
       if (percent_gene < 1) {
@@ -78,14 +78,9 @@ if (F) {
 }
 
 plot(res_list[[1]])
-plot(res_list[[2]])
-plot(res_list[[3]])
-plot(res_list[[4]])
-plot(res_list[[5]])
 
 nrun <- 50
-seed <- 20220101
-
+seed <- "20210101"
 data_nmf <- log(data_nmf + 1, 10)
 gene_no <- 30
 mads <- apply(data_nmf, 1, mad)
