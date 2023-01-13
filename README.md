@@ -20,6 +20,7 @@ The code repository is for paper: Integration of single sample and population an
   &#x1F538;The TCGA RNA-seq is necessary<br/>
   &#x1F538;The ATAC-seq is necessary<br/>
   &#x1F538;The CNV data is not required<br/>
+## &#x1F537;The results provide in Supplementary Data:
 ## &#x1F537;The environment and softwares required:
     R 4.1.2
     NMF==0.24.0
