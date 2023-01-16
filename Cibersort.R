@@ -1,6 +1,6 @@
 
-
-#' CIBERSORT R script v1.03 (last updated 07-10-2015)
+#' This version write by Meng at 2022
+#' CIBERSORT R script v1.03 (last updated 07-10-2015 by original author)
 #' Note: Signature matrix construction is not currently available; use java version for full functionality.
 #' Author: Aaron M. Newman, Stanford University (amnewman@stanford.edu)
 #' Requirements:
@@ -118,24 +118,22 @@ doPerm <- function(perm, X, Y){
 #' @param perm Number of permutations
 #' @param QN Perform quantile normalization or not (TRUE/FALSE)
 #' @export
-CIBERSORT <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
-  
+CIBERSORT <- function(sig_matrix,
+                      mixture_file,
+                      pathSave = NULL,
+                      perm=0,
+                      QN=TRUE){
   #read in data
   X <- read.table(sig_matrix,header=T,sep="\t",row.names=1,check.names=F)
   Y <- read.table(mixture_file, header=T, sep="\t", row.names=1,check.names=F)
-  
   X <- data.matrix(X)
   Y <- data.matrix(Y)
-  
   #order
   X <- X[order(rownames(X)),]
   Y <- Y[order(rownames(Y)),]
-  
   P <- perm #number of permutations
-  
   #anti-log if max < 50 in mixture file
   if(max(Y) < 50) {Y <- 2^Y}
-  
   #quantile normalization of mixture file
   if(QN == TRUE){
     tmpc <- colnames(Y)
@@ -192,382 +190,23 @@ CIBERSORT <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
     out <- c(colnames(Y)[itor],w,pval,mix_r,mix_rmse)
     if(itor == 1) {output <- out}
     else {output <- rbind(output, out)}
-    
     itor <- itor + 1
-    
   }
   
   #save results
-  write.table(rbind(header,output), file=paste('results/CIBERSORT_cluster',j,'.txt',sep = ''), sep="\t", row.names=F, col.names=F, quote=F)
-  
-  #return matrix object containing all results
-  obj <- rbind(header,output)
-  obj <- obj[,-1]
-  obj <- obj[-1,]
-  obj <- matrix(as.numeric(unlist(obj)),nrow=nrow(obj))
-  rownames(obj) <- colnames(Y)
-  colnames(obj) <- c(colnames(X),"P-value","Correlation","RMSE")
-  obj
-}
-
-CIBERSORT_all <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
-  #read in data
-  X <- read.table(sig_matrix,header=T,sep="\t",row.names=1,check.names=F)
-  Y <- read.table(mixture_file, header=T, sep="\t", row.names=1,check.names=F)
-  
-  X <- data.matrix(X)
-  Y <- data.matrix(Y)
-  
-  #order
-  X <- X[order(rownames(X)),]
-  Y <- Y[order(rownames(Y)),]
-  
-  P <- perm #number of permutations
-  
-  #anti-log if max < 50 in mixture file
-  if(max(Y) < 50) {Y <- 2^Y}
-  
-  #quantile normalization of mixture file
-  if(QN == TRUE){
-    tmpc <- colnames(Y)
-    tmpr <- rownames(Y)
-    Y <- preprocessCore::normalize.quantiles(Y)
-    colnames(Y) <- tmpc
-    rownames(Y) <- tmpr
+  if (is.null(pathWay)) {
+    pathWay <- ""
+  } else {
+    if (!dir.exists(pathWay)) {
+      dir.create(pathWay, recursive = TRUE)
+    }
   }
-  
-  #intersect genes
-  Xgns <- row.names(X)
-  Ygns <- row.names(Y)
-  YintX <- Ygns %in% Xgns
-  Y <- Y[YintX,]
-  XintY <- Xgns %in% row.names(Y)
-  X <- X[XintY,]
-  
-  #standardize sig matrix
-  X <- (X - mean(X)) / sd(as.vector(X))
-  
-  #empirical null distribution of correlation coefficients
-  if(P > 0) {nulldist <- sort(doPerm(P, X, Y)$dist)}
-  
-  #print(nulldist)
-  
-  header <- c('Mixture',colnames(X),"P-value","Correlation","RMSE")
-  #print(header)
-  
-  output <- matrix()
-  itor <- 1
-  mixtures <- dim(Y)[2]
-  pval <- 9999
-  
-  #iterate through mixtures
-  while(itor <= mixtures){
-    
-    y <- Y[,itor]
-    
-    #standardize mixture
-    y <- (y - mean(y)) / sd(y)
-    
-    #run SVR core algorithm
-    result <- CoreAlg(X, y)
-    
-    #get results
-    w <- result$w
-    mix_r <- result$mix_r
-    mix_rmse <- result$mix_rmse
-    
-    #calculate p-value
-    if(P > 0) {pval <- 1 - (which.min(abs(nulldist - mix_r)) / length(nulldist))}
-    
-    #print output
-    out <- c(colnames(Y)[itor],w,pval,mix_r,mix_rmse)
-    if(itor == 1) {output <- out}
-    else {output <- rbind(output, out)}
-    
-    itor <- itor + 1
-    
-  }
-  
-  #save results
-  write.table(rbind(header,output), file="results/CIBERSORT_ALL.txt", sep="\t", row.names=F, col.names=F, quote=F)
-  
-  #return matrix object containing all results
-  obj <- rbind(header,output)
-  obj <- obj[,-1]
-  obj <- obj[-1,]
-  obj <- matrix(as.numeric(unlist(obj)),nrow=nrow(obj))
-  rownames(obj) <- colnames(Y)
-  colnames(obj) <- c(colnames(X),"P-value","Correlation","RMSE")
-  obj
-}
-
-CIBERSORT_TCGA <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
-  
-  #read in data
-  X <- read.table(sig_matrix,header=T,sep="\t",row.names=1,check.names=F)
-  Y <- read.table(mixture_file, header=T, sep="\t", row.names=1,check.names=F)
-  
-  X <- data.matrix(X)
-  Y <- data.matrix(Y)
-  
-  #order
-  X <- X[order(rownames(X)),]
-  Y <- Y[order(rownames(Y)),]
-  
-  P <- perm #number of permutations
-  
-  #anti-log if max < 50 in mixture file
-  if(max(Y) < 50) {Y <- 2^Y}
-  
-  #quantile normalization of mixture file
-  if(QN == TRUE){
-    tmpc <- colnames(Y)
-    tmpr <- rownames(Y)
-    Y <- preprocessCore::normalize.quantiles(Y)
-    colnames(Y) <- tmpc
-    rownames(Y) <- tmpr
-  }
-  
-  #intersect genes
-  Xgns <- row.names(X)
-  Ygns <- row.names(Y)
-  YintX <- Ygns %in% Xgns
-  Y <- Y[YintX,]
-  XintY <- Xgns %in% row.names(Y)
-  X <- X[XintY,]
-  
-  #standardize sig matrix
-  X <- (X - mean(X)) / sd(as.vector(X))
-  
-  #empirical null distribution of correlation coefficients
-  if(P > 0) {nulldist <- sort(doPerm(P, X, Y)$dist)}
-  
-  #print(nulldist)
-  
-  header <- c('Mixture',colnames(X),"P-value","Correlation","RMSE")
-  #print(header)
-  
-  output <- matrix()
-  itor <- 1
-  mixtures <- dim(Y)[2]
-  pval <- 9999
-  
-  #iterate through mixtures
-  while(itor <= mixtures){
-    
-    y <- Y[,itor]
-    
-    #standardize mixture
-    y <- (y - mean(y)) / sd(y)
-    
-    #run SVR core algorithm
-    result <- CoreAlg(X, y)
-    
-    #get results
-    w <- result$w
-    mix_r <- result$mix_r
-    mix_rmse <- result$mix_rmse
-    
-    #calculate p-value
-    if(P > 0) {pval <- 1 - (which.min(abs(nulldist - mix_r)) / length(nulldist))}
-    
-    #print output
-    out <- c(colnames(Y)[itor],w,pval,mix_r,mix_rmse)
-    if(itor == 1) {output <- out}
-    else {output <- rbind(output, out)}
-    
-    itor <- itor + 1
-    
-  }
-  
-  #save results
-  write.table(rbind(header,output), file="results/CIBERSORT_TCGA.txt", sep="\t", row.names=F, col.names=F, quote=F)
-  
-  #return matrix object containing all results
-  obj <- rbind(header,output)
-  obj <- obj[,-1]
-  obj <- obj[-1,]
-  obj <- matrix(as.numeric(unlist(obj)),nrow=nrow(obj))
-  rownames(obj) <- colnames(Y)
-  colnames(obj) <- c(colnames(X),"P-value","Correlation","RMSE")
-  obj
-}
-
-
-CIBERSORT_GTEx <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
-  
-  #read in data
-  X <- read.table(sig_matrix,header=T,sep="\t",row.names=1,check.names=F)
-  Y <- read.table(mixture_file, header=T, sep="\t", row.names=1,check.names=F)
-  
-  X <- data.matrix(X)
-  Y <- data.matrix(Y)
-  
-  #order
-  X <- X[order(rownames(X)),]
-  Y <- Y[order(rownames(Y)),]
-  
-  P <- perm #number of permutations
-  
-  #anti-log if max < 50 in mixture file
-  if(max(Y) < 50) {Y <- 2^Y}
-  
-  #quantile normalization of mixture file
-  if(QN == TRUE){
-    tmpc <- colnames(Y)
-    tmpr <- rownames(Y)
-    Y <- preprocessCore::normalize.quantiles(Y)
-    colnames(Y) <- tmpc
-    rownames(Y) <- tmpr
-  }
-  
-  #intersect genes
-  Xgns <- row.names(X)
-  Ygns <- row.names(Y)
-  YintX <- Ygns %in% Xgns
-  Y <- Y[YintX,]
-  XintY <- Xgns %in% row.names(Y)
-  X <- X[XintY,]
-  
-  #standardize sig matrix
-  X <- (X - mean(X)) / sd(as.vector(X))
-  
-  #empirical null distribution of correlation coefficients
-  if(P > 0) {nulldist <- sort(doPerm(P, X, Y)$dist)}
-  
-  #print(nulldist)
-  
-  header <- c('Mixture',colnames(X),"P-value","Correlation","RMSE")
-  #print(header)
-  
-  output <- matrix()
-  itor <- 1
-  mixtures <- dim(Y)[2]
-  pval <- 9999
-  
-  #iterate through mixtures
-  while(itor <= mixtures){
-    
-    y <- Y[,itor]
-    
-    #standardize mixture
-    y <- (y - mean(y)) / sd(y)
-    
-    #run SVR core algorithm
-    result <- CoreAlg(X, y)
-    
-    #get results
-    w <- result$w
-    mix_r <- result$mix_r
-    mix_rmse <- result$mix_rmse
-    
-    #calculate p-value
-    if(P > 0) {pval <- 1 - (which.min(abs(nulldist - mix_r)) / length(nulldist))}
-    
-    #print output
-    out <- c(colnames(Y)[itor],w,pval,mix_r,mix_rmse)
-    if(itor == 1) {output <- out}
-    else {output <- rbind(output, out)}
-    
-    itor <- itor + 1
-    
-  }
-  
-  #save results
-  write.table(rbind(header,output), file="results/CIBERSORT_GTEx.txt", sep="\t", row.names=F, col.names=F, quote=F)
-  
-  #return matrix object containing all results
-  obj <- rbind(header,output)
-  obj <- obj[,-1]
-  obj <- obj[-1,]
-  obj <- matrix(as.numeric(unlist(obj)),nrow=nrow(obj))
-  rownames(obj) <- colnames(Y)
-  colnames(obj) <- c(colnames(X),"P-value","Correlation","RMSE")
-  obj
-}
-
-CIBERSORT_20 <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
-  
-  #read in data
-  X <- read.table(sig_matrix,header=T,sep="\t",row.names=1,check.names=F)
-  Y <- read.table(mixture_file, header=T, sep="\t", row.names=1,check.names=F)
-  
-  X <- data.matrix(X)
-  Y <- data.matrix(Y)
-  
-  #order
-  X <- X[order(rownames(X)),]
-  Y <- Y[order(rownames(Y)),]
-  
-  P <- perm #number of permutations
-  
-  #anti-log if max < 50 in mixture file
-  if(max(Y) < 50) {Y <- 2^Y}
-  
-  #quantile normalization of mixture file
-  if(QN == TRUE){
-    tmpc <- colnames(Y)
-    tmpr <- rownames(Y)
-    Y <- preprocessCore::normalize.quantiles(Y)
-    colnames(Y) <- tmpc
-    rownames(Y) <- tmpr
-  }
-  
-  #intersect genes
-  Xgns <- row.names(X)
-  Ygns <- row.names(Y)
-  YintX <- Ygns %in% Xgns
-  Y <- Y[YintX,]
-  XintY <- Xgns %in% row.names(Y)
-  X <- X[XintY,]
-  
-  #standardize sig matrix
-  X <- (X - mean(X)) / sd(as.vector(X))
-  
-  #empirical null distribution of correlation coefficients
-  if(P > 0) {nulldist <- sort(doPerm(P, X, Y)$dist)}
-  
-  #print(nulldist)
-  
-  header <- c('Mixture',colnames(X),"P-value","Correlation","RMSE")
-  #print(header)
-  
-  output <- matrix()
-  itor <- 1
-  mixtures <- dim(Y)[2]
-  pval <- 9999
-  
-  #iterate through mixtures
-  while(itor <= mixtures){
-    
-    y <- Y[,itor]
-    
-    #standardize mixture
-    y <- (y - mean(y)) / sd(y)
-    
-    #run SVR core algorithm
-    result <- CoreAlg(X, y)
-    
-    #get results
-    w <- result$w
-    mix_r <- result$mix_r
-    mix_rmse <- result$mix_rmse
-    
-    #calculate p-value
-    if(P > 0) {pval <- 1 - (which.min(abs(nulldist - mix_r)) / length(nulldist))}
-    
-    #print output
-    out <- c(colnames(Y)[itor],w,pval,mix_r,mix_rmse)
-    if(itor == 1) {output <- out}
-    else {output <- rbind(output, out)}
-    
-    itor <- itor + 1
-    
-  }
-  
-  #save results
-  write.table(rbind(header,output), file="results/CIBERSORT_20.txt", sep="\t", row.names=F, col.names=F, quote=F)
-  
+  write.table(rbind(header, output),
+              file = paste0(pathSave, "CIBERSORT_Results.txt"),
+              sep = "\t",
+              row.names = F,
+              col.names = F,
+              quote = F)
   #return matrix object containing all results
   obj <- rbind(header,output)
   obj <- obj[,-1]
