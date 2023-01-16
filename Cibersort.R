@@ -194,11 +194,11 @@ CIBERSORT <- function(sig_matrix,
   }
   
   #save results
-  if (is.null(pathWay)) {
-    pathWay <- ""
+  if (is.null(pathSave)) {
+    pathSave <- ""
   } else {
-    if (!dir.exists(pathWay)) {
-      dir.create(pathWay, recursive = TRUE)
+    if (!dir.exists(pathSave)) {
+      dir.create(pathSave, recursive = TRUE)
     }
   }
   write.table(rbind(header, output),
