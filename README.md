@@ -1,27 +1,27 @@
 # &#x1F4D7;ImmuCycReg-framework
-<img src="https://img.shields.io/badge/-R-green"/> <img src="https://img.shields.io/badge/-Immune%20escape%20analysis-blue"/> <img src="https://img.shields.io/badge/-Gene%20Regulatory%20Network-blue"/> <img src="https://img.shields.io/eclipse-marketplace/last-update/mengxu98?style=flat-square"/><br/>
+<img src="https://img.shields.io/badge/-R-green"/> <img src="https://img.shields.io/badge/-Immune%20escape%20analysis-blue"/> <img src="https://img.shields.io/badge/-Gene%20Regulatory%20Network-blue"/> <img src="https://img.shields.io/eclipse-marketplace/last-update/mengxu98?style=flat"/><br/>
 The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer (Revision in npj Systems Biology and Applications).<br/>
-## &#x1F537;Workflow
+## &#x1F537; Workflow
 <img src="https://github.com/mengxu98/ImmuCycReg-framework/blob/main/Workflow.png"/><br/>
-## &#x1F537;DATA links:
-  &#x1F538;Processed data from this study are available in the reproducibility GitHub repository:<br/>
+## &#x1F537; DATA links:
+  &#x1F538; Processed data from this study are available in the reproducibility GitHub repository:<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data`<br/>
-  &#x1F538;The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare:<br/>
+  &#x1F538; The Cancer Genome Atlas (TCGA) and the Genotype-Tissue Expression (GTEx) datasets were downloaded from figshare:<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://figshare.com/articles/dataset/Data_record_1/5330539`<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://figshare.com/articles/dataset/Data_record_2/5330575`<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://figshare.com/articles/dataset/Data_record_3/5330593`<br/>
-  &#x1F538;Transposase-Accessible Chromatin with high throughput sequencing (ATAC-seq) was downloaded from UCSC-Xena:<br/>
+  &#x1F538; Transposase-Accessible Chromatin with high throughput sequencing (ATAC-seq) was downloaded from UCSC-Xena:<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://atacseq.xenahubs.net`<br/>
-  &#x1F538;Copy number variations (CNV) dataset was downloaded from GISTIC2.0:<br/>
+  &#x1F538; Copy number variations (CNV) dataset was downloaded from GISTIC2.0:<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://api.gdc.cancer.gov/data/7d64377f-2cea-4ee3-917f-8fcfbcd999e7`<br/>
-  &#x1F538;Genome annotation file was downloaded from hg38.ensGene.gtf:<br/>
+  &#x1F538; Genome annotation file was downloaded from hg38.ensGene.gtf:<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/`<br/>
-## &#x1F537;The input data:
-  &#x1F538;The TCGA RNA-seq is necessary<br/>
-  &#x1F538;The ATAC-seq is necessary<br/>
-  &#x1F538;The CNV data is not required<br/>
-## &#x1F537;The results provide in Supplementary Data
-## &#x1F537;The environment and softwares required:
+## &#x1F537; The input data:
+   &#x1F538; The TCGA RNA-seq is necessary<br/>
+   &#x1F538; The ATAC-seq is necessary<br/>
+   &#x1F538; The CNV data is not required<br/>
+## &#x1F537; The results provide in Supplementary Data
+## &#x1F537; The environment and softwares required:
     R 4.1.2
     NMF==0.24.0
     DESeq2==1.32.0
@@ -40,8 +40,9 @@ The code repository is for paper: Integration of single sample and population an
     ClueGo v2.5.9
     JAVA v18.0.1.1
     GeneNetWeaver: http://gnw.sourceforge.net/
-## &#x1F537;LICENSE
-MIT License
+## &#x1F537; LICENSE
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MIT License
+
 <!--
 ## If you encounter any problems when use these code, please contact me by Wechat or QQ: 
 Wechat: <img src="https://github.com/mengxu98/scGRN-L0/blob/master/contact/Wechat.jpg" width="100" height="100" alt="Wechat"/> QQ: <img src="https://github.com/mengxu98/scGRN-L0/blob/master/contact/QQ.PNG" width="100" height="100" alt="QQ"/><br/>
