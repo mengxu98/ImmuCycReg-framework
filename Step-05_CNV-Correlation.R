@@ -4,34 +4,23 @@ rm(list = ls())
 library("psych")
 library("ggcorrplot")
 
+pathRead <- "data/"
+pathSave <- "../Results/"
+
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "CNV-LUAD.Rdata"))
 
 # Split data in the target genes and samples with mRNA data
-sample_label_sur <- read.table(paste0(pathSave, "NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv"),
-  header = FALSE,
-  sep = ",",
-  check.names = FALSE
-)
-
+samples_cluster <- read.csv(paste0(pathRead, "sample_cluster_4.csv"), header = F)
 correction_results_all <- c()
 for (k in 1:4) {
-  cluster <- sample_label_sur[which(sample_label_sur$V2 == k), 1]
-  if (TRUE) {
-    gene_list <- read.table(paste("../data CNV/all genes", ".txt", sep = ""),
-      header = TRUE,
-      row.names = 1
-    )
-  } else {
-    gene_list <- read.table(sprintf("../L0/data/genes_list_cluster%s.txt", k),
-      header = TRUE,
-      row.names = 1
-    )
-  }
-
-  booble <- colnames(raw_tcga_cnv) %in% cluster
-  CNV_cluster <- raw_tcga_cnv[row.names(gene_list), booble]
-  mRNA_cluster <- raw_tcga[row.names(gene_list), colnames(CNV_cluster)]
+  cluster <- samples_cluster[which(samples_cluster$V2 == k), 1]
+  gene_list <- read.table(paste(paste0(pathRead, "Genes_17.txt"), sep = ""),
+                          header = TRUE
+  )
+  samples_inter <- intersect(cluster, colnames(tcga_cnv))
+  CNV_cluster <- tcga_cnv[gene_list$gene, samples_inter]
+  mRNA_cluster <- tcga_luad[gene_list$gene, samples_inter]
 
   cnv_temp <- t(CNV_cluster)
   mrna_temp <- t(mRNA_cluster)
@@ -51,8 +40,6 @@ for (k in 1:4) {
     cor_results_p <- c(cor_results_p, corr_ligands$p)
   }
   strong_cor_self <- order(cor_results, decreasing = TRUE)
-  colnames(cnv_temp)[strong_cor_self[1:3]]
-  colnames(cnv_temp)[strong_cor_self[length(strong_cor_self)]]
   negative_value <- cor_results[strong_cor_self[length(strong_cor_self)]]
 
   intercor_matrix <- c()
@@ -76,11 +63,11 @@ for (k in 1:4) {
   for (i in 1:nrow(mRNA_cluster)) {
     selectgene <- row.names(mRNA_cluster[i, ])
     intercor_matrix[selectgene, selectgene]
-    if (all(intercor_matrix[selectgene, selectgene] >= 0.4)) {
-      print(selectgene)
-    } else {
-      print("The correlation coefficient of selected genes was less than 0.4")
-    }
+    # if (all(intercor_matrix[selectgene, selectgene] >= 0.4)) {
+    #   print(selectgene)
+    # } else {
+    #   print("The correlation coefficient of selected genes was less than 0.4")
+    # }
     correction_results1 <- cbind(selectgene, intercor_matrix[selectgene, selectgene])
     correction_results <- rbind(correction_results, correction_results1)
   }
