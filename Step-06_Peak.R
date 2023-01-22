@@ -11,33 +11,32 @@ library("GGally")
 library("ggplot2")
 library("patchwork")
 
+pathRead <- "data/"
+pathSave <- "../Results/"
+
 # 1:select peak
 # 2:make bed file
 
 # Load data ---------------------------------------------------------------
-load("../data ATAC-seq/peak_luad.Rdata")
-if (TRUE) {
-  load("../data ATAC-seq/genes_adj_peak.Rdata")
-  row_names <- row.names(genes_adj_peak)
-  genes_temp <- as.vector(genes_adj_peak[, 1])
-  genes_list <- strsplit(genes_temp, ",")
-}
-if (TRUE) {
-  load("../data ATAC-seq/allgene_tcga_mrna.Rdata")
-  sample_name <- colnames(allgene_tcga_mrna)
-}
-load("../data ATAC-seq/geneinfo_df.Rdata")
-if (TRUE) {
-  target_genes_list <- read.table("../data CNV/all genes.txt", header = T)
-  target_genes_list <- target_genes_list$gene
-}
+load(paste0(pathSave, "TCGA-LUAD.Rdata"))
+load(paste0(pathSave, "Peak-LUAD.Rdata"))
+load(paste0(pathSave, "genes_adj_peak.Rdata"))
+row_names <- row.names(genes_adj_peak)
+genes_temp <- as.vector(genes_adj_peak[, 1])
+genes_list <- strsplit(genes_temp, ",")
+load("../data ATAC-seq/allgene_tcga_mrna.Rdata")
+sample_name <- colnames(allgene_tcga_mrna)
+sample_name <- intersect(colnames(tcga_luad), colnames(peak_luad))
+# load(paste0(pathSave, "Geneinfo_df.Rdata"))
+target_genes_list <- read.table(paste0(pathRead, "Genes_17.txt"), header = T)
+target_genes_list <- target_genes_list$gene
 
 # Run ---------------------------------------------------------------------
 peak_seq_pos_all <- c()
 volcano_plot_pvalue_list <- list()
 for (j in 1:length(target_genes_list)) {
-  if (!dir.exists("../results ATAC-seq/BED")) {
-    dir.create("../results ATAC-seq/BED")
+  if (!dir.exists(paste0(pathSave, "BED"))) {
+    dir.create(paste0(pathSave, "BED"))
   }
   target_gene <- target_genes_list[j]
   peak_around_gene <- c()
@@ -117,7 +116,8 @@ for (j in 1:length(target_genes_list)) {
   # http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/
 
   pos_col_name <- c("chrom", "chromStart", "chromEnd", "strand")
-  temp_res <- geneinfo_df[which(geneinfo_df[, "gene_name"] == target_gene), c("seqnames", "type", "gene_id", "start", "end", "width")]
+  # temp_res <- geneinfo_df[which(geneinfo_df[, "gene_name"] == target_gene), c("seqnames", "type", "gene_id", "start", "end", "width")]
+  temp_res <- genes_adj_peak[which(genes_adj_peak[, "gene_name"] == target_gene), c("seqnames", "type", "gene_id", "start", "end", "width")]
   temp_res <- temp_res[which(temp_res[, "type"] == "transcript"), ]
   # select the NEAREST long region
   order_index <- order(temp_res[, "start"], decreasing = FALSE)
