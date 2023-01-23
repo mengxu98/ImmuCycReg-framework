@@ -12,31 +12,31 @@ source("Functions.R")
 pathRead <- "data/"
 pathSave <- "../Results/"
 
-String_names <- read.table(paste0(pathSave, "Datasets/STRING_9606.protein.info.v11.5.txt"))
-String_score <- read.table(paste0(pathSave, "Datasets/STRING_9606.protein.links.v11.5.txt.gz"), header = T)
+String_names <- read.table(paste0(pathRead, "Datasets/STRING_9606.protein.info.v11.5.txt"))
+String_score <- read.table(paste0(pathRead, "Datasets/STRING_9606.protein.links.v11.5.txt.gz"), header = T)
 
-ASPAR_Predicted <- read.table(paste0(pathSave, "Datasets/ASPAR Predicted Transcription Factor Targets.txt.gz"),
+ASPAR_Predicted <- read.table(paste0(pathRead, "Datasets/ASPAR Predicted Transcription Factor Targets.txt.gz"),
                               header = T,
                               check.names = FALSE
 )
-encode_tf <- read.table(paste0(pathSave, "Datasets/ENCODE Transcription Factor Targets.txt.gz"),
+encode_tf <- read.table(paste0(pathRead, "Datasets/ENCODE Transcription Factor Targets.txt.gz"),
                         header = T,
                         check.names = FALSE
 )
-CHEA_tf <- read.table(paste0(pathSave, "Datasets/CHEA Transcription Factor Targets.txt.gz"),
+CHEA_tf <- read.table(paste0(pathRead, "Datasets/CHEA Transcription Factor Targets.txt.gz"),
                       header = T,
                       check.names = FALSE
 )
-MotifMap_Predicted <- read.table(paste0(pathSave, "Datasets/MotifMap Predicted Transcription Factor Targets.txt.gz"),
+MotifMap_Predicted <- read.table(paste0(pathRead, "Datasets/MotifMap Predicted Transcription Factor Targets.txt.gz"),
                                  header = T,
                                  sep = "\t",
                                  check.names = FALSE
 )
-TRANSFAC_Curated <- read.table(paste0(pathSave, "Datasets/TRANSFAC Curated Transcription Factor Targets.txt.gz"),
+TRANSFAC_Curated <- read.table(paste0(pathRead, "Datasets/TRANSFAC Curated Transcription Factor Targets.txt.gz"),
                                header = T,
                                check.names = FALSE
 )
-TRANSFAC_Predicted <- read.table(paste0(pathSave, "Datasets/TRANSFAC Predicted Transcription Factor Targets.txt.gz"),
+TRANSFAC_Predicted <- read.table(paste0(pathRead, "Datasets/TRANSFAC Predicted Transcription Factor Targets.txt.gz"),
                                  header = T,
                                  check.names = FALSE
 )
@@ -87,8 +87,8 @@ for (k in seq_along(target_genes_list)) {
   tcga_temp <- allgene_tcga_mrna[which(row_matrix_tcga), ] # all luad samples both in ATAC and TCGA
   exsit_gene_list <- row.names(tcga_temp)
   
-  if (dir.exists(paste0(pathSave, target_gene)) == F) {
-    dir.create(paste0(pathSave, target_gene), recursive = TRUE)
+  if (dir.exists(paste0(pathSave, "Regulatory_table")) == F) {
+    dir.create(paste0(pathSave, "Regulatory_table"), recursive = TRUE)
   }
   if (!dir.exists(paste0(pathSave, "TFs_list_selected"))) {
     dir.create(paste0(pathSave, "TFs_list_selected"))
@@ -300,11 +300,11 @@ for (k in seq_along(target_genes_list)) {
     results_regulatory_freq <- results_regulatory_freq[which(results_regulatory_freq$Freq >= freq_threshold), ]
     #
     sel_col <- c("ASPAR", "ENCODE", "CHEA", "MotifMap", "TRANSFAC_Curated", "TRANSFAC_Predicted")
-    results_regulatory_table <- data.frame(Var1 = results_regulatory_freq$Var1) # 建立联立表
+    results_regulatory_table <- data.frame(Var1 = results_regulatory_freq$Var1)
     results_regulatory_table <- FrameRegulatoryTable(results_regulatory_table)
     
     write.table(results_regulatory_table,
-                file = paste(pathSave, target_gene, "/", target_gene, "_regulatory_table.csv", sep = ""),
+                file = paste(pathSave, "Regulatory_table", "/", target_gene, "_regulatory_table.csv", sep = ""),
                 sep = ",",
                 row.names = F,
                 col.names = T
@@ -329,7 +329,7 @@ for (k in seq_along(target_genes_list)) {
     
     # Update immune score and L0 input TFs
     write.table(hit_tf,
-                paste0(pathSave, target_gene, "_TFs_list.txt"),
+                paste0(pathSave, "TFs_list_selected/", target_gene, "_TFs_list.txt"),
                 quote = F,
                 row.names = F,
                 col.names = T,
@@ -367,7 +367,7 @@ write.table(num_TFs_all,
 )
 
 write.table(t.test_res_inroemation_all,
-            paste0(pathSave, "t.test_res_inroemation_all.csv"),
+            paste0(pathSave, "T-test/t.test_res_inroemation_all.csv"),
             sep = ",",
             row.names = F,
             col.names = T
