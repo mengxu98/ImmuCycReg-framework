@@ -48,7 +48,7 @@ load(paste0(pathSave, "Peak-LUAD.Rdata"))
 load(paste0(pathSave, "genes_adj_peak.Rdata"))
 load(paste0(pathSave, "geneinfo_df.Rdata"))
 
-candidate_peaks <- read.csv(paste0(pathRead, "all_peaks.csv"))
+candidate_peaks <- read.csv(paste0(pathSave, "all_peaks.csv"))
 negative_genes <- read.table(paste0(pathRead, "Genes_immune_cycle.txt"),header = TRUE, sep = "\t")
 negative_genes <- negative_genes$GeneSymbol[negative_genes[, c("Direction")] == "negative"]
 target_genes_list <- read.table(paste0(pathRead, "Genes_17.txt"), header = T)
