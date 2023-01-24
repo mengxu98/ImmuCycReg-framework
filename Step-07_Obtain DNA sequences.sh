@@ -22,7 +22,7 @@
 
 # 3) DNA sequences were obtained using bedtools
 # sudo -s
-bedtools getfasta -fi hg38.fa -bed allBED.bed > results.fa
+bedtools getfasta -fi hg38.fa -bed all_BED.bed > results.fa
 
   # 3) samtool, a convenient tool like bedtools, has equal results compare with bedtools
   # samtools faidx hg38.fa chr4:122548477-122548979
