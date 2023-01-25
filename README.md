@@ -1,6 +1,6 @@
 # &#x1F4D7;ImmuCycReg-framework
 <img src="https://img.shields.io/badge/-R-green"/> <img src="https://img.shields.io/badge/-Immune%20escape%20analysis-blue"/> <img src="https://img.shields.io/badge/-Gene%20Regulatory%20Network-blue"/> <img src="https://img.shields.io/eclipse-marketplace/last-update/mengxu98?style=flat"/><br/>
-The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer (Revision in npj Systems Biology and Applications).<br/>
+The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer (Accepted by npj Systems Biology and Applications).<br/>
 ## &#x1F537; Workflow
 <img src="https://github.com/mengxu98/ImmuCycReg-framework/blob/main/Workflow.png"/><br/>
 ## &#x1F537; DATA links:
