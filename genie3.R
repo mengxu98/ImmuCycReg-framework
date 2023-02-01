@@ -39,7 +39,15 @@
 #									
 #
 
-genieSolve <- function(expressionMatrix,predictorIndices,targetIndices,candidateSplitCount="SQRT",treesInEnsembleCount=1000,importanceMeasure="IncNodePurity",randomSeed=NULL,trace=TRUE,...){
+genieSolve <- function(expressionMatrix,
+                       predictorIndices,
+                       targetIndices,
+                       candidateSplitCount="SQRT",
+                       treesInEnsembleCount=1000,
+                       importanceMeasure="IncNodePurity",
+                       randomSeed=NULL,
+                       trace=TRUE,
+                       ...){
 	
 	# Load libary
 	library("randomForest")
@@ -112,7 +120,6 @@ genieSolve <- function(expressionMatrix,predictorIndices,targetIndices,candidate
 	}
 	# Divide by number of samples
 	return (resultMatrix/ dim(expressionMatrix)[1])
-	
 	
 }
 

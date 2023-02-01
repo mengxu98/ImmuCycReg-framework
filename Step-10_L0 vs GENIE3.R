@@ -36,7 +36,7 @@ for (n in 1:2) {
     expression_dataset_test <- read.table(paste0(pathway, dataway), header = T) %>% as.matrix() %>% t()
     row.names(expression_dataset_test) <- row.names(expression_dataset_test)
     
-    L0GRN <- L0DWGRN(expression_dataset_test)
+    L0GRN <- L0DWGRN(expression_dataset_test[1:10,1:10])
     evaluationObject <- prepareEval(L0GRN, paste0(pathway, goldway))
     L0_AUROC <- calcAUROC(evaluationObject)
     L0_AUPR <- calcAUPR(evaluationObject)

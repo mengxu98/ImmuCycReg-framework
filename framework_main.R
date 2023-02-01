@@ -8,7 +8,6 @@ source("util.R")
 source("basic_evaluation.R")
 
 # 	NIMEFI
-#
 # 	Constructs regression problems from an expression matrix using the columns specified as targets and solves the regression problems
 # 	using ensemble feature selection techniques
 
@@ -48,13 +47,10 @@ source("basic_evaluation.R")
 #
 # 		-- ... : the other parameters are passed to the specific method to be used.
 #
-#
 # 	Returns:
 #
 # 		A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
 #
-#
-
 
 NIMEFI <- function(expressionMatrix,
                    predictorIndices = NULL,
@@ -158,7 +154,13 @@ NIMEFI <- function(expressionMatrix,
 
   if (GENIE) {
     print("Starting GENIE3 network inference...")
-    genieResult <- genieSolve(expressionMatrix, predictorIndices, targetIndices, trace = GENIETrace, candidateSplitCount = candidateSplitCount, treesInEnsembleCount = treesInEnsembleCount, ...)
+    genieResult <- genieSolve(expressionMatrix, 
+                              predictorIndices, 
+                              targetIndices, 
+                              trace = GENIETrace, 
+                              candidateSplitCount = candidateSplitCount, 
+                              treesInEnsembleCount = treesInEnsembleCount,
+                              ...)
     genieResult <- convertAdjMatrixToSortedRankTSV(inputFile = genieResult)
     genieResult[, 3] <- 1:(dim(genieResult)[1])
     genieResult <- convertSortedRankTSVToAdjMatrix(input = genieResult)

@@ -6,10 +6,19 @@
 
 
 # Defines class
-setClass("evalClass",representation(tpr="vector",fpr="vector",prec="vector",rec="vector",p="integer",n="integer",tpk="vector",fpk="vector",predictors="vector",targets="vector",rank="vector"))
-
+setClass("evalClass",
+         representation(tpr="vector",
+                        fpr="vector",
+                        prec="vector",
+                        rec="vector",
+                        p="integer",
+                        n="integer",
+                        tpk="vector",
+                        fpk="vector",
+                        predictors="vector",
+                        targets="vector",
+                        rank="vector"))
 library("caTools")
-
 
 ###############################################################################
 # 	prepareEval
