@@ -126,10 +126,17 @@ NIMEFI <- function(expressionMatrix,
 
   if (SVM) {
     print("Starting E-SVM network inference...")
-    svmResult <- SVMVariableEnsembleSolve(expressionMatrix, predictorIndices, targetIndices,
-      trace = SVMTrace, ensembleSize = SVMEnsembleSize, rankThreshold = SVMRankThreshold,
-      predictorSampleSizeMin = SVMPredSampleMin, predictorSampleSizeMax = SVMPredSampleMax,
-      minSampleSize = SVMExpSampleMin, maxSampleSize = SVMExpSampleMax, ...
+    svmResult <- SVMVariableEnsembleSolve(expressionMatrix,
+                                          predictorIndices,
+                                          targetIndices,
+                                          trace = SVMTrace,
+                                          ensembleSize = SVMEnsembleSize,
+                                          rankThreshold = SVMRankThreshold,
+                                          predictorSampleSizeMin = SVMPredSampleMin,
+                                          predictorSampleSizeMax = SVMPredSampleMax,
+                                          minSampleSize = SVMExpSampleMin,
+                                          maxSampleSize = SVMExpSampleMax,
+                                          ...
     )
     svmResult <- convertAdjMatrixToSortedRankTSV(inputFile = svmResult)
     svmResult[, 3] <- 1:(dim(svmResult)[1])
@@ -173,6 +180,11 @@ NIMEFI <- function(expressionMatrix,
   if (is.null(outputFileName)) {
     return(resultMatrix)
   } else {
-    write.table(resultMatrix, outputFileName, row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE)
+    write.table(resultMatrix,
+                outputFileName,
+                row.names = FALSE,
+                col.names = FALSE,
+                sep = "\t",
+                quote = FALSE)
   }
 }

@@ -449,14 +449,14 @@ LO_fit <- function(X, Y,
                    gammaMax = 10) {
   tryCatch(
     {
-      fit <- L0Learn.cvfit(X, Y,
-                           penalty = penalty,
-                           maxSuppSize = maxSuppSize,
-                           nFolds = 10,
-                           seed = 1,
-                           nGamma = 5,
-                           gammaMin = 0.0001,
-                           gammaMax = 10
+      fit <- L0Learn::L0Learn.cvfit(X, Y,
+                                    penalty = penalty,
+                                    maxSuppSize = maxSuppSize,
+                                    nFolds = 10,
+                                    seed = 1,
+                                    nGamma = 5,
+                                    gammaMin = 0.0001,
+                                    gammaMax = 10
       )
       fit_inf <- print(fit)
       optimalGammaIndex <- which(unlist(lapply(fit$cvMeans, min)) == min(unlist(lapply(fit$cvMeans, min))))
@@ -471,15 +471,17 @@ LO_fit <- function(X, Y,
           lambda <- min(lambda_list$lambda)
         }
       }
-      temp <- coef(fit, lambda = lambda, gamma = gamma)
+      temp <- coef(fit,
+                   lambda = lambda,
+                   gamma = gamma)
     },
     error = function(e) {
-      fit <- L0Learn.fit(X, Y,
-                         penalty = penalty,
-                         maxSuppSize = maxSuppSize,
-                         nGamma = 5,
-                         gammaMin = 0.0001,
-                         gammaMax = 10
+      fit <- L0Learn::L0Learn.fit(X, Y,
+                                  penalty = penalty,
+                                  maxSuppSize = maxSuppSize,
+                                  nGamma = 5,
+                                  gammaMin = 0.0001,
+                                  gammaMax = 10
       )
       fit_inf <- print(fit)
       fit_inf <- fit_inf[order(fit_inf$suppSize, decreasing = TRUE), ]
@@ -509,8 +511,8 @@ L0DWGRN <- function(matrix,
                     penalty = NULL,
                     regulators = NULL,
                     targets = NULL,
-                    maxSuppSize = NULL) {
-  library(L0Learn)
+                    maxSuppSize = NULL,
+                    cores = 1) {
   matrix <- as.data.frame(t(matrix))
   weightdf <- c()
   if (is.null(penalty)) {
@@ -523,49 +525,11 @@ L0DWGRN <- function(matrix,
     targets <- colnames(matrix)
   }
   if (!is.null(regulators)) {
-    matrix_reg <- matrix[, regulators]
-    for (i in 1:length(targets)) {
-      if (targets[i] %in% regulators) {
-        X <- as.matrix(matrix_reg[, -which(colnames(matrix_reg) == targets[i])])
-      } else {
-        X <- as.matrix(matrix_reg)
-      }
-      Y <- matrix[, targets[i]]
-      temp <- LO_fit(X, Y,
-                     penalty = penalty,
-                     nFolds = 10,
-                     seed = 1,
-                     maxSuppSize = maxSuppSize,
-                     nGamma = 5,
-                     gammaMin = 0.0001,
-                     gammaMax = 10
-      )
-      temp <- as.vector(temp)
-      wghts <- temp[-1]
-      wghts <- abs(wghts)
-      # wghts <- wghts / max(wghts)
-      if (F) {
-        wghts <- wghts / max(wghts)
-        indices <- sort.list(wghts, decreasing = TRUE)
-        zeros <- which(wghts <= 0.8)
-        # wghts[1:length(wghts)] <- 1
-        wghts[zeros] <- 0
-      }
-      if (length(wghts) != dim(X)[2]) {
-        weightd <- data.frame(regulatoryGene = colnames(X), targetGene = targets[i], weight = 0)
-        # weightd <- data.frame(regulatoryGene = targets[i], targetGene = colnames(X), weight = 0)
-      } else {
-        weightd <- data.frame(regulatoryGene = colnames(X), targetGene = targets[i], weight = wghts)
-        # weightd <- data.frame(regulatoryGene = targets[i], targetGene = colnames(X), weight = wghts)
-      }
-      # weightd$weight <- weightd$weight / max(weightd$weight)
-      weightdf <- rbind.data.frame(weightdf, weightd)
-      if (i == length(regulators)) {
-        weightdf <- weightdf[order(weightdf$weight, decreasing = TRUE), ]
-      }
-    }
+    matrix <- matrix[, regulators]
   } else {
     regulators <- colnames(matrix)
+  }
+  if (cores == 1) {
     for (i in 1:length(regulators)) {
       X <- as.matrix(matrix[, -which(colnames(matrix) == regulators[i])])
       Y <- matrix[, regulators[i]]
@@ -581,7 +545,7 @@ L0DWGRN <- function(matrix,
       temp <- as.vector(temp)
       wghts <- temp[-1]
       wghts <- abs(wghts)
-      # wghts <- wghts / max(wghts)
+      wghts <- wghts / sum(wghts)
       if (F) {
         wghts <- wghts / max(wghts)
         indices <- sort.list(wghts, decreasing = TRUE)
@@ -591,18 +555,56 @@ L0DWGRN <- function(matrix,
       }
       if (length(wghts) != dim(X)[2]) {
         weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulators[i], weight = 0)
-        # weightd <- data.frame(regulatoryGene = regulators[i], targetGene = colnames(X), weight = 0)
       } else {
         weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulators[i], weight = wghts)
-        # weightd <- data.frame(regulatoryGene = regulators[i], targetGene = colnames(X), weight = wghts)
       }
-      # weightd$weight <- weightd$weight / max(weightd$weight)
       weightdf <- rbind.data.frame(weightdf, weightd)
       if (i == length(regulators)) {
         weightdf <- weightdf[order(weightdf$weight, decreasing = TRUE), ]
       }
     }
+  } else {
+    cores <- min(parallel::detectCores(logical = F), cores)
+    # cl <- parallel::makeCluster(cores)
+    # doParallel::registerDoParallel(cl)
+    doParallel::registerDoParallel(cores = cores)
+    message(paste("\nUsing", foreach::getDoParWorkers(), "cores."))
+    "%dopar%" <- foreach::"%dopar%"
+    suppressPackageStartupMessages(
+      weightdf <- doRNG::"%dorng%"(foreach::foreach(regulator = regulators, .combine = "rbind", .export = "LO_fit"), {
+        X <- as.matrix(matrix[, -which(colnames(matrix) == regulator)])
+        Y <- matrix[, regulator]
+        temp <- LO_fit(X, Y,
+                       penalty = penalty,
+                       nFolds = 10,
+                       seed = 1,
+                       maxSuppSize = maxSuppSize,
+                       nGamma = 5,
+                       gammaMin = 0.0001,
+                       gammaMax = 10
+        )
+        temp <- as.vector(temp)
+        wghts <- temp[-1]
+        wghts <- abs(wghts)
+        wghts <- wghts / sum(wghts)
+        if (F) {
+          wghts <- wghts / max(wghts)
+          wghts <- wghts / sum(wghts)
+          indices <- sort.list(wghts, decreasing = TRUE)
+          zeros <- which(wghts <= 0.8)
+          # wghts[1:length(wghts)] <- 1
+          wghts[zeros] <- 0
+        }
+        if (length(wghts) != dim(X)[2]) {
+          weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulator, weight = 0)
+        } else {
+          weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulator, weight = wghts)
+        }
+      })
+    )
+    # parallel::stopCluster(cl)
   }
+  weightdf <- weightdf[order(weightdf$weight, decreasing = TRUE), ]
   return(weightdf)
 }
 
@@ -691,16 +693,13 @@ prepareEval <- function(pred, goldTSV,totalPredictionsAccepted=100000){
   fpk <- cumsum(negative)
   # Depth k
   k <- 1:t
-  
   # Calculate true positive rate, false positive rate, precision and recall
   tpr <- tpk / p
   fpr <- fpk / n
   rec <- tpr 
   prec <- tpk / k 
-  
   predictors <- firstRow
   targets <- secondRow
-  
   # Create and return the object
   return (new ("evalClass",tpr=tpr,fpr=fpr,rec=rec,prec=prec,p=as.integer(p),n=as.integer(n),tpk=tpk,fpk=fpk,predictors=predictors,targets=targets,rank=rank))
   
@@ -734,15 +733,12 @@ convertSortedRankTSVToAdjMatrix <- function(inputFilename=NULL,input=NULL,output
     predToAdd   <- tbl[startIndices[i]:(startIndices[i+1]-1),1]
     valuesToAdd <- tbl[startIndices[i]:(startIndices[i+1]-1),3]
     colIndex   <- which(colnames(m) %in% targetToAdd)
-    
     tmp <- c()
     for (i in predToAdd){
       tmp <- c(tmp, which(rownames(m) == i))
     }
     rowIndexes <- tmp
     m[rowIndexes,colIndex] <- valuesToAdd
-    
-    
   }
   targetToAdd <- tbl[startIndices[length(startIndices)],2]
   predToAdd   <- tbl[startIndices[length(startIndices)]:length(tbl[,1]),1]
@@ -775,11 +771,9 @@ isWholeNumber <- function(x, tol = .Machine$double.eps^0.5){
 }
 
 calcAUROC <- function(prediction){
-  
   return(	trapz(prediction@fpr,prediction@tpr))
 }
 
 calcAUPR <- function(prediction){
-  
   return(	trapz(prediction@rec,prediction@prec) / (1-1/prediction@p))
 }

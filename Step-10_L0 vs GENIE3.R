@@ -33,19 +33,33 @@ for (n in 1:2) {
       goldway <- "/Ecoli-20_goldstandard.tsv"
     }
     
-    expression_dataset_test <- read.table(paste0(pathway, dataway), header = T) %>% as.matrix() %>% t()
-    row.names(expression_dataset_test) <- row.names(expression_dataset_test)
+    expressionData <- read.table(paste0(pathway, dataway), header = T) %>% as.matrix() %>% t()
+    row.names(expressionData) <- row.names(expressionData)
     
-    L0GRN <- L0DWGRN(expression_dataset_test[1:10,1:10])
+    ptm <- proc.time()
+    L0GRN <- L0DWGRN(expressionData,
+                     cores = 6)
+    running_time <- proc.time() - ptm
+    print(running_time)
+    
     evaluationObject <- prepareEval(L0GRN, paste0(pathway, goldway))
     L0_AUROC <- calcAUROC(evaluationObject)
     L0_AUPR <- calcAUPR(evaluationObject)
     L0_AUROC
     
-    weightMat <- GENIE3(expression_dataset_test,
+    NIMEFI(expressionData, GENIE=F, SVM=F, EL=TRUE, outputFileName = "../output.txt")
+    evaluationObject <- prepareEval("../output.txt", paste0(pathway, goldway))
+    L0_AUROC <- calcAUROC(evaluationObject)
+    L0_AUPR <- calcAUPR(evaluationObject)
+    
+    ptm <- proc.time()
+    weightMat <- GENIE3(expressionData,
                         nCores = 6,
                         verbose = TRUE
     )
+    running_time_g <- proc.time() - ptm
+    print(running_time_g)
+    
     links <- getLinkList(weightMat)
     evaluationObject <- prepareEval(links, paste0(pathway, goldway))
     GENIE3_AUROC <- calcAUROC(evaluationObject)

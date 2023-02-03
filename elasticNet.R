@@ -73,23 +73,27 @@ ElVariableEnsembleSolve <- function(expressionMatrix,
     ind <- sample(dim(expressionMatrix)[1], sampleSize)
     sampleMatrix <- expressionMatrix[ind,]
     
-    
     # report on progress
     if (trace) {
       print(paste("Sample: ", i, " of size: ", sampleSize, " out of ", ensembleSize, " iterations and a rank threshold of ", rankThreshold))
     }
     
     # Call EL procedure
-    resultMatrix <- resultMatrix + elasticNetRankedSolve(sampleMatrix, predictorIndices = predictorIndices, targetIndices = targetIndices, alpha = alpha, traceDetail = traceDetail, rankThreshold = rankThreshold, predictorSampleSizeMin = predictorSampleSizeMin, predictorSampleSizeMax = predictorSampleSizeMax, ...)
+    resultMatrix <- resultMatrix + elasticNetRankedSolve(sampleMatrix, 
+                                                         predictorIndices = predictorIndices, 
+                                                         targetIndices = targetIndices, 
+                                                         alpha = alpha, 
+                                                         traceDetail = traceDetail, 
+                                                         rankThreshold = rankThreshold, 
+                                                         predictorSampleSizeMin = predictorSampleSizeMin, 
+                                                         predictorSampleSizeMax = predictorSampleSizeMax, 
+                                                         ...)
     
   }
-  
   # return
   return(resultMatrix)
   
 }
-
-
 
 # 	elasticNetRankedSolve
 #
@@ -215,7 +219,6 @@ elasticNetRankedSolve <- function(expressionMatrix,
       wghts <- temp[-1]
       
     }
-    
     
     # Now sort the wghts
     indices <- sort.list(wghts, decreasing = TRUE)

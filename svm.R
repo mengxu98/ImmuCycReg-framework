@@ -6,18 +6,12 @@
 # SVMVariableEnsembleSolve
 #
 # Solves the feature selection problem using an ensemble of SVM
-#
-#
-# 
 # #	Parameters	(required):
 #		-- expressionMatrix: expression matrix as returned by constructExpressionMatrixFromFile.
 #							 Format: samples x genes ; colnames are unique gene labels ; rownames are ignored
 #		-- predictorIndices: indicates the rows of the matrix that should be considered as predictors for a regression problem.
 #		-- targetIndices   : indicates the colums of the matrix that should which genes should be considered as targets for a regression problem.
-#									
-#	
-#	
-#	
+
 #	Parameters (optional):
 # 		
 #		-- ensembleSize[DEFAULT=2000] : the amount of models in the ensemble
@@ -29,27 +23,22 @@
 #		-- trace[DEFAULT=TRUE]: index of target currently computed is reported to stdout
 #       -- traceDetail[DEFAULT=FALSE] : index of subproblen is reported to stdout
 
-
 #		-- ... : the other parameters are passed to the SVM method (svm)
-#
-#
-#	Returns:								
-#		
+#	Returns:
 #		A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
-#
-#
-#
-#
-#
-#
 
-SVMVariableEnsembleSolve <- function(expressionMatrix,predictorIndices=NULL,targetIndices=NULL,ensembleSize=2000,
-		minSampleSize=round((dim(expressionMatrix)[1])/5),maxSampleSize=4*round((dim(expressionMatrix)[1])/5),
-		predictorSampleSizeMin=round(length(predictorIndices)/5),predictorSampleSizeMax=4*round(length(predictorIndices)/5),
-		rankThreshold=round((length(predictorIndices)/20)),trace=TRUE,traceDetail=FALSE,...){
-	
-	
-	
+SVMVariableEnsembleSolve <- function(expressionMatrix,
+                                     predictorIndices=NULL,
+                                     targetIndices=NULL,
+                                     ensembleSize=2000,
+                                     minSampleSize=round((dim(expressionMatrix)[1])/5),
+                                     maxSampleSize=4*round((dim(expressionMatrix)[1])/5),
+                                     predictorSampleSizeMin=round(length(predictorIndices)/5),
+                                     predictorSampleSizeMax=4*round(length(predictorIndices)/5),
+                                     rankThreshold=round((length(predictorIndices)/20)),
+                                     trace=TRUE,
+                                     traceDetail=FALSE,
+                                     ...){
 	# Check input
 	if( (minSampleSize<=0 || maxSampleSize > dim(expressionMatrix)[1] || maxSampleSize < minSampleSize  )){
 		stop("Please specify a valid sample sample size minimum and maximum.")
@@ -79,19 +68,17 @@ SVMVariableEnsembleSolve <- function(expressionMatrix,predictorIndices=NULL,targ
 		sampleMatrix <- expressionMatrix[ind,,drop=FALSE]
 		
 		# Call svm
-		resultMatrix <-	resultMatrix + SVMRankedSolve(sampleMatrix,predictorIndices=predictorIndices,targetIndices=targetIndices,traceDetail=traceDetail,rankThreshold=rankThreshold,predictorSampleSizeMin = predictorSampleSizeMin, predictorSampleSizeMax = predictorSampleSizeMax,...)
-
+		resultMatrix <-	resultMatrix + SVMRankedSolve(sampleMatrix,
+		                                              predictorIndices=predictorIndices,
+		                                              targetIndices=targetIndices,
+		                                              traceDetail=traceDetail,
+		                                              rankThreshold=rankThreshold,
+		                                              predictorSampleSizeMin = predictorSampleSizeMin,
+		                                              predictorSampleSizeMax = predictorSampleSizeMax,
+		                                              ...)
 	}
-	
-	
-	    # return
-		return(resultMatrix)
-
-	
+	return(resultMatrix)
 }
-
-
-
 
 # 	SVMRankedSolve
 #
@@ -122,8 +109,14 @@ SVMVariableEnsembleSolve <- function(expressionMatrix,predictorIndices=NULL,targ
 #		
 #		A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
 #									
-SVMRankedSolve <- function(expressionMatrix,predictorIndices,targetIndices, rankThreshold,traceDetail,predictorSampleSizeMin,predictorSampleSizeMax, ...){
-	
+SVMRankedSolve <- function(expressionMatrix,
+                           predictorIndices,
+                           targetIndices,
+                           rankThreshold,
+                           traceDetail,
+                           predictorSampleSizeMin,
+                           predictorSampleSizeMax,
+                           ...){
 	# Check input
 	if( (predictorSampleSizeMin<=0 || predictorSampleSizeMax >= length(predictorIndices) || predictorSampleSizeMin > predictorSampleSizeMax  )){
 		stop("Please specify a valid predictor sample size minimum and maximum (between 1 inclusive and the length of the predictorIndices exclusive).")
@@ -139,7 +132,6 @@ SVMRankedSolve <- function(expressionMatrix,predictorIndices,targetIndices, rank
 	resultMatrix <- matrix(0.0,length(colnames(predictors)),length(targetIndices))
 	rownames(resultMatrix) <- colnames(expressionMatrix)[predictorIndices]
 	colnames(resultMatrix) <- colnames(expressionMatrix)[targetIndices]
-	
 	
 	i <- 0
 	for ( targetIndex in targetIndices){
@@ -163,7 +155,7 @@ SVMRankedSolve <- function(expressionMatrix,predictorIndices,targetIndices, rank
 		if(predictorSampleSizeMin==predictorSampleSizeMax){
 			predictorSampleSize <- predictorSampleSizeMin
 			pIndices <- sample(1:(dim(predictorsWithoutTarget)[2]),predictorSampleSize)	
-			predictorsWithoutTarget <- predictorsWithoutTarget[,pIndices,drop=FALSE]
+			predictorsWithoutTarget <- predictorsWithoutTarget[, pIndices, drop=FALSE]
 		}
 		else{
 			predictorSampleSize <- sample(predictorSampleSizeMin:predictorSampleSizeMax,1)
@@ -171,17 +163,17 @@ SVMRankedSolve <- function(expressionMatrix,predictorIndices,targetIndices, rank
 			predictorsWithoutTarget <- predictorsWithoutTarget[,pIndices,drop=FALSE]
 		}	
 		
-		
 		# The target considered in this iteration
-		target 	 <- expressionMatrix[,targetIndex]
+		target <- expressionMatrix[,targetIndex]
 		
 		# Call
-		sv <- svm(predictorsWithoutTarget,target,kernel="linear")
+		sv <- svm(predictorsWithoutTarget,
+		          target,
+		          kernel="linear")
 
 		# Calc weights
 		wghts <- t(sv$coefs) %*% sv$SV
 
-		
 		# Now sort the wghts
 		wghts <- abs(wghts)
 		indices <- sort.list(wghts,decreasing=TRUE)
@@ -191,16 +183,10 @@ SVMRankedSolve <- function(expressionMatrix,predictorIndices,targetIndices, rank
 		# Now replace by ones that are in the top and are non-zero
 		wghts[1:length(wghts)] <- 0 
 		wghts[indices[1:rankThreshold]] <- 1
-		
-		
 		# Set the ones that were zero to zero anyway
 		wghts[zeros] <- 0
-		
 		# write result
-		resultMatrix[colnames(predictorsWithoutTarget),colnames(expressionMatrix)[targetIndex]] <- wghts
-		
-	
+		resultMatrix[colnames(predictorsWithoutTarget), colnames(expressionMatrix)[targetIndex]] <- wghts
 	}
-
 	return (resultMatrix)
 }
