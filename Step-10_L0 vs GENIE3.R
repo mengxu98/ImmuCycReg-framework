@@ -34,7 +34,24 @@ for (n in 1:2) {
     }
     
     expressionData <- read.table(paste0(pathway, dataway), header = T) %>% as.matrix() %>% t()
-    row.names(expressionData) <- row.names(expressionData)
+    # row.names(expressionData) <- row.names(expressionData)
+    # expressionData <- constructExpressionMatrixFromFile(paste0(pathway, dataway))
+
+    ptm <- proc.time()
+    NIMEFI(t(expressionData),
+           GENIE=F,
+           SVM=F,
+           EL=TRUE,
+           outputFileName = "../output.txt",
+           ELPredSampleMin = 20, ELPredSampleMax = 80,
+           ELExpSampleMin = 20, ELExpSampleMax = 80,
+           ELRankThreshold = 5, ELEnsembleSize = 100)
+    running_time_n <- proc.time() - ptm
+    print(running_time_n)
+    evaluationObject <- prepareEval("../output.txt", paste0(pathway, goldway))
+    AUROC_L0_N <- calcAUROC(evaluationObject)
+    AUPR_L0_N <- calcAUPR(evaluationObject)
+    AUROC_L0_N
     
     ptm <- proc.time()
     L0GRN <- L0DWGRN(expressionData,
@@ -42,15 +59,10 @@ for (n in 1:2) {
     running_time <- proc.time() - ptm
     print(running_time)
     
-    evaluationObject <- prepareEval(L0GRN, paste0(pathway, goldway))
-    L0_AUROC <- calcAUROC(evaluationObject)
-    L0_AUPR <- calcAUPR(evaluationObject)
-    L0_AUROC
-    
-    NIMEFI(expressionData, GENIE=F, SVM=F, EL=TRUE, outputFileName = "../output.txt")
-    evaluationObject <- prepareEval("../output.txt", paste0(pathway, goldway))
-    L0_AUROC <- calcAUROC(evaluationObject)
-    L0_AUPR <- calcAUPR(evaluationObject)
+    evaluationObject <- caclEval(L0GRN, paste0(pathway, goldway))
+    AUROC_L0 <- calcAUROC(evaluationObject)
+    AUPR_L0 <- calcAUPR(evaluationObject)
+    AUROC_L0
     
     ptm <- proc.time()
     weightMat <- GENIE3(expressionData,
@@ -61,14 +73,14 @@ for (n in 1:2) {
     print(running_time_g)
     
     links <- getLinkList(weightMat)
-    evaluationObject <- prepareEval(links, paste0(pathway, goldway))
-    GENIE3_AUROC <- calcAUROC(evaluationObject)
-    GENIE3_AUPR <- calcAUPR(evaluationObject)
-    GENIE3_AUROC
+    evaluationObject <- caclEval(links, paste0(pathway, goldway))
+    AUROC_GENIE3 <- calcAUROC(evaluationObject)
+    AUPR_GENIE3 <- calcAUPR(evaluationObject)
+    AUROC_GENIE3
     
     evaluation_gnw <- data.frame(Dataset = paste0("Net-", i),
-                                 `L0Reg framework` = L0_AUROC,
-                                 GENIE3 = GENIE3_AUROC)
+                                 `L0Reg framework` = AUROC_L0,
+                                 GENIE3 = AUROC_GENIE3)
     evaluation_gnws <- rbind.data.frame(evaluation_gnws, evaluation_gnw)
   }
   write.csv(evaluation_gnws, paste0(pathSave, "evaluation_gnw_", n, ".csv"))

@@ -1,21 +1,7 @@
-# Author: Joeri Ruyssinck (joeri.ruyssinck@intec.ugent.be)
-
-###############################################################################
 
 
-# ElVariableEnsembleSolve
-#
-#
-# 	Solves the feature selection problem using an ensemble of Elastic Net.
-#
-#
-#	Parameters	(required):
-#		-- expressionMatrix: expression matrix as returned by constructExpressionMatrixFromFile.
-#							 Format: samples x genes ; colnames are unique gene labels ; rownames are ignored
 #		-- predictorIndices: indicates the rows of the matrix that should be considered as predictors for a regression problem.
-#		-- targetIndices   : indicates which genes should be considered as targets for a regression problem.
-#									
-#	
+#		-- targetIndices: indicates which genes should be considered as targets for a regression problem.
 #	Parameters (optional):
 # 		
 #		-- rankThreshold[DEFAULT=round((length(predictorIndices)/20))] : the amount of top ranked features that should be awarded 1 instead of 0 during a feature ranking in an iteration step
@@ -34,6 +20,28 @@
 #		
 #		A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
 
+#' ElVariableEnsembleSolve
+#' Solves the feature selection problem using L0 regularization.
+#'
+#' @param expressionMatrix Expression matrix as returned by "constructExpressionMatrixFromFile".
+#'                         Format: samples x genes ; colnames are unique gene labels ; rownames could be ignored
+#' @param predictorIndices 
+#' @param targetIndices 
+#' @param rankThreshold 
+#' @param ensembleSize 
+#' @param minSampleSize 
+#' @param maxSampleSize 
+#' @param predictorSampleSizeMin 
+#' @param predictorSampleSizeMax 
+#' @param alpha 
+#' @param trace 
+#' @param traceDetail 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 ElVariableEnsembleSolve <- function(expressionMatrix,
                                     predictorIndices,
                                     targetIndices,
@@ -47,7 +55,6 @@ ElVariableEnsembleSolve <- function(expressionMatrix,
                                     trace = TRUE,
                                     traceDetail = FALSE,
                                     ...) {
-  
   
   # Check input
   if ((minSampleSize <= 0 || maxSampleSize > dim(expressionMatrix)[1] || maxSampleSize < minSampleSize)) {
@@ -124,10 +131,6 @@ ElVariableEnsembleSolve <- function(expressionMatrix,
 #	A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
 #
 
-# Load library
-library("glmnet")
-library("L0Learn")
-
 elasticNetRankedSolve <- function(expressionMatrix,
                                   predictorIndices,
                                   targetIndices,
@@ -173,7 +176,6 @@ elasticNetRankedSolve <- function(expressionMatrix,
       predictorsWithoutTarget <- predictors
     }
     
-    
     # Sample on possible predictors
     if (predictorSampleSizeMin == predictorSampleSizeMax) {
       predictorSampleSize <- predictorSampleSizeMin
@@ -186,50 +188,61 @@ elasticNetRankedSolve <- function(expressionMatrix,
       predictorsWithoutTarget <- predictorsWithoutTarget[, pIndices, drop = FALSE]
     }
     
-    nfolds <- round(sqrt(dim(predictorsWithoutTarget)[1]))
     if (F) {
+      nfolds <- round(sqrt(dim(predictorsWithoutTarget)[1]))
       # Cross validate
-      cross <- cv.glmnet(predictorsWithoutTarget,
-                         target,
-                         nfolds = nfolds,
-                         alpha = alpha,
-                         family = "gaussian",
-                         standardize = FALSE,
-                         ...)
+      cross <- glmnet::cv.glmnet(predictorsWithoutTarget,
+                                 target,
+                                 nfolds = nfolds,
+                                 alpha = alpha,
+                                 family = "gaussian",
+                                 standardize = FALSE,
+                                 ...)
       # Retrain optimal
-      bestModel <- glmnet(predictorsWithoutTarget, target, family = "gaussian", alpha = alpha, lambda = cross$lambda.min, standardize = FALSE, ...)
+      bestModel <- glmnet::glmnet(predictorsWithoutTarget, target, family = "gaussian", alpha = alpha, lambda = cross$lambda.min, standardize = FALSE, ...)
       # get the weights
       wghts <- abs(as.vector(bestModel$beta))
-      
     } else {
-      message("----- Run ", penalty, " model for ", names(target), "! -----")
-      L0_Model <- L0Learn.fit(predictorsWithoutTarget,
-                              target,
-                              penalty = penalty,
-                              maxSuppSize = ncol(predictorsWithoutTarget))
-      L0_Model_Information <- as.data.frame(print(L0_Model))
-      L0_Model_Information <- L0_Model_Information[order(L0_Model_Information$suppSize,
-                                                         decreasing = TRUE), ]
-      lambda_L0 <- L0_Model_Information$lambda[1]
-      gamma_L0 <- L0_Model_Information$gamma[1]
-      temp <- coef(L0_Model,
-                   lambda = lambda_L0,
-                   gamma = gamma_L0)
+      # message("----- Run ", penalty, " model for ", names(target), "! -----")
+      # L0_Model <- L0Learn::L0Learn.fit(predictorsWithoutTarget,
+      #                                  target,
+      #                                  penalty = penalty,
+      #                                  maxSuppSize = ncol(predictorsWithoutTarget))
+      # L0_Model_Information <- as.data.frame(print(L0_Model))
+      # L0_Model_Information <- L0_Model_Information[order(L0_Model_Information$suppSize,
+      #                                                    decreasing = TRUE), ]
+      # lambda_L0 <- L0_Model_Information$lambda[1]
+      # gamma_L0 <- L0_Model_Information$gamma[1]
+      # temp <- coef(L0_Model,
+      #              lambda = lambda_L0,
+      #              gamma = gamma_L0)
+      
+      suppressPackageStartupMessages(
+        temp <- LO_fit(predictorsWithoutTarget,
+                       target,
+                       penalty = penalty,
+                       nFolds = 10,
+                       seed = 1,
+                       maxSuppSize = ncol(predictorsWithoutTarget),
+                       nGamma = 5,
+                       gammaMin = 0.0001,
+                       gammaMax = 10
+        )
+      )
+      
       temp <- as.vector(temp)
       wghts <- temp[-1]
-      
+      wghts <- abs(wghts)
+      wghts <- wghts / sum(wghts)
     }
     
     # Now sort the wghts
     indices <- sort.list(wghts, decreasing = TRUE)
-    
     # Check for zero entries
     zeros <- which(wghts == 0)
-    
     # Now replace by ones that are in the top and are non-zero
     wghts[1:length(wghts)] <- 0
     wghts[indices[1:rankThreshold]] <- 1
-    
     # Set the ones that were zero to zero anyway
     wghts[zeros] <- 0
     
