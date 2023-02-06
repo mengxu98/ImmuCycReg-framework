@@ -1,7 +1,6 @@
 
 
-# Packages check, download and library --------------------------------------------------
-#' Title
+#' Packages check, download and library
 #'
 #' @param packages
 #'
@@ -496,32 +495,32 @@ LO_fit <- function(X, Y,
   )
 }
 
-LO_fit <- function(X, Y,
-                   penalty = penalty,
-                   nFolds = 10,
-                   seed = 1,
-                   maxSuppSize = maxSuppSize,
-                   nGamma = 5,
-                   gammaMin = 0.0001,
-                   gammaMax = 10) {
-
-      fit <- L0Learn::L0Learn.fit(X, Y,
-                                  penalty = penalty,
-                                  maxSuppSize = maxSuppSize,
-                                  nGamma = 5,
-                                  gammaMin = 0.0001,
-                                  gammaMax = 10
-      )
-      fit_inf <- print(fit)
-      fit_inf <- fit_inf[order(fit_inf$suppSize, decreasing = TRUE), ]
-      lambda <- fit_inf$lambda[1]
-      gamma <- fit_inf$gamma[1]
-      temp <- coef(fit,
-                   lambda = lambda,
-                   gamma = gamma
-     
-  )
-}
+# LO_fit <- function(X, Y,
+#                    penalty = penalty,
+#                    nFolds = 10,
+#                    seed = 1,
+#                    maxSuppSize = maxSuppSize,
+#                    nGamma = 5,
+#                    gammaMin = 0.0001,
+#                    gammaMax = 10) {
+# 
+#       fit <- L0Learn::L0Learn.fit(X, Y,
+#                                   penalty = penalty,
+#                                   maxSuppSize = maxSuppSize,
+#                                   nGamma = 5,
+#                                   gammaMin = 0.0001,
+#                                   gammaMax = 10
+#       )
+#       fit_inf <- print(fit)
+#       fit_inf <- fit_inf[order(fit_inf$suppSize, decreasing = TRUE), ]
+#       lambda <- fit_inf$lambda[1]
+#       gamma <- fit_inf$gamma[1]
+#       temp <- coef(fit,
+#                    lambda = lambda,
+#                    gamma = gamma
+#      
+#   )
+# }
 
 #' Title
 #'
@@ -666,7 +665,7 @@ caclEval <- function(pred, goldTSV, totalPredictionsAccepted = 100000) {
   library("ROCR")
   library("caTools")
   # pred <- read.table(predictionTSV)
-  gold <- convertSortedRankTSVToAdjMatrix(goldTSV)
+  gold <- list2Matrix(goldTSV)
 
   # Check arguments
   if ((!isWholeNumber(totalPredictionsAccepted)) || totalPredictionsAccepted < 1) {
@@ -747,7 +746,7 @@ caclEval <- function(pred, goldTSV, totalPredictionsAccepted = 100000) {
   return(new("evalClass", tpr = tpr, fpr = fpr, rec = rec, prec = prec, p = as.integer(p), n = as.integer(n), tpk = tpk, fpk = fpk, predictors = predictors, targets = targets, rank = rank))
 }
 
-convertSortedRankTSVToAdjMatrix <- function(inputFilename = NULL, input = NULL, outputFilename = NULL) {
+list2Matrix <- function(inputFilename = NULL, input = NULL, outputFilename = NULL) {
   # Read the table from file
   if (!is.null(inputFilename)) {
     tbl <- read.table(inputFilename)
