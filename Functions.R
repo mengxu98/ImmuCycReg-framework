@@ -140,16 +140,16 @@ survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
       mut_df[mut_df != ""] <- "MUT"
       # Get copy number data
       cna <- getProfileData(mycgds,
-        caseList = paste0(cancerType, "_sequenced"),
-        geneticProfile = paste0(cancerType, "_gistic"),
-        genes = genes
+                            caseList = paste0(cancerType, "_sequenced"),
+                            geneticProfile = paste0(cancerType, "_gistic"),
+                            genes = genes
       )
     }
     rn <- rownames(cna)
     cna <- apply(cna, 2, function(x) {
       as.character(factor(x,
-        levels = c(-2:2),
-        labels = c("HOMDEL", "HETLOSS", "DIPLOID", "GAIN", "AMP")
+                          levels = c(-2:2),
+                          labels = c("HOMDEL", "HETLOSS", "DIPLOID", "GAIN", "AMP")
       ))
     })
     cna[is.na(cna)] <- ""
@@ -449,13 +449,13 @@ LO_fit <- function(X, Y,
   tryCatch(
     {
       fit <- L0Learn::L0Learn.cvfit(X, Y,
-        penalty = penalty,
-        maxSuppSize = maxSuppSize,
-        nFolds = 10,
-        seed = 1,
-        nGamma = 5,
-        gammaMin = 0.0001,
-        gammaMax = 10
+                                    penalty = penalty,
+                                    maxSuppSize = maxSuppSize,
+                                    nFolds = 10,
+                                    seed = 1,
+                                    nGamma = 5,
+                                    gammaMin = 0.0001,
+                                    gammaMax = 10
       )
       fit_inf <- print(fit)
       optimalGammaIndex <- which(unlist(lapply(fit$cvMeans, min)) == min(unlist(lapply(fit$cvMeans, min))))
@@ -471,25 +471,25 @@ LO_fit <- function(X, Y,
         }
       }
       temp <- coef(fit,
-        lambda = lambda,
-        gamma = gamma
+                   lambda = lambda,
+                   gamma = gamma
       )
     },
     error = function(e) {
       fit <- L0Learn::L0Learn.fit(X, Y,
-        penalty = penalty,
-        maxSuppSize = maxSuppSize,
-        nGamma = 5,
-        gammaMin = 0.0001,
-        gammaMax = 10
+                                  penalty = penalty,
+                                  maxSuppSize = maxSuppSize,
+                                  nGamma = 5,
+                                  gammaMin = 0.0001,
+                                  gammaMax = 10
       )
       fit_inf <- print(fit)
       fit_inf <- fit_inf[order(fit_inf$suppSize, decreasing = TRUE), ]
       lambda <- fit_inf$lambda[1]
       gamma <- fit_inf$gamma[1]
       temp <- coef(fit,
-        lambda = lambda,
-        gamma = gamma
+                   lambda = lambda,
+                   gamma = gamma
       )
     }
   )
@@ -541,7 +541,7 @@ L0DWGRN <- function(matrix,
                     maxSuppSize = NULL,
                     cores = 1) {
   matrix <- as.data.frame(t(matrix))
-  weightdf <- c()
+  
   if (is.null(penalty)) {
     penalty <- "L0"
   }
@@ -557,17 +557,18 @@ L0DWGRN <- function(matrix,
     regulators <- colnames(matrix)
   }
   if (cores == 1) {
+    weightList <- c()
     for (i in 1:length(regulators)) {
       X <- as.matrix(matrix[, -which(colnames(matrix) == regulators[i])])
       Y <- matrix[, regulators[i]]
       temp <- LO_fit(X, Y,
-        penalty = penalty,
-        nFolds = 10,
-        seed = 1,
-        maxSuppSize = maxSuppSize,
-        nGamma = 5,
-        gammaMin = 0.0001,
-        gammaMax = 10
+                     penalty = penalty,
+                     nFolds = 10,
+                     seed = 1,
+                     maxSuppSize = maxSuppSize,
+                     nGamma = 5,
+                     gammaMin = 0.0001,
+                     gammaMax = 10
       )
       temp <- as.vector(temp)
       wghts <- temp[-1]
@@ -585,9 +586,9 @@ L0DWGRN <- function(matrix,
       } else {
         weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulators[i], weight = wghts)
       }
-      weightdf <- rbind.data.frame(weightdf, weightd)
+      weightList <- rbind.data.frame(weightList, weightd)
       if (i == length(regulators)) {
-        weightdf <- weightdf[order(weightdf$weight, decreasing = TRUE), ]
+        weightList <- weightList[order(weightList$weight, decreasing = TRUE), ]
       }
     }
   } else {
@@ -598,17 +599,17 @@ L0DWGRN <- function(matrix,
     message(paste("\nUsing", foreach::getDoParWorkers(), "cores."))
     "%dopar%" <- foreach::"%dopar%"
     suppressPackageStartupMessages(
-      weightdf <- doRNG::"%dorng%"(foreach::foreach(regulator = regulators, .combine = "rbind", .export = "LO_fit"), {
+      weightList <- doRNG::"%dorng%"(foreach::foreach(regulator = regulators, .combine = "rbind", .export = "LO_fit"), {
         X <- as.matrix(matrix[, -which(colnames(matrix) == regulator)])
         Y <- matrix[, regulator]
         temp <- LO_fit(X, Y,
-          penalty = penalty,
-          nFolds = 10,
-          seed = 1,
-          maxSuppSize = maxSuppSize,
-          nGamma = 5,
-          gammaMin = 0.0001,
-          gammaMax = 10
+                       penalty = penalty,
+                       nFolds = 10,
+                       seed = 1,
+                       maxSuppSize = maxSuppSize,
+                       nGamma = 5,
+                       gammaMin = 0.0001,
+                       gammaMax = 10
         )
         temp <- as.vector(temp)
         wghts <- temp[-1]
@@ -642,8 +643,8 @@ L0DWGRN <- function(matrix,
     )
     # parallel::stopCluster(cl)
   }
-  weightdf <- weightdf[order(weightdf$weight, decreasing = TRUE), ]
-  return(weightdf)
+  weightList <- weightList[order(weightList$weight, decreasing = TRUE), ]
+  return(weightList)
 }
 
 # Defines class
@@ -666,17 +667,17 @@ caclEval <- function(pred, goldTSV, totalPredictionsAccepted = 100000) {
   library("caTools")
   # pred <- read.table(predictionTSV)
   gold <- list2Matrix(goldTSV)
-
+  
   # Check arguments
   if ((!isWholeNumber(totalPredictionsAccepted)) || totalPredictionsAccepted < 1) {
     stop("totalPredictionsAccepted should be an integer <0.")
   }
-
+  
   # Next reduce the predictionTSV to the max allowed predictions if necessary
   if (length(pred[, 1]) > totalPredictionsAccepted) {
     pred <- pred[1:totalPredictionsAccepted, ]
   }
-
+  
   # Get some metrics from the gold standard
   # The amount of positive links
   p <- sum(gold)
@@ -684,13 +685,13 @@ caclEval <- function(pred, goldTSV, totalPredictionsAccepted = 100000) {
   n <- (dim(gold)[1] * dim(gold)[2]) - p - sum(rownames(gold) %in% colnames(gold))
   # The total amount of valid links (positive +negative)
   t <- p + n
-
+  
   # Now, remove all the links that are in the prediction file that are not valid predictions (meaning self-regulation or genes not eligble to be predictor or target)
   # 1) Remove all the edges that are in the prediction file but are not recorded in the gold file as an edge or non-edge
   # 2) For those that are in thet network a) Replace value with a one if edge is present in gold or zero otherwise
   # Remove all the non-valid predictors
   pred <- pred[which(as.vector(pred[, 1]) != as.vector(pred[, 2])), , drop = FALSE]
-
+  
   # Declare some variables for clarity
   firstRow <- as.vector(pred[, 1])
   secondRow <- as.vector(pred[, 2])
@@ -701,7 +702,7 @@ caclEval <- function(pred, goldTSV, totalPredictionsAccepted = 100000) {
   # Now, loop over all predictions and determine if they are present in gold matri
   correct <- 0
   incorrect <- 0
-
+  
   for (i in 1:length(firstRow)) {
     if (gold[firstRow[i], secondRow[i]] == 1) {
       correct <- correct + 1
@@ -715,14 +716,14 @@ caclEval <- function(pred, goldTSV, totalPredictionsAccepted = 100000) {
   }
   # Check how many of the gold standard edges we predicted. Any other that still remain are discovered at a uniform rate by definition. (remaining_gold_edges/remaining_edges)
   # Gold links predicted so far
-
+  
   # If some gold links have not been predicted, calculate the random discovery chance, else set to zero
   if (length(firstRow) < t) {
     odds <- (p - correct) / (t - length(firstRow))
   } else {
     odds <- 0
   }
-
+  
   # Each guess you have 'odds' chance of getting one right and '1-odds' chance of getting it wrong , now construct a vector till the end
   random_positive <- vector("double", (t - length(firstRow)))
   random_negative <- vector("double", (t - length(firstRow)))
@@ -790,7 +791,7 @@ list2Matrix <- function(inputFilename = NULL, input = NULL, outputFilename = NUL
   rowIndexes <- tmp
   colIndex <- which(colnames(m) %in% targetToAdd)
   m[rowIndexes, colIndex] <- valuesToAdd
-
+  
   if (!is.null(outputFilename)) {
     write.table(m, outputFilename)
   } else {
