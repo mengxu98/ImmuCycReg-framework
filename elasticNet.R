@@ -204,31 +204,31 @@ elasticNetRankedSolve <- function(expressionMatrix,
       wghts <- abs(as.vector(bestModel$beta))
     } else {
       # message("----- Run ", penalty, " model for ", names(target), "! -----")
-      # L0_Model <- L0Learn::L0Learn.fit(predictorsWithoutTarget,
-      #                                  target,
-      #                                  penalty = penalty,
-      #                                  maxSuppSize = ncol(predictorsWithoutTarget))
-      # L0_Model_Information <- as.data.frame(print(L0_Model))
-      # L0_Model_Information <- L0_Model_Information[order(L0_Model_Information$suppSize,
-      #                                                    decreasing = TRUE), ]
-      # lambda_L0 <- L0_Model_Information$lambda[1]
-      # gamma_L0 <- L0_Model_Information$gamma[1]
-      # temp <- coef(L0_Model,
-      #              lambda = lambda_L0,
-      #              gamma = gamma_L0)
+      L0_Model <- L0Learn::L0Learn.fit(predictorsWithoutTarget,
+                                       target,
+                                       penalty = penalty,
+                                       maxSuppSize = ncol(predictorsWithoutTarget))
+      L0_Model_Information <- as.data.frame(print(L0_Model))
+      L0_Model_Information <- L0_Model_Information[order(L0_Model_Information$suppSize,
+                                                         decreasing = TRUE), ]
+      lambda_L0 <- L0_Model_Information$lambda[1]
+      gamma_L0 <- L0_Model_Information$gamma[1]
+      temp <- coef(L0_Model,
+                   lambda = lambda_L0,
+                   gamma = gamma_L0)
       
-      suppressPackageStartupMessages(
-        temp <- LO_fit(predictorsWithoutTarget,
-                       target,
-                       penalty = penalty,
-                       nFolds = 10,
-                       seed = 1,
-                       maxSuppSize = ncol(predictorsWithoutTarget),
-                       nGamma = 5,
-                       gammaMin = 0.0001,
-                       gammaMax = 10
-        )
-      )
+      # suppressPackageStartupMessages(
+      #   temp <- LO_fit(predictorsWithoutTarget,
+      #                  target,
+      #                  penalty = penalty,
+      #                  nFolds = 10,
+      #                  seed = 1,
+      #                  maxSuppSize = ncol(predictorsWithoutTarget),
+      #                  nGamma = 5,
+      #                  gammaMin = 0.0001,
+      #                  gammaMax = 10
+      #   )
+      # )
       
       temp <- as.vector(temp)
       wghts <- temp[-1]
