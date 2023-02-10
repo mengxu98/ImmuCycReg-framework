@@ -7,7 +7,7 @@ library("tidyverse")
 library("L0Learn")
 library("glmnet")
 library("GENIE3")
-source("framework_main.R")
+source("Functions3.R")
 source("Functions.R")
 
 pathRead <- "data/"
@@ -39,19 +39,19 @@ for (n in 1:2) {
       t()
     # expressionData <- constructExpressionMatrixFromFile(paste0(pathway, dataway))
 
-    ptm <- proc.time()
-    L0GRN <- L0DWGRN(expressionData,
-      cores = 6,
-      penalty = "L0",
-      crossInteraction = F
-    )
-    running_time <- proc.time() - ptm
-    print(running_time)
-
-    evaluationObject <- caclEval(L0GRN, paste0(pathway, goldway))
-    AUROC_L0 <- calcAUROC(evaluationObject)
-    AUPR_L0 <- calcAUPR(evaluationObject)
-    AUROC_L0
+    # ptm <- proc.time()
+    # L0GRN <- L0DWGRN(expressionData,
+    #   cores = 6,
+    #   penalty = "L0",
+    #   crossInteraction = F
+    # )
+    # running_time <- proc.time() - ptm
+    # print(running_time)
+    # 
+    # evaluationObject <- caclEval(L0GRN, paste0(pathway, goldway))
+    # AUROC_L0 <- calcAUROC(evaluationObject)
+    # AUPR_L0 <- calcAUPR(evaluationObject)
+    # AUROC_L0
 
     ptm <- proc.time()
     NIMEFI(t(expressionData),
