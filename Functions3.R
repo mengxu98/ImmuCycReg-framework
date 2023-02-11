@@ -1,48 +1,48 @@
 
 
-source("elasticNet.R")
-source("genie3.R")
-source("svm.R")
-source("io.R")
-source("util.R")
-source("basic_evaluation.R")
+source("Functions-basic_evaluation.R")
+source("Functions-elasticNet.R")
+source("Functions-genie3.R")
+source("Functions-svm.R")
+source("Functions-io.R")
+source("Functions-util.R")
 
 #' NIMEFI
 #' 	Constructs regression problems from an expression matrix using the columns specified as targets
 #' 	and solves the regression problems using ensemble feature selection techniques
 #'
-#' @param expressionMatrix Expression matrix as returned by constructExpressionMatrixFromFile
-#'                         Format: samples x genes; colnames are unique gene labels; rownames are ignored
+#' @param expressionMatrix Expression matrix as returned by constructExpressionMatrixFromFile.
+#'                         Format: samples x genes; colnames are unique gene labels; rownames are ignored.
 #' @param predictorIndices [DEFAULT=NULL] Indicates the rows of the matrix that should be considered as predictors
 #'                                        for a regression problem. It is highly recommened to use the output of
 #'                                        getPredictorIndices. If null, getIndicesOfGenesInMatrixs will be called
 #'                                        on the matrix and all rows will be considered predictors if needed for the algorithm.
-#' @param targetIndices [DEFAULT=NULL] indicates which genes should be considered as targets for a regression problem.
+#' @param targetIndices [DEFAULT=NULL] Indicates which genes should be considered as targets for a regression problem.
 #'                                     It is highly recommened to use the output of getIndicesOfGenesInMatrixs.
 #'                                     If null, getIndidicesForRegressionProblems will be called on the matrix and
-#'                                     all columns will be considered targets if needed for the algorithm.
-#' @param GENIE [DEFAULT=TRUE] indicates if GENIE3 should be run and be considered in the ensemble
+#'                                     All columns will be considered targets if needed for the algorithm.
+#' @param GENIE [DEFAULT=TRUE] Indicates if GENIE3 should be run and be considered in the ensemble
 #' @param treesInEnsembleCount [DEFAULT=1000] GENIE parameter (see. genie3.R)
 #' @param candidateSplitCount [DEFAULT="ALL"] GENIE parameter (see. genie3.R)
-#' @param GENIETrace [DEFAULT=TRUE] indicates if progress should be reported during execution of GENIE
-#' @param SVM [DEFAULT=TRUE] indicates if SVM should be run and be considered in the ensemble
-#' @param SVMPredSampleMin [DEFAULT=20] : lower bound of the size of the predictor sample, expressed in %
-#' @param SVMPredSampleMax [DEFAULT=80 ] : upper bound of the size of the predictor sample, expressed in %
-#' @param SVMExpSampleMin [DEFAULT=20] : lower bound of the size of the experiment sample, expressed in %
-#' @param SVMExpSampleMax [DEFAULT=80] : upper bound of the size of the experiment sample, expressed in %
-#' @param SVMRankThreshold [DEFAULT=5] :  amount of top predictors at the top of ranking which are awarded a score, expressed in %
-#' @param SVMEnsembleSize [DEFAULT=2000 ] : amount of iterations
-#' @param SVMTrace [DEFAULT=TRUE] indicates if progress should be reported during execution of SVM
-#' @param EL [DEFAULT=TRUE] indicates if EL should be run and be considered in the ensemble
-#' @param ELTrace [DEFAULT=TRUE] indicates if progress should be reported during execution of EL
-#' @param ELPredSampleMin [DEFAULT=20] : lower bound of the size of the predictor sample, expressed in %
-#' @param ELPredSampleMax [DEFAULT=80] : upper bound of the size of the predictor sample, expressed in %
-#' @param ELExpSampleMin [DEFAULT=20] : lower bound of the size of the experiment sample, expressed in %
-#' @param ELExpSampleMax [DEFAULT=80] : upper bound of the size of the experiment sample, expressed in %
-#' @param ELRankThreshold [DEFAULT=5] amount of top predictors at the top of ranking which are awarded a score, expressed in %
-#' @param ELEnsembleSize [DEFAULT=2000] amount of iterations
+#' @param GENIETrace [DEFAULT=TRUE] Indicates if progress should be reported during execution of GENIE
+#' @param SVM [DEFAULT=TRUE] Indicates if SVM should be run and be considered in the ensemble
+#' @param SVMPredSampleMin [DEFAULT=20] Lower bound of the size of the predictor sample, expressed in %
+#' @param SVMPredSampleMax [DEFAULT=80 ] Upper bound of the size of the predictor sample, expressed in %
+#' @param SVMExpSampleMin [DEFAULT=20] Lower bound of the size of the experiment sample, expressed in %
+#' @param SVMExpSampleMax [DEFAULT=80] Upper bound of the size of the experiment sample, expressed in %
+#' @param SVMRankThreshold [DEFAULT=5]  Amount of top predictors at the top of ranking which are awarded a score, expressed in %
+#' @param SVMEnsembleSize [DEFAULT=2000 ] Amount of iterations
+#' @param SVMTrace [DEFAULT=TRUE] Indicates if progress should be reported during execution of SVM
+#' @param EL [DEFAULT=TRUE] Indicates if EL should be run and be considered in the ensemble
+#' @param ELTrace [DEFAULT=TRUE] Indicates if progress should be reported during execution of EL
+#' @param ELPredSampleMin [DEFAULT=20] : Lower bound of the size of the predictor sample, expressed in %
+#' @param ELPredSampleMax [DEFAULT=80] : Upper bound of the size of the predictor sample, expressed in %
+#' @param ELExpSampleMin [DEFAULT=20] : Lower bound of the size of the experiment sample, expressed in %
+#' @param ELExpSampleMax [DEFAULT=80] : Upper bound of the size of the experiment sample, expressed in %
+#' @param ELRankThreshold [DEFAULT=5] Amount of top predictors at the top of ranking which are awarded a score, expressed in %
+#' @param ELEnsembleSize [DEFAULT=2000] Amount of iterations
 #' @param outputFileName [DEFAULT="output.txt"] The result will be written to this file.
-#' @param ... the other parameters are passed to the specific method to be used.
+#' @param ... The other parameters are passed to the specific method to be used.
 #'
 #' @return A matrix where each cell (row i, column j) specifies the importance of variable i to target j.
 #' @export
