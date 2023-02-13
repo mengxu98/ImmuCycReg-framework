@@ -3,7 +3,6 @@
 library("caTools")
 library("ROCR")
 
-# Defines class
 #' evalClass
 #'
 #' @slot tpr vector.
@@ -69,12 +68,14 @@ prepareEval <- function(predictionTSV,
     # Get some metrics from the gold standard
     # The amount of positive links
     p <- sum(gold)
-    # The amount of negative links (these could be valid links and are not positive) [self regulating links are not allowed and are consired to be neither positive or negative]
+    # The amount of negative links (these could be valid links and are not positive) 
+    # [self regulating links are not allowed and are consired to be neither positive or negative]
     n <- (dim(gold)[1] * dim(gold)[2]) - p - sum(rownames(gold) %in% colnames(gold))
     # The total amount of valid links (positive +negative)
     t <- p + n
 
-    # Now, remove all the links that are in the prediction file that are not valid predictions (meaning self-regulation or genes not eligble to be predictor or target)
+    # Now, remove all the links that are in the prediction file that are not valid predictions 
+    # (meaning self-regulation or genes not eligble to be predictor or target)
     # 1) Remove all the edges that are in the prediction file but are not recorded in the gold file as an edge or non-edge
     # 2) For those that are in thet network a) Replace value with a one if edge is present in gold or zero otherwise
     # Remove all the non-valid predictors
@@ -106,7 +107,8 @@ prepareEval <- function(predictionTSV,
         }
     }
 
-    # Check how many of the gold standard edges we predicted. Any other that still remain are discovered at a uniform rate by definition. (remaining_gold_edges/remaining_edges)
+    # Check how many of the gold standard edges we predicted. Any other that still remain are discovered at a uniform rate by definition.
+    # (remaining_gold_edges/remaining_edges)
     # Gold links predicted so far
     # If some gold links have not been predicted, calculate the random discovery chance, else set to zero
     if (length(firstRow) < t) {
