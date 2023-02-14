@@ -1,11 +1,5 @@
 
 
-# Author: Joeri Ruyssinck (joeri.ruyssinck@intec.ugent.be)
-
-###############################################################################
-# 	genieSolve
-#
-#	
 # 	Solves the feature selection problem using GENIE3
 #
 #	Parameters	(required):
@@ -27,18 +21,23 @@
 #									format: - "IncNodePurity": for importance measure based on decrease of residual sum of squares
 #											- "IncMSE": for importance measure obtained by permutation of OOB data
 #		-- randomSeed[DEFAULT=NULL]: seed off the random generator, default is not reset
-#
-#		-- trace[DEFAULT=TRUE]: index of target currently computed is reported to stdout
-#		
-#		-- ... : the other parameters are passed to the randomForest function.
-#
-#
-#	Returns:								
-#		
-#		A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
-#									
-#
 
+#' Title
+#'
+#' @param expressionMatrix 
+#' @param predictorIndices 
+#' @param targetIndices 
+#' @param candidateSplitCount 
+#' @param treesInEnsembleCount 
+#' @param importanceMeasure 
+#' @param randomSeed 
+#' @param trace [DEFAULT=TRUE] Index of target currently computed is reported to stdout
+#' @param ... the other parameters are passed to the randomForest function.
+#'
+#' @return A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
+#' @export
+#'
+#' @examples
 genieSolve <- function(expressionMatrix,
                        predictorIndices,
                        targetIndices,
@@ -53,16 +52,24 @@ genieSolve <- function(expressionMatrix,
 	library("randomForest")
 	
 	# Check the  the optional arguments, the required parameters have been checked in previous methods and should be correct
-	if(!(candidateSplitCount=="SQRT" || candidateSplitCount=="ALL" || (isWholeNumber(candidateSplitCount) && candidateSplitCount > 0 && candidateSplitCount < length(predictorIndices)))){
-		stop("Stopping the computation. \"candidateSplitCount\" should be either \"SQRT\", \"ALL\" or a positive non zero integer smaller or equal than the amount of predictor variables.")
+	if(!(candidateSplitCount=="SQRT" || 
+	     candidateSplitCount=="ALL" || 
+	     (isWholeNumber(candidateSplitCount) && 
+	      candidateSplitCount > 0 && 
+	      candidateSplitCount < length(predictorIndices)))){
+		stop("Stopping the computation. \"candidateSplitCount\" should be either \"SQRT\", 
+		     \"ALL\" or a positive non zero integer smaller or equal than the amount of predictor variables.")
 	}
-	if(!(importanceMeasure=="IncNodePurity" || importanceMeasure=="incMSE")){
+	if(!(importanceMeasure=="IncNodePurity" || 
+	     importanceMeasure=="incMSE")){
 		stop("Stopping the computation. \"importanceMeasure\" should be either \"IncNodePurity\" or \"incMSE\" ")
 	}
-	if(!(is.null(randomSeed) || isWholeNumber(randomSeed))){
+	if(!(is.null(randomSeed) || 
+	     isWholeNumber(randomSeed))){
 		stop("Stopping the computation. \"randomSeed\" should be an integer")
 	}
-	if(!(isWholeNumber(treesInEnsembleCount) && treesInEnsembleCount >0)){
+	if(!(isWholeNumber(treesInEnsembleCount) && 
+	     treesInEnsembleCount >0)){
 		stop("Stopping the computation. \"treesInEnsembleCount\" should be a non zero positive integer")
 	}
 	# End check
@@ -76,8 +83,7 @@ genieSolve <- function(expressionMatrix,
 	# Parse the candidateSplitCount argument if it is specified as a string
 	if(candidateSplitCount=="SQRT"){
 		candidateSplitCount <- round(sqrt(length(predictorIndices)-1))
-	}
-	else if(candidateSplitCount=="ALL"){
+	} else if(candidateSplitCount=="ALL"){
 		candidateSplitCount <- length(predictorIndices)-1
 	}
 	
@@ -105,8 +111,7 @@ genieSolve <- function(expressionMatrix,
 			nameCol <- colnames(expressionMatrix)[targetIndex]
 			indexInPredictorsToRemove <- which(nameCol == colnames(predictors))
 			predictorsWithoutTarget <- predictors[,-indexInPredictorsToRemove]
-		}
-		else{
+		} else {
 			predictorsWithoutTarget <- predictors
 		}
 		# The target considered in this iteration
@@ -120,6 +125,5 @@ genieSolve <- function(expressionMatrix,
 	}
 	# Divide by number of samples
 	return (resultMatrix/ dim(expressionMatrix)[1])
-	
 }
 

@@ -131,6 +131,23 @@ ElVariableEnsembleSolve <- function(expressionMatrix,
 #	A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
 #
 
+#' Title
+#'
+#' @param expressionMatrix 
+#' @param predictorIndices 
+#' @param targetIndices 
+#' @param alpha 
+#' @param rankThreshold 
+#' @param traceDetail 
+#' @param predictorSampleSizeMin 
+#' @param predictorSampleSizeMax 
+#' @param penalty 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 elasticNetRankedSolve <- function(expressionMatrix,
                                   predictorIndices,
                                   targetIndices,
