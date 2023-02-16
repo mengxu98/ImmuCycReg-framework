@@ -53,8 +53,7 @@ L0DWGRN <- function(matrix,
   return(weightList)
 }
 
-
-#' Title
+#' L0DWGRN_core
 #'
 #' @param matrix The rows are samples and the columns are genes of the matrix
 #' @param penalty
