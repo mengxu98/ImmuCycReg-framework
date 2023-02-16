@@ -1,1 +1,1 @@
-All datasets used in the manuscript are provided
+All datasets are provided in the manuscript
