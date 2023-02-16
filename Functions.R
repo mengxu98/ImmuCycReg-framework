@@ -1,6 +1,7 @@
 
 
-#' Packages check, download and library
+#' package.check
+#'  Packages check, download and library
 #'
 #' @param packages
 #'
@@ -53,7 +54,8 @@ package.check <- function(packages) {
   }
 }
 
-#' save.file Save R object
+#' save.file
+#'  Save R object
 #'
 #' @param ...
 #' @param fileName
@@ -103,8 +105,17 @@ countToEffCounts <- function(counts, len, effLen) {
   counts * (len / effLen)
 }
 
-# To obtain survival data of TCAGA samples ---------------
-# It is required to specify the single gene or genes list to obtain survival data
+#' survival.data
+#'  To obtain survival data of TCAGA samples
+#'  
+#' @param cancerType 
+#' @param genes It is required to specify the single gene or genes list to obtain survival data
+#' @param pathWay 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
   if (is.null(pathWay)) {
     pathWay <- ""
@@ -160,6 +171,15 @@ survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
   }
 }
 
+#' Peak_is_open
+#'
+#' @param candidate_peak_id_input 
+#' @param target_sample_input 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
   up_thres <- quantile(peak_luad[, target_sample_input])[3]
   # print(up_thres)
@@ -171,6 +191,14 @@ Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
   }
 }
 
+#' formatPositiveResult
+#'
+#' @param results_summary_input 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 formatPositiveResult <- function(results_summary_input) {
   TFs <- c()
   type_inter <- c()
@@ -197,6 +225,14 @@ formatPositiveResult <- function(results_summary_input) {
   }
 }
 
+#' formatNegativeResult
+#'
+#' @param results_summary_input 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 formatNegativeResult <- function(results_summary_input) {
   TFs <- c()
   type_inter <- c()
@@ -223,6 +259,15 @@ formatNegativeResult <- function(results_summary_input) {
   }
 }
 
+#' SampleHit
+#'
+#' @param results_summary_input 
+#' @param hit_tf 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 SampleHit <- function(results_summary_input, hit_tf) {
   hit_count <- c()
   sample_level <- c()
@@ -245,6 +290,15 @@ SampleHit <- function(results_summary_input, hit_tf) {
   return(format_result)
 }
 
+#' SampleHitOnlyCNV
+#'
+#' @param high_exp_sample_input 
+#' @param hit_tf 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
   sample_level <- c()
   # tem_ind=0
@@ -260,6 +314,14 @@ SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
   return(sample_level)
 }
 
+#' FrameRegulatoryTable
+#'
+#' @param res_frame_input 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 FrameRegulatoryTable <- function(res_frame_input) {
   ASPAR_hit <- c()
   encode_hit <- c()
@@ -314,6 +376,14 @@ FrameRegulatoryTable <- function(res_frame_input) {
   return(results_regulatory_table)
 }
 
+#' FramePositive
+#'
+#' @param res_frame_input 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 FramePositive <- function(res_frame_input) {
   ASPAR_hit <- c()
   encode_hit <- c()
@@ -368,6 +438,14 @@ FramePositive <- function(res_frame_input) {
   return(res_frame_positive)
 }
 
+#' FrameNegative
+#'
+#' @param res_frame_input 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 FrameNegative <- function(res_frame_input) {
   ASPAR_hit <- c()
   encode_hit <- c()
@@ -522,7 +600,7 @@ LO_fit <- function(X, Y,
 #   )
 # }
 
-#' Title
+#' L0DWGRN
 #'
 #' @param matrix The rows are samples and the columns are genes of the matrix
 #' @param penalty
@@ -647,7 +725,24 @@ L0DWGRN <- function(matrix,
   return(weightList)
 }
 
-# Defines class
+#' evalClass
+#'
+#' @slot tpr vector. 
+#' @slot fpr vector. 
+#' @slot prec vector. 
+#' @slot rec vector. 
+#' @slot p integer. 
+#' @slot n integer. 
+#' @slot tpk vector. 
+#' @slot fpk vector. 
+#' @slot predictors vector. 
+#' @slot targets vector. 
+#' @slot rank vector. 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 setClass("evalClass", representation(
   tpr = "vector",
   fpr = "vector",
@@ -662,6 +757,16 @@ setClass("evalClass", representation(
   rank = "vector"
 ))
 
+#' caclEval
+#'
+#' @param pred 
+#' @param goldTSV 
+#' @param totalPredictionsAccepted 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 caclEval <- function(pred, goldTSV, totalPredictionsAccepted = 100000) {
   library("ROCR")
   library("caTools")
@@ -747,6 +852,16 @@ caclEval <- function(pred, goldTSV, totalPredictionsAccepted = 100000) {
   return(new("evalClass", tpr = tpr, fpr = fpr, rec = rec, prec = prec, p = as.integer(p), n = as.integer(n), tpk = tpk, fpk = fpk, predictors = predictors, targets = targets, rank = rank))
 }
 
+#' list2Matrix
+#'
+#' @param inputFilename 
+#' @param input 
+#' @param outputFilename 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 list2Matrix <- function(inputFilename = NULL, input = NULL, outputFilename = NULL) {
   # Read the table from file
   if (!is.null(inputFilename)) {
@@ -799,20 +914,53 @@ list2Matrix <- function(inputFilename = NULL, input = NULL, outputFilename = NUL
   }
 }
 
+#' areAllNullOrNonNull
+#'
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 areAllNullOrNonNull <- function(...) {
   e <- ((length((which(c(...) == FALSE)))))
   return(e != 1)
 }
 
-# 	isWholeNumber - check for integer number
+#' isWholeNumber 
+#'  Check for integer number
+#'
+#' @param x 
+#' @param tol 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 isWholeNumber <- function(x, tol = .Machine$double.eps^0.5) {
   return(is.numeric(x) && abs(x - round(x)) < tol)
 }
 
+#' calcAUROC
+#'
+#' @param prediction 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 calcAUROC <- function(prediction) {
   return(trapz(prediction@fpr, prediction@tpr))
 }
 
+#' calcAUPR
+#'
+#' @param prediction 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 calcAUPR <- function(prediction) {
   return(trapz(prediction@rec, prediction@prec) / (1 - 1 / prediction@p))
 }
