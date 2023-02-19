@@ -42,6 +42,8 @@ The code repository is for paper: Integration of single sample and population an
     GeneNetWeaver: http://gnw.sourceforge.net/
 ## &#x1F537; LICENSE
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MIT License
+## &#x1F537; Cite
+Li, X., Meng, X., Chen, H. et al. Integration of single sample and population analysis for understanding immune evasion mechanisms of lung cancer. npj Syst Biol Appl 9, 4 (2023). https://doi.org/10.1038/s41540-023-00267-8
 
 <!--
 ## If you encounter any problems when use these code, please contact me by Wechat or QQ: 
