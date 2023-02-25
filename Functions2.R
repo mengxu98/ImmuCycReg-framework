@@ -7,6 +7,132 @@
 #' @param regulators
 #' @param targets
 #' @param maxSuppSize
+#'
+#' @return
+#' @export
+#'
+#' @examples
+L0DWGRN <- function(matrix,
+                    penalty = NULL,
+                    regulators = NULL,
+                    targets = NULL,
+                    maxSuppSize = NULL,
+                    cores = 1) {
+  matrix <- as.data.frame(t(matrix))
+  
+  if (is.null(penalty)) {
+    penalty <- "L0"
+  }
+  if (is.null(maxSuppSize)) {
+    maxSuppSize <- ncol(matrix)
+  }
+  if (is.null(targets)) {
+    targets <- colnames(matrix)
+  }
+  if (!is.null(regulators)) {
+    matrix <- matrix[, regulators]
+  } else {
+    regulators <- colnames(matrix)
+  }
+  if (cores == 1) {
+    weightList <- c()
+    for (i in 1:length(regulators)) {
+      X <- as.matrix(matrix[, -which(colnames(matrix) == regulators[i])])
+      Y <- matrix[, regulators[i]]
+      temp <- LO_fit(X, Y,
+                     penalty = penalty,
+                     nFolds = 10,
+                     seed = 1,
+                     maxSuppSize = maxSuppSize,
+                     nGamma = 5,
+                     gammaMin = 0.0001,
+                     gammaMax = 10
+      )
+      temp <- as.vector(temp)
+      wghts <- temp[-1]
+      wghts <- abs(wghts)
+      wghts <- wghts / sum(wghts)
+      if (F) {
+        wghts <- wghts / max(wghts)
+        indices <- sort.list(wghts, decreasing = TRUE)
+        zeros <- which(wghts <= 0.8)
+        # wghts[1:length(wghts)] <- 1
+        wghts[zeros] <- 0
+      }
+      if (length(wghts) != dim(X)[2]) {
+        weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulators[i], weight = 0)
+      } else {
+        weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulators[i], weight = wghts)
+      }
+      weightList <- rbind.data.frame(weightList, weightd)
+      if (i == length(regulators)) {
+        weightList <- weightList[order(weightList$weight, decreasing = TRUE), ]
+      }
+    }
+  } else {
+    cores <- min(parallel::detectCores(logical = F), cores)
+    # cl <- parallel::makeCluster(cores)
+    # doParallel::registerDoParallel(cl)
+    doParallel::registerDoParallel(cores = cores)
+    message(paste("\nUsing", foreach::getDoParWorkers(), "cores."))
+    "%dopar%" <- foreach::"%dopar%"
+    suppressPackageStartupMessages(
+      weightList <- doRNG::"%dorng%"(foreach::foreach(regulator = regulators, .combine = "rbind", .export = "LO_fit"), {
+        X <- as.matrix(matrix[, -which(colnames(matrix) == regulator)])
+        Y <- matrix[, regulator]
+        temp <- LO_fit(X, Y,
+                       penalty = penalty,
+                       nFolds = 10,
+                       seed = 1,
+                       maxSuppSize = maxSuppSize,
+                       nGamma = 5,
+                       gammaMin = 0.0001,
+                       gammaMax = 10
+        )
+        temp <- as.vector(temp)
+        wghts <- temp[-1]
+        wghts <- abs(wghts)
+        wghts <- wghts / sum(wghts)
+        
+        if (F) {
+          # indices <- sort.list(wghts, decreasing = TRUE)
+          # zeros <- which(wghts <= 0.8)
+          # # wghts[1:length(wghts)] <- 1
+          # wghts[zeros] <- 0
+          
+          # Now sort the wghts
+          indices <- sort.list(wghts, decreasing = TRUE)
+          # Check for zero entries
+          zeros <- which(wghts == 0)
+          # Now replace by ones that are in the top and are non-zero
+          wghts[1:length(wghts)] <- 0
+          rankThreshold <- 5
+          wghts[indices[1:rankThreshold]] <- 1
+          # Set the ones that were zero to zero anyway
+          wghts[zeros] <- 0
+        }
+        
+        if (length(wghts) != dim(X)[2]) {
+          weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulator, weight = 0)
+        } else {
+          weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulator, weight = wghts)
+        }
+      })
+    )
+    # parallel::stopCluster(cl)
+  }
+  weightList <- weightList[order(weightList$weight, decreasing = TRUE), ]
+  return(weightList)
+}
+
+
+#' L0DWGRN
+#'
+#' @param matrix The rows are samples and the columns are genes of the matrix
+#' @param penalty
+#' @param regulators
+#' @param targets
+#' @param maxSuppSize
 #' @param cores
 #' @param crossInteraction
 #' @param ensembleSize 
@@ -559,9 +685,6 @@ L0_fit_cross_core <- function(matrix,
   return(weightList)
 }
 
-
-
-
 #' L0_fit_cross_core
 #'  Solves the feature selection problem using the Elastic Net/LASSO/Ridge Regression using a rank threshold.
 #'
@@ -842,25 +965,17 @@ matrix2List <- function(inputFilename = NULL, inputFile = NULL, outputFilename =
   }
 }
 
-
-
-
-
-# 	list2Matrix
-#
-# 	Reads a sorted TSV format from file. Each line is formatted as [GENE_X][tab][GENE_Y][tab][Adjacency_Measure]. The lines are sorted by decreasing adjancency scores. This
-# 	format is frequently used as standard for DREAM challenge evaluation scripts (http://wiki.c2b2.columbia.edu/dream/index.php/The_DREAM_Project).
-# 	Returns a file formatted as an adjacency matrix (genes x genes), the colums and rows are sorted(ascending) (Format: spaces as seperators, colnames and rownames present to file.
-# 	Parameters	(required):
-# 		-- inputFilename: name or full path to the TSV file
-# 		-- ouputFilename: name or full path to the outputfile
-#
-# 	Parameters (optional):
-#
-# 	Returns: NULL
-#
-#   Warning: Temporary version, either I'm missing something with all the data type restrictions or this could be a lot shorter.
-list2Matrix <- function(inputFilename = NULL, input = NULL) {
+#' list2Matrix
+#'
+#' @param inputFilename 
+#' @param input 
+#' @param outputFilename 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+list2Matrix <- function(inputFilename = NULL, input = NULL, outputFilename = NULL) {
   # Read the table from file
   if (!is.null(inputFilename)) {
     tbl <- read.table(inputFilename)
@@ -904,9 +1019,13 @@ list2Matrix <- function(inputFilename = NULL, input = NULL) {
   rowIndexes <- tmp
   colIndex <- which(colnames(m) %in% targetToAdd)
   m[rowIndexes, colIndex] <- valuesToAdd
-  return(m)
+  
+  if (!is.null(outputFilename)) {
+    write.table(m, outputFilename)
+  } else {
+    return(m)
+  }
 }
-
 
 #' isPercentage
 #'
@@ -923,7 +1042,6 @@ isPercentage <- function(number) {
     return(TRUE)
   }
 }
-
 
 #' getIndicesOfGenesInMatrix
 #'  Returns and checks the column indices to be used as targets or predictors.
@@ -998,4 +1116,192 @@ isPositiveNonZeroIntegerVector <- function(integerVector) {
 sortMatrix <- function(mat) {
   mat <- mat[sort.list(rownames(mat)), sort.list(colnames(mat))]
   return(mat)
+}
+
+
+#' evalClass
+#'
+#' @slot tpr vector. 
+#' @slot fpr vector. 
+#' @slot prec vector. 
+#' @slot rec vector. 
+#' @slot p integer. 
+#' @slot n integer. 
+#' @slot tpk vector. 
+#' @slot fpk vector. 
+#' @slot predictors vector. 
+#' @slot targets vector. 
+#' @slot rank vector. 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+setClass("evalClass", representation(
+  tpr = "vector",
+  fpr = "vector",
+  prec = "vector",
+  rec = "vector",
+  p = "integer",
+  n = "integer",
+  tpk = "vector",
+  fpk = "vector",
+  predictors = "vector",
+  targets = "vector",
+  rank = "vector"
+))
+
+#' caclEval
+#'
+#' @param pred 
+#' @param goldTSV 
+#' @param predictionsAccepted 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+caclEval <- function(pred = NULL,
+                     gold = NULL,
+                     predictionsAccepted = 100000) {
+  library("ROCR")
+  library("caTools")
+  if (!is.null(pred)) {
+    if (file.info(pred)$isdir){
+      pred <- read.table(prediction)
+    }
+  } else {
+    stop("Please provide a list of gene-gene relationship!")
+  }
+
+  gold <- list2Matrix(gold)
+  
+  # Check arguments
+  if ((!isWholeNumber(predictionsAccepted)) || predictionsAccepted < 1) {
+    stop("predictionsAccepted should be an integer <0.")
+  }
+  
+  # Next reduce the predictionTSV to the max allowed predictions if necessary
+  if (length(pred[, 1]) > predictionsAccepted) {
+    pred <- pred[1:predictionsAccepted, ]
+  }
+  
+  # Get some metrics from the gold standard
+  # The amount of positive links
+  p <- sum(gold)
+  # The amount of negative links (these could be valid links and are not positive) [self regulating links are not allowed and are consired to be neither positive or negative]
+  n <- (dim(gold)[1] * dim(gold)[2]) - p - sum(rownames(gold) %in% colnames(gold))
+  # The total amount of valid links (positive +negative)
+  t <- p + n
+  
+  # Now, remove all the links that are in the prediction file that are not valid predictions (meaning self-regulation or genes not eligble to be predictor or target)
+  # 1) Remove all the edges that are in the prediction file but are not recorded in the gold file as an edge or non-edge
+  # 2) For those that are in thet network a) Replace value with a one if edge is present in gold or zero otherwise
+  # Remove all the non-valid predictors
+  pred <- pred[which(as.vector(pred[, 1]) != as.vector(pred[, 2])), , drop = FALSE]
+  
+  # Declare some variables for clarity
+  firstRow <- as.vector(pred[, 1])
+  secondRow <- as.vector(pred[, 2])
+  # Will indicate whether this prediction was present in gold standard
+  thirdRow <- vector(mode = "integer", length(firstRow))
+  # Will indicate the rank of this prediction = (-1 if it is not present and [rank] otherwise]
+  rank <- vector(mode = "integer", length(firstRow))
+  # Now, loop over all predictions and determine if they are present in gold matri
+  correct <- 0
+  incorrect <- 0
+  
+  for (i in 1:length(firstRow)) {
+    if (gold[firstRow[i], secondRow[i]] == 1) {
+      correct <- correct + 1
+      thirdRow[i] <- 1
+      rank[i] <- correct
+    } else {
+      incorrect <- incorrect - 1
+      thirdRow[i] <- 0
+      rank[i] <- incorrect
+    }
+  }
+  # Check how many of the gold standard edges we predicted. Any other that still remain are discovered at a uniform rate by definition. (remaining_gold_edges/remaining_edges)
+  # Gold links predicted so far
+  
+  # If some gold links have not been predicted, calculate the random discovery chance, else set to zero
+  if (length(firstRow) < t) {
+    odds <- (p - correct) / (t - length(firstRow))
+  } else {
+    odds <- 0
+  }
+  
+  # Each guess you have 'odds' chance of getting one right and '1-odds' chance of getting it wrong , now construct a vector till the end
+  random_positive <- vector("double", (t - length(firstRow)))
+  random_negative <- vector("double", (t - length(firstRow)))
+  random_positive[] <- odds
+  random_negative[] <- 1 - odds
+  # Calculate the amount of true positives and false positives at 'k' guesses depth
+  positive <- c(thirdRow, random_positive)
+  negative <- c(abs(thirdRow - 1), random_negative)
+  tpk <- cumsum(positive)
+  fpk <- cumsum(negative)
+  # Depth k
+  k <- 1:t
+  # Calculate true positive rate, false positive rate, precision and recall
+  tpr <- tpk / p
+  fpr <- fpk / n
+  rec <- tpr
+  prec <- tpk / k
+  predictors <- firstRow
+  targets <- secondRow
+  # Create and return the object
+  return(new("evalClass", tpr = tpr, fpr = fpr, rec = rec, prec = prec, p = as.integer(p), n = as.integer(n), tpk = tpk, fpk = fpk, predictors = predictors, targets = targets, rank = rank))
+}
+
+#' areAllNullOrNonNull
+#'
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+areAllNullOrNonNull <- function(...) {
+  e <- ((length((which(c(...) == FALSE)))))
+  return(e != 1)
+}
+
+#' isWholeNumber 
+#'  Check for integer number
+#'
+#' @param x 
+#' @param tol 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+isWholeNumber <- function(x, tol = .Machine$double.eps^0.5) {
+  return(is.numeric(x) && abs(x - round(x)) < tol)
+}
+
+#' calcAUROC
+#'
+#' @param prediction 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcAUROC <- function(prediction) {
+  return(trapz(prediction@fpr, prediction@tpr))
+}
+
+#' calcAUPR
+#'
+#' @param prediction 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcAUPR <- function(prediction) {
+  return(trapz(prediction@rec, prediction@prec) / (1 - 1 / prediction@p))
 }
