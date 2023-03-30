@@ -2,7 +2,7 @@
 <img src="https://img.shields.io/badge/-R-green"/> <img src="https://img.shields.io/badge/-Immune%20escape%20analysis-blue"/> <img src="https://img.shields.io/badge/-Gene%20Regulatory%20Network-blue"/> <img src="https://img.shields.io/eclipse-marketplace/last-update/mengxu98?style=flat"/><br/>
 The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer.<br/>
 ## &#x1F537; Workflow
-<img src="https://github.com/mengxu98/ImmuCycReg-framework/blob/main/Workflow.png" width=90% /><br/>
+<img src="https://github.com/mengxu98/ImmuCycReg-framework/blob/main/figures/Workflow.png" width=90% /><br/>
 ## &#x1F537; DATA links:
   &#x1F538; Processed data from this study are available in the reproducibility GitHub repository:<br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data`<br/>
