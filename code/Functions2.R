@@ -1,131 +1,3 @@
-
-
-#' L0DWGRN
-#'
-#' @param matrix The rows are samples and the columns are genes of the matrix
-#' @param penalty
-#' @param regulators
-#' @param targets
-#' @param maxSuppSize
-#'
-#' @return
-#' @export
-#'
-#' @examples
-L0DWGRN <- function(matrix,
-                    penalty = NULL,
-                    regulators = NULL,
-                    targets = NULL,
-                    maxSuppSize = NULL,
-                    cores = 1) {
-  matrix <- as.data.frame(t(matrix))
-  
-  if (is.null(penalty)) {
-    penalty <- "L0"
-  }
-  if (is.null(maxSuppSize)) {
-    maxSuppSize <- ncol(matrix)
-  }
-  if (is.null(targets)) {
-    targets <- colnames(matrix)
-  }
-  if (!is.null(regulators)) {
-    matrix <- matrix[, regulators]
-  } else {
-    regulators <- colnames(matrix)
-  }
-  if (cores == 1) {
-    weightList <- c()
-    for (i in 1:length(regulators)) {
-      X <- as.matrix(matrix[, -which(colnames(matrix) == regulators[i])])
-      Y <- matrix[, regulators[i]]
-      temp <- LO_fit(X, Y,
-                     penalty = penalty,
-                     nFolds = 10,
-                     seed = 1,
-                     maxSuppSize = maxSuppSize,
-                     nGamma = 5,
-                     gammaMin = 0.0001,
-                     gammaMax = 10
-      )
-      temp <- as.vector(temp)
-      wghts <- temp[-1]
-      wghts <- abs(wghts)
-      wghts <- wghts / sum(wghts)
-      if (F) {
-        wghts <- wghts / max(wghts)
-        indices <- sort.list(wghts, decreasing = TRUE)
-        zeros <- which(wghts <= 0.8)
-        # wghts[1:length(wghts)] <- 1
-        wghts[zeros] <- 0
-      }
-      if (length(wghts) != dim(X)[2]) {
-        weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulators[i], weight = 0)
-      } else {
-        weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulators[i], weight = wghts)
-      }
-      weightList <- rbind.data.frame(weightList, weightd)
-      if (i == length(regulators)) {
-        weightList <- weightList[order(weightList$weight, decreasing = TRUE), ]
-      }
-    }
-  } else {
-    cores <- min(parallel::detectCores(logical = F), cores)
-    # cl <- parallel::makeCluster(cores)
-    # doParallel::registerDoParallel(cl)
-    doParallel::registerDoParallel(cores = cores)
-    message(paste("\nUsing", foreach::getDoParWorkers(), "cores."))
-    "%dopar%" <- foreach::"%dopar%"
-    suppressPackageStartupMessages(
-      weightList <- doRNG::"%dorng%"(foreach::foreach(regulator = regulators, .combine = "rbind", .export = "LO_fit"), {
-        X <- as.matrix(matrix[, -which(colnames(matrix) == regulator)])
-        Y <- matrix[, regulator]
-        temp <- LO_fit(X, Y,
-                       penalty = penalty,
-                       nFolds = 10,
-                       seed = 1,
-                       maxSuppSize = maxSuppSize,
-                       nGamma = 5,
-                       gammaMin = 0.0001,
-                       gammaMax = 10
-        )
-        temp <- as.vector(temp)
-        wghts <- temp[-1]
-        wghts <- abs(wghts)
-        wghts <- wghts / sum(wghts)
-        
-        if (F) {
-          # indices <- sort.list(wghts, decreasing = TRUE)
-          # zeros <- which(wghts <= 0.8)
-          # # wghts[1:length(wghts)] <- 1
-          # wghts[zeros] <- 0
-          
-          # Now sort the wghts
-          indices <- sort.list(wghts, decreasing = TRUE)
-          # Check for zero entries
-          zeros <- which(wghts == 0)
-          # Now replace by ones that are in the top and are non-zero
-          wghts[1:length(wghts)] <- 0
-          rankThreshold <- 5
-          wghts[indices[1:rankThreshold]] <- 1
-          # Set the ones that were zero to zero anyway
-          wghts[zeros] <- 0
-        }
-        
-        if (length(wghts) != dim(X)[2]) {
-          weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulator, weight = 0)
-        } else {
-          weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulator, weight = wghts)
-        }
-      })
-    )
-    # parallel::stopCluster(cl)
-  }
-  weightList <- weightList[order(weightList$weight, decreasing = TRUE), ]
-  return(weightList)
-}
-
-
 #' L0DWGRN
 #'
 #' @param matrix The rows are samples and the columns are genes of the matrix
@@ -140,7 +12,6 @@ L0DWGRN <- function(matrix,
 #' @return
 #' @export
 #'
-#' @examples
 L0DWGRN <- function(matrix,
                     penalty = NULL,
                     regulators = NULL,
@@ -258,24 +129,6 @@ L0DWGRN_core <- function(matrix,
         wghts <- abs(wghts)
         wghts <- wghts / sum(wghts)
         
-        if (F) {
-          # indices <- sort.list(wghts, decreasing = TRUE)
-          # zeros <- which(wghts <= 0.8)
-          # # wghts[1:length(wghts)] <- 1
-          # wghts[zeros] <- 0
-          
-          # Now sort the wghts
-          indices <- sort.list(wghts, decreasing = TRUE)
-          # Check for zero entries
-          zeros <- which(wghts == 0)
-          # Now replace by ones that are in the top and are non-zero
-          wghts[1:length(wghts)] <- 0
-          rankThreshold <- 5
-          wghts[indices[1:rankThreshold]] <- 1
-          # Set the ones that were zero to zero anyway
-          wghts[zeros] <- 0
-        }
-        
         if (length(wghts) != dim(X)[2]) {
           weightd <- data.frame(regulatoryGene = colnames(X), targetGene = regulator, weight = 0)
         } else {
@@ -290,7 +143,7 @@ L0DWGRN_core <- function(matrix,
 }
 
 
-#' Title
+#' L0DWGRN_cross
 #'
 #' @param matrix
 #' @param regulatoryGene
@@ -460,34 +313,6 @@ LO_fit <- function(X, Y,
   )
 }
 
-# LO_fit <- function(X, Y,
-#                    penalty = penalty,
-#                    nFolds = 10,
-#                    seed = 1,
-#                    maxSuppSize = maxSuppSize,
-#                    nGamma = 5,
-#                    gammaMin = 0.0001,
-#                    gammaMax = 10) {
-#
-#       fit <- L0Learn::L0Learn.fit(X, Y,
-#                                   penalty = penalty,
-#                                   maxSuppSize = maxSuppSize,
-#                                   nGamma = 5,
-#                                   gammaMin = 0.0001,
-#                                   gammaMax = 10
-#       )
-#       fit_inf <- print(fit)
-#       fit_inf <- fit_inf[order(fit_inf$suppSize, decreasing = TRUE), ]
-#       lambda <- fit_inf$lambda[1]
-#       gamma <- fit_inf$gamma[1]
-#       temp <- coef(fit,
-#                    lambda = lambda,
-#                    gamma = gamma
-#
-#   )
-# }
-
-
 #' L0_fit_cross
 #' Solves the feature selection problem using L0 regularization.
 #'
@@ -645,26 +470,11 @@ L0_fit_cross_core <- function(matrix,
                  lambda = lambda_L0,
                  gamma = gamma_L0
     )
-    
-    # suppressPackageStartupMessages(
-    #   temp <- LO_fit(X,
-    #                  target,
-    #                  penalty = penalty,
-    #                  nFolds = 10,
-    #                  seed = 1,
-    #                  maxSuppSize = ncol(X),
-    #                  nGamma = 5,
-    #                  gammaMin = 0.0001,
-    #                  gammaMax = 10
-    #   )
-    # )
-    
-    
+
     temp <- as.vector(temp)
     wghts <- temp[-1]
     wghts <- abs(wghts)
     wghts <- wghts / sum(wghts)
-    
     
     # Now sort the wghts
     indices <- sort.list(wghts, decreasing = TRUE)
@@ -684,238 +494,6 @@ L0_fit_cross_core <- function(matrix,
   
   return(weightList)
 }
-
-#' L0_fit_cross_core
-#'  Solves the feature selection problem using the Elastic Net/LASSO/Ridge Regression using a rank threshold.
-#'
-#' @param matrix Expression matrix as returned by constructmatrixFromFile.
-#'               Format: samples x genes ; colnames are unique gene labels ; rownames are ignored
-#' @param regulatoryGene Indicates the rows of the matrix that should be considered as predictors for a regression problem.
-#' @param targetGene Indicates which genes should be considered as targets for a regression problem.
-#' @param rankThreshold The amount of top ranked features that should be awarded 1 instead of 0 during a feature ranking in an iteration step
-#' @param traceDetail index of target currently computed is reported to stdout
-#' @param predSampleMinSize mininimum sample size of predictors
-#' @param predSampleMaxSize maximum sample size of the predictors
-#' @param penalty
-#' @param ...
-#'
-#' @return A matrix where each cell(row i, column j) specifies the importance of variable i to target j.
-#' @export
-#'
-#' @examples
-L0_fit_cross_core1 <- function(matrix,
-                              regulatoryGene,
-                              targetGene,
-                              rankThreshold,
-                              traceDetail,
-                              predSampleMinSize,
-                              predSampleMaxSize,
-                              penalty = penalty,
-                              cores = cores,
-                              ...) {
-  # Check arguments
-  if ((predSampleMinSize <= 0 || predSampleMaxSize >= length(regulatoryGene) || predSampleMinSize > predSampleMaxSize)) {
-    stop("Please specify a valid predictor sample size minimum and maximum (between 1 inclusive and the length of the regulatoryGene exclusive).")
-  }
-
-  # Only the predictors should be evaluated
-  predictors <- matrix[, regulatoryGene]
-  # Pre allocation
-  resultMatrix <- matrix(0.0, length(colnames(predictors)), length(targetGene))
-  rownames(resultMatrix) <- colnames(matrix)[regulatoryGene]
-  colnames(resultMatrix) <- colnames(matrix)[targetGene]
-  
-  if (cores == 1) {
-    # Loop over all possible targets
-    i <- 0
-    for (targetIndex in targetGene) {
-      # Report on progress
-      if (traceDetail) {
-        i <- i + 1
-        cat(paste("Computing target ", targetIndex, " iteration ", i, "\\", length(targetGene), "\n"))
-        flush.console()
-      }
-      # extract the target
-      matrix <- as.matrix(matrix)
-      Y <- matrix[, targetIndex, drop = FALSE]
-
-      # Check if the target has already been removed from the predictors, if not, remove it
-      if (targetIndex %in% regulatoryGene) {
-        nameCol <- colnames(matrix)[targetIndex]
-        X <- predictors[, -which(nameCol == colnames(predictors)), drop = FALSE]
-      } else {
-        X <- predictors
-      }
-
-      # Sample on possible predictors
-      if (predSampleMinSize == predSampleMaxSize) {
-        predictorSampleSize <- predSampleMinSize
-        pIndices <- sample(1:(dim(X)[2]), predictorSampleSize)
-        X <- X[, pIndices, drop = FALSE]
-      } else {
-        predictorSampleSize <- sample(predSampleMinSize:predSampleMaxSize, 1)
-        pIndices <- sample(1:(dim(X)[2]), predictorSampleSize)
-        X <- X[, pIndices, drop = FALSE]
-      }
-
-      L0_Model <- L0Learn::L0Learn.fit(as.matrix(X),
-        Y,
-        penalty = penalty,
-        maxSuppSize = ncol(X)
-      )
-      L0_Model_Information <- as.data.frame(print(L0_Model))
-      L0_Model_Information <- L0_Model_Information[order(L0_Model_Information$suppSize, decreasing = TRUE), ]
-      lambda_L0 <- L0_Model_Information$lambda[1]
-      gamma_L0 <- L0_Model_Information$gamma[1]
-      temp <- coef(L0_Model,
-        lambda = lambda_L0,
-        gamma = gamma_L0
-      )
-      
-      # suppressPackageStartupMessages(
-      #   temp <- LO_fit(X,
-      #                  target,
-      #                  penalty = penalty,
-      #                  nFolds = 10,
-      #                  seed = 1,
-      #                  maxSuppSize = ncol(X),
-      #                  nGamma = 5,
-      #                  gammaMin = 0.0001,
-      #                  gammaMax = 10
-      #   )
-      # )
-
-
-      temp <- as.vector(temp)
-      wghts <- temp[-1]
-      wghts <- abs(wghts)
-      wghts <- wghts / sum(wghts)
-
-
-      # Now sort the wghts
-      indices <- sort.list(wghts, decreasing = TRUE)
-      # Check for zero entries
-      zeros <- which(wghts == 0)
-      # Now replace by ones that are in the top and are non-zero
-      wghts[1:length(wghts)] <- 0
-      wghts[indices[1:rankThreshold]] <- 1
-      # Set the ones that were zero to zero anyway
-      wghts[zeros] <- 0
-
-      # write result to matrix
-      resultMatrix[colnames(X), colnames(matrix)[targetIndex]] <- wghts
-    }
-  } else {
-    cores <- min(parallel::detectCores(logical = F), cores)
-    # cl <- parallel::makeCluster(cores)
-    # doParallel::registerDoParallel(cl)
-    doParallel::registerDoParallel(cores = cores)
-    message(paste("\nUsing", foreach::getDoParWorkers(), "cores."))
-    "%dopar%" <- foreach::"%dopar%"
-
-    # for (targetIndex in targetGene) {
-    #   # Report on progress
-    #   if (traceDetail) {
-    #     i <- i + 1
-    #     cat(paste("Computing target ", targetIndex, " iteration ", i, "\\", length(targetGene), "\n"))
-    #     flush.console()
-    #   }
-
-    suppressPackageStartupMessages(
-      resultMatrix <- doRNG::"%dorng%"(foreach::foreach(
-        targetIndex = targetGene #,
-        # .export = "LO_fit",
-        # .combine = "cbind"
-      ), {
-        # extract the target
-        matrix <- as.matrix(matrix)
-        Y <- matrix[, targetIndex, drop = FALSE]
-
-        # Check if the target has already been removed from the predictors, if not, remove it
-        if (targetIndex %in% regulatoryGene) {
-          nameCol <- colnames(matrix)[targetIndex]
-          X <- predictors[, -which(nameCol == colnames(predictors)), drop = FALSE]
-        } else {
-          X <- predictors
-        }
-
-        # Sample on possible predictors
-        if (predSampleMinSize == predSampleMaxSize) {
-          predictorSampleSize <- predSampleMinSize
-          pIndices <- sample(1:(dim(X)[2]), predictorSampleSize)
-          X <- X[, pIndices, drop = FALSE]
-        } else {
-          predictorSampleSize <- sample(predSampleMinSize:predSampleMaxSize, 1)
-          pIndices <- sample(1:(dim(X)[2]), predictorSampleSize)
-          X <- X[, pIndices, drop = FALSE]
-        }
-
-        L0_Model <- L0Learn::L0Learn.fit(as.matrix(X),
-          Y,
-          penalty = penalty,
-          maxSuppSize = ncol(X)
-        )
-        L0_Model_Information <- as.data.frame(print(L0_Model))
-        L0_Model_Information <- L0_Model_Information[order(L0_Model_Information$suppSize,
-          decreasing = TRUE
-        ), ]
-        lambda_L0 <- L0_Model_Information$lambda[1]
-        gamma_L0 <- L0_Model_Information$gamma[1]
-        temp <- coef(L0_Model,
-          lambda = lambda_L0,
-          gamma = gamma_L0
-        )
-
-        # suppressPackageStartupMessages(
-        #   temp <- LO_fit(X,
-        #                  target,
-        #                  penalty = penalty,
-        #                  nFolds = 10,
-        #                  seed = 1,
-        #                  maxSuppSize = ncol(X),
-        #                  nGamma = 5,
-        #                  gammaMin = 0.0001,
-        #                  gammaMax = 10
-        #   )
-        # )
-        
-        
-        temp <- as.vector(temp)
-        wghts <- temp[-1]
-        wghts <- abs(wghts)
-        wghts <- wghts / sum(wghts)
-        
-        
-        # Now sort the wghts
-        indices <- sort.list(wghts, decreasing = TRUE)
-        # Check for zero entries
-        zeros <- which(wghts == 0)
-        # Now replace by ones that are in the top and are non-zero
-        wghts[1:length(wghts)] <- 0
-        wghts[indices[1:rankThreshold]] <- 1
-        # Set the ones that were zero to zero anyway
-        wghts[zeros] <- 0
-
-        # write result to matrix
-        # resultMatrix[colnames(X), colnames(matrix)[targetIndex]] <- wghts
-        setNames(list(setNames(wghts, colnames(X))), colnames(matrix)[targetIndex])
-      })
-    )
-    attr(resultMatrix, "rng") <- NULL
-    attr(resultMatrix, "doRNG_version") <- NULL
-    resultMatrix <- unlist(resultMatrix, recursive=FALSE)
-
-    weightMatrix <- dplyr::bind_rows(resultMatrix)
-    weightMatrix <- as.matrix(weightMatrix)
-    rownames(weightMatrix) <- names(resultMatrix)
-    weightMatrix <- t(weightMatrix)
-    weightMatrix[which(is.na(weightMatrix), arr.ind = TRUE)] <- 0 # optional?  
-    resultMatrix <- weightMatrix
-    
-  }
-  return(resultMatrix)
-}
-
 
 # matrix2List
 #
