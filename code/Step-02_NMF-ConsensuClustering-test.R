@@ -13,8 +13,8 @@ library("paletteer")
 library("Rtsne")
 library("tinyarray")
 
-pathRead <- "data/"
-pathSave <- "../results/"
+pathRead <- "../data/"
+pathSave <- "../../results/"
 
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 feature_genes <- read.csv(paste0(pathRead, "Genes_2230.csv"))

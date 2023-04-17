@@ -1,7 +1,7 @@
 
 
 Sys.setenv(LANG = "en_US.UTF-8")
-source("Functions.R")
+source("functions/Functions.R")
 packages <- c(
   "backports", "BiocManager", "usethis", "devtools", "dplyr",
   "DT", "feather", "ggthemes", "gplots", "grImport2",

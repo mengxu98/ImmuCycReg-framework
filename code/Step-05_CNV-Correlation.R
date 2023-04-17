@@ -4,8 +4,8 @@ rm(list = ls())
 library("psych")
 library("ggcorrplot")
 
-pathRead <- "data/"
-pathSave <- "../Results/"
+pathRead <- "../data/"
+pathSave <- "../../Results/"
 
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "CNV-LUAD.Rdata"))

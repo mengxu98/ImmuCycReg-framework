@@ -11,8 +11,8 @@ library("GGally")
 library("ggplot2")
 library("patchwork")
 
-pathRead <- "data/"
-pathSave <- "../Results/"
+pathRead <- "../data/"
+pathSave <- "../../Results/"
 
 # 1:select peak
 # 2:make bed file
@@ -20,13 +20,13 @@ pathSave <- "../Results/"
 # Load data ---------------------------------------------------------------
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "Peak-LUAD.Rdata"))
-load(paste0(pathSave, "genes_adj_peak.Rdata"))
-load(paste0(pathSave, "geneinfo_df.Rdata"))
+load(paste0(pathSave, "ATAC-LUAD.Rdata"))
+load(paste0(pathSave, "Geneinfo_df.Rdata"))
 row_names <- row.names(genes_adj_peak)
 genes_temp <- as.vector(genes_adj_peak[, 1])
 genes_list <- strsplit(genes_temp, ",")
 sample_name <- intersect(colnames(tcga_luad), colnames(peak_luad))
-# load(paste0(pathSave, "Geneinfo_df.Rdata"))
+
 target_genes_list <- read.table(paste0(pathRead, "Genes_17.txt"), header = T)
 target_genes_list <- target_genes_list$gene
 

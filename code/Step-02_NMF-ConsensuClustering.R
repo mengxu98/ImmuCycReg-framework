@@ -15,8 +15,8 @@ library("Rtsne")
 library("tinyarray")
 source("Functions.R")
 
-pathRead <- "data/"
-pathSave <- "../Results/"
+pathRead <- "../data/"
+pathSave <- "../../Results/"
 
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 genes_2230 <- read.csv(paste0(pathRead, "Genes_2230.csv"))

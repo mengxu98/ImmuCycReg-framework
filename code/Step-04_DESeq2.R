@@ -1,4 +1,5 @@
 
+
 rm(list = ls())
 library("DESeq2")
 library("ggplot2")
@@ -9,8 +10,8 @@ library("tidyverse")
 library("ggrepel")
 library("patchwork")
 
-pathRead <- "data/"
-pathSave <- "../Results/"
+pathRead <- "../data/"
+pathSave <- "../../Results/"
 
 genes_2230 <- read.table(paste0(pathRead, "Genes_249.txt"))
 samples_cluster <- read.csv(paste0(pathRead, "sample_cluster_4.csv"), header = F)
@@ -38,7 +39,7 @@ for (j in 1:length(table(samples_cluster$V2))) {
 
   group_file <- data.frame(group_info = group)
   row.names(group_file) <- colnames(tcga_gtex)
-  otu_file <- round(as.matrix(tcga_gtex), 0)
+  otu_file <- round(as.matrix(tcga_gtex), 0) # ???
   dds <- DESeqDataSetFromMatrix(countData = otu_file, colData = group_file, design = ~group_info)
   dds <- DESeq(dds)
   res <- results(dds, contrast = c("group_info", "C1", "C2"))

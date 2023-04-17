@@ -17,23 +17,23 @@ library(ggthemes)
 library(psych)
 library(ggpubr)
 
-load("data/luad-rsem-count-tcga-t.Rdata")
-load("data/luad-rsem-fpkm-tcga-t_normlized.Rdata")
+load("../data/luad-rsem-count-tcga-t.Rdata")
+load("../data/luad-rsem-fpkm-tcga-t_normlized.Rdata")
 raw_tcga <- scale(raw_tcga)
 
-sample_label <- read.table("../results/2191/NMF/cluster-nk-ligands-k=8/sample_cluster_4.csv",
+sample_label <- read.table("../data/sample_cluster_4.csv",
   header = FALSE,
   sep = ",",
   check.names = FALSE
 )
 
 if (T) {
-  genes_list <- read.table(paste("data/genes_list", ".txt", sep = ""),
+  genes_list <- read.table(paste("../data/genes_list", ".txt", sep = ""),
     header = TRUE,
     row.names = 1
   )
 } else {
-  genes_list <- read.table(paste("data/genes_list_cluster", j, ".txt", sep = ""),
+  genes_list <- read.table(paste("../data/genes_list_cluster", j, ".txt", sep = ""),
     header = TRUE,
     row.names = 1
   )

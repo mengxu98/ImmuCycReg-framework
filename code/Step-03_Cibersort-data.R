@@ -1,10 +1,9 @@
 
 
 rm(list = ls())
-source("Functions.R")
 library("tidyr")
-pathRead <- "data/"
-pathSave <- "../Results/"
+pathRead <- "../data/"
+pathSave <- "../../Results/"
 
 # TCGA --------------------------------------------------------------------
 tcga_raw <- read.table("data/luad-rsem-fpkm-tcga-t_normlized.txt.gz",
