@@ -4,7 +4,7 @@
 
 The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer.
 
-## 🔷 Workflow <img src="figures/Workflow.png" width="90%"/>
+## 🔷 Workflow <img src="figures/ImmuCycReg-framework.svg" width="90%"/>
 
 ## 🔷 DATA links:
 
