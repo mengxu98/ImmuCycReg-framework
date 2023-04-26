@@ -1,24 +1,18 @@
-
-# Author: Joeri Ruyssinck (joeri.ruyssinck@intec.ugent.be)
-
-###############################################################################
-
-
-# 	convertAdjMatrixToSortedRankTSV
-#
-#	Converts an adjacency matrix (genes x genes)  to a TSV format where each line 
-#   is formatted as [GENE_X][tab][GENE_Y][tab][RANK]. 
-#		-- inputFilename: name or full path to the file containing the matrix with the adjancency scores. 
-#		-- ouputFilename: name or full path to the outputfile
-#
-#	Parameters (optional):
-#
-#	Returns: NULL								
-#
-#
-#			
-convertAdjMatrixToSortedRankTSV <- function(inputFilename=NULL,inputFile=NULL,outputFilename=NULL, desc=TRUE){
-	
+	#' convertAdjMatrixToSortedRankTSV
+#'  Converts an adjacency matrix (genes x genes) to a TSV format where 
+#'  each line is formatted as [GENE_X][tab][GENE_Y][tab][RANK].
+#' @param inputFilename Name or full path to the file containing the matrix with the adjancency scores. 
+#' @param inputFile 
+#' @param outputFilename Name or full path to the outputfile
+#' @param desc 
+#'
+#' @return
+#' @export
+#'
+convertAdjMatrixToSortedRankTSV <- function(inputFilename=NULL,
+                                            inputFile=NULL,
+                                            outputFilename=NULL,
+                                            desc=TRUE){
 	if(is.null(inputFile)){
 		# Read the table from file
 		tbl <- read.table(inputFilename)
@@ -57,34 +51,22 @@ convertAdjMatrixToSortedRankTSV <- function(inputFilename=NULL,inputFile=NULL,ou
 	}
 }
 
-
-
-
-
-# 	convertSortedRankTSVToAdjMatrix
-#	
-#	Reads a sorted TSV format from file. Each line is formatted as [GENE_X][tab][GENE_Y][tab][Adjacency_Measure]. The lines are sorted by decreasing adjancency scores. This
-#	format is frequently used as standard for DREAM challenge evaluation scripts (http://wiki.c2b2.columbia.edu/dream/index.php/The_DREAM_Project).
-#	Returns a file formatted as an adjacency matrix (genes x genes), the colums and rows are sorted(ascending) (Format: spaces as seperators, colnames and rownames present to file.
-#	Parameters	(required):
-#		-- inputFilename: name or full path to the TSV file
-#		-- ouputFilename: name or full path to the outputfile
-#
-#	Parameters (optional):
-#
-#	Returns: NULL								
-#
-#   Warning: Temporary version, either I'm missing something with all the data type restrictions or this could be a lot shorter.
-#
-#			
-convertSortedRankTSVToAdjMatrix <- function(inputFilename=NULL,input=NULL,outputFilename=NULL){
-	
-	
+#' convertSortedRankTSVToAdjMatrix
+#'
+#' @param inputFilename Name or full path to the TSV file
+#' @param input 
+#' @param outputFilename Name or full path to the outputfile
+#'
+#' @return
+#' @export
+#'
+convertSortedRankTSVToAdjMatrix <- function(inputFilename=NULL,
+                                            input=NULL,
+                                            outputFilename=NULL){
 	# Read the table from file
 	if(!is.null(inputFilename)){
 		tbl <- read.table(inputFilename)
-	}
-	else{
+	}	else {
 		tbl <- input
 	}
 	# Sort by second column
@@ -114,8 +96,6 @@ convertSortedRankTSVToAdjMatrix <- function(inputFilename=NULL,input=NULL,output
 		}
 		rowIndexes <- tmp
 		m[rowIndexes,colIndex] <- valuesToAdd
-		
-		
 	}
 	targetToAdd <- tbl[startIndices[length(startIndices)],2]
 	predToAdd   <- tbl[startIndices[length(startIndices)]:length(tbl[,1]),1]
@@ -130,36 +110,23 @@ convertSortedRankTSVToAdjMatrix <- function(inputFilename=NULL,input=NULL,output
 	
 	if(!is.null(outputFilename)){
 		write.table(m,outputFilename)
-	}
-	else{
+	}	else {
 		return(m)
 	}
 }
 
-
-
 # isPercentage
 isPercentage <- function(number){
-	
-	
 	if (!is.numeric(number) || number <=0 || number > 100 || length(number) != 1){
-		
 		return (FALSE)
-	}
-	
-	else{
-		
+	}	else{
 		return (TRUE)
 	}
-	
 }
 
-
-
-################# Utility functions ##################################
-
 #	isWholeNumber - check for integer number
-isWholeNumber <- function(x, tol = .Machine$double.eps^0.5){
+isWholeNumber <- function(x,
+                          tol = .Machine$double.eps^0.5){
 	return (is.numeric(x) &&abs(x - round(x)) < tol)
 }
 
@@ -185,40 +152,23 @@ sortMatrix <- function(mat){
 }
 
 isDirectory <- function(directory){
-	
 	return(file.info(directory)$isdir)
-	
 }
 
 areBothNullOrNonNull <- function(a,b){
-	
-	return (is.null(a) && is.null(b) || !is.null(a) && !is.null(b) )
-	
-	
+	return (is.null(a) && is.null(b) || !is.null(a) && !is.null(b))
 }
-
 
 areAllNullOrNonNull <- function(...){
-	
 	e <- ( (length((which(c(...)==FALSE)))))
-	
 	return (e!=1)
 }
-
-
 
 factorToNumber <- function(vec){
 	return(as.numeric(levels(vec))[vec])
 }
 
-
 numericMatrix <- function(a){
 	
 	a<- apply(a,c(1,2),function(x){as.numeric(x)})
 }
-
-
-
-
-
-############## End Utility functions #################################
