@@ -2,27 +2,19 @@
 
 library(magrittr)
 
-#' package.check
-#'  Packages check, download and library
+#' @title package.check
+#' @description Check, download and load packages
 #'
-#' @param packages
+#' @param packages list
 #'
-#' @return
-#' @export
-#'
-#' @examples
 package.check <- function(packages) {
   for (package in packages) {
     if (!requireNamespace(package, quietly = TRUE)) {
-      if (!requireNamespace("dplyr", quietly = TRUE)) {
-        install.packages("dplyr")
-      }
+      if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
       library("dplyr")
-      if (!requireNamespace("rvest", quietly = TRUE)) {
-        install.packages("rvest")
-      }
+      if (!requireNamespace("rvest", quietly = TRUE)) install.packages("rvest")
       library("rvest")
-      message("[", Sys.time(), "] -----: No package: ", package, " in R environment!")
+      message("No package: '", package, "' in R environment......")
       CRANpackages <- available.packages() %>%
         as.data.frame() %>%
         select(Package) %>%
@@ -35,21 +27,14 @@ package.check <- function(packages) {
         select(Package) %>%
         mutate(source = "BioConductor")
       if (package %in% CRANpackages$Package) {
-        message("[", Sys.time(), "] -----: Now install package: ", package, " from CRAN!")
+        message("Now install package: '", package, "' from CRAN......")
         install.packages(package)
         library(package, character.only = TRUE)
       } else if (package %in% biocPackages$Package) {
-        message("[", Sys.time(), "] -----: Now install package: ", package, " from BioConductor!")
+        message("Now install package: '", package, "' from BioConductor......")
         BiocManager::install(package)
         library(package, character.only = TRUE)
-      } else { # Bug
-        if (!requireNamespace("githubinstall", quietly = TRUE)) {
-          install.packages("githubinstall")
-        }
-        library("githubinstall")
-        # githubinstall(package)
-        gh_suggest(package)
-      }
+      } 
     } else {
       library(package, character.only = TRUE)
     }
@@ -65,8 +50,7 @@ package.check <- function(packages) {
 #'
 #' @return
 #' @export
-#'
-#' @examples save.file(data, data2, fileName = "test.Rdata")
+#' 
 save.file <- function(..., fileName, pathWay = NULL) {
   if (is.null(pathWay)) {
     pathWay <- ""
@@ -117,7 +101,6 @@ countToEffCounts <- function(counts, len, effLen) {
 #' @return
 #' @export
 #'
-#' @examples
 survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
   if (is.null(pathWay)) {
     pathWay <- ""
@@ -181,11 +164,8 @@ survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
 #' @return
 #' @export
 #'
-#' @examples
 Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
   up_thres <- quantile(peak_luad[, target_sample_input])[3]
-  # print(up_thres)
-  # if(TRUE %in% c(peak_luad[candidate_peak_id_input,target_sample_input]>up_thres))
   if (peak_luad[candidate_peak_id_input, target_sample_input] > up_thres) {
     return(TRUE)
   } else {
@@ -200,7 +180,6 @@ Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
 #' @return
 #' @export
 #'
-#' @examples
 formatPositiveResult <- function(results_summary_input) {
   TFs <- c()
   type_inter <- c()
@@ -234,7 +213,6 @@ formatPositiveResult <- function(results_summary_input) {
 #' @return
 #' @export
 #'
-#' @examples
 formatNegativeResult <- function(results_summary_input) {
   TFs <- c()
   type_inter <- c()
@@ -269,7 +247,6 @@ formatNegativeResult <- function(results_summary_input) {
 #' @return
 #' @export
 #'
-#' @examples
 SampleHit <- function(results_summary_input, hit_tf) {
   hit_count <- c()
   sample_level <- c()
@@ -300,7 +277,6 @@ SampleHit <- function(results_summary_input, hit_tf) {
 #' @return
 #' @export
 #'
-#' @examples
 SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
   sample_level <- c()
   # tem_ind=0
@@ -323,7 +299,6 @@ SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
 #' @return
 #' @export
 #'
-#' @examples
 FrameRegulatoryTable <- function(res_frame_input) {
   ASPAR_hit <- c()
   encode_hit <- c()
@@ -385,7 +360,6 @@ FrameRegulatoryTable <- function(res_frame_input) {
 #' @return
 #' @export
 #'
-#' @examples
 FramePositive <- function(res_frame_input) {
   ASPAR_hit <- c()
   encode_hit <- c()
@@ -442,12 +416,11 @@ FramePositive <- function(res_frame_input) {
 
 #' FrameNegative
 #'
-#' @param res_frame_input 
+#' @param res_frame_input
 #'
 #' @return
 #' @export
 #'
-#' @examples
 FrameNegative <- function(res_frame_input) {
   ASPAR_hit <- c()
   encode_hit <- c()
