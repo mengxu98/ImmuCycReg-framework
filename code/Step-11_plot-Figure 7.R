@@ -1,17 +1,6 @@
+source("functions/Functions.R")
 
-
-library(patchwork)
-library(ggplot2)
-library(reshape2)
-library(ggpubr)
-library(dplyr)
-library(tidyr)
-library(pheatmap)
-library(tidyverse)
-library(RColorBrewer)
 theme_set(theme_pubclean())
-pkgs <- c("matrixStats", "pheatmap", "RColorBrewer", "tidyverse", "cowplot", "ggpubr", "bslib", "ggthemes")
-lapply(pkgs, library, character.only = T)
 
 #------------------------------------------------------------------------------#
 data_ALL_group <- read.table("data/data_ALL_group.txt",

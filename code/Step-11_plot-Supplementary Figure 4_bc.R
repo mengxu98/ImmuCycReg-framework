@@ -1,11 +1,5 @@
-
-
 rm(list = ls())
-library(reshape)
-library(ggplot2)
-library(ggpubr)
-library(ggthemes)
-library(patchwork)
+source("functions/Functions.R")
 
 reg_num_all <- read.csv("results/Edge_reg_num.csv")
 

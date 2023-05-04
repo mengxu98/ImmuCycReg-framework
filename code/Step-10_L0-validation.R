@@ -1,21 +1,5 @@
-
-
 rm(list = ls())
-library(broom)
-library(olsrr)
-library(car)
-library(HH)
-library(Metrics)
-library(plotmo)
-library(L0Learn)
-library(caret)
-library(glmnet)
-library(tidyr)
-library(tidyverse)
-library(RColorBrewer)
-library(ggthemes)
-library(psych)
-library(ggpubr)
+source("functions/Functions.R")
 
 load("../data/luad-rsem-count-tcga-t.Rdata")
 load("../data/luad-rsem-fpkm-tcga-t_normlized.Rdata")

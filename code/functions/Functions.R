@@ -1,6 +1,47 @@
-
-
+library(broom)
+library(bslib)
+library(car)
+library(caret)
+library(ComplexHeatmap)
+library(ConsensusClusterPlus)
+library(corrgram)
+library(cowplot)
+library(DESeq2)
+library(doMPI)
+library(dplyr)
+library(GGally)
+library(ggcorrplot)
+library(ggplot2)
+library(ggpubr)
+library(ggrepel)
+library(ggthemes)
+library(glmnet)
+library(HH)
+library(igraph)
+library(L0Learn)
+library(limma)
 library(magrittr)
+library(matrixStats)
+library(Metrics)
+library(NMF)
+library(olsrr)
+library(openxlsx)
+library(paletteer)
+library(patchwork)
+library(pheatmap)
+library(plotmo)
+library(psych)
+library(RColorBrewer)
+library(reshape)
+library(reshape2)
+library(rtracklayer)
+library(Rtsne)
+library(survival)
+library(survminer)
+library(svglite)
+library(tidyr)
+library(tidyverse)
+library(tinyarray)
 
 #' @title package.check
 #' @description Check, download and load packages
@@ -34,7 +75,7 @@ package.check <- function(packages) {
         message("Now install package: '", package, "' from BioConductor......")
         BiocManager::install(package)
         library(package, character.only = TRUE)
-      } 
+      }
     } else {
       library(package, character.only = TRUE)
     }
@@ -50,7 +91,7 @@ package.check <- function(packages) {
 #'
 #' @return
 #' @export
-#' 
+#'
 save.file <- function(..., fileName, pathWay = NULL) {
   if (is.null(pathWay)) {
     pathWay <- ""
@@ -92,11 +133,11 @@ countToEffCounts <- function(counts, len, effLen) {
 }
 
 #' survival.data
-#'  To obtain survival data of TCAGA samples
-#'  
-#' @param cancerType 
+#'  To obtain survival data of TCGA samples
+#'
+#' @param cancerType
 #' @param genes It is required to specify the single gene or genes list to obtain survival data
-#' @param pathWay 
+#' @param pathWay
 #'
 #' @return
 #' @export
@@ -136,16 +177,16 @@ survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
       mut_df[mut_df != ""] <- "MUT"
       # Get copy number data
       cna <- getProfileData(mycgds,
-                            caseList = paste0(cancerType, "_sequenced"),
-                            geneticProfile = paste0(cancerType, "_gistic"),
-                            genes = genes
+        caseList = paste0(cancerType, "_sequenced"),
+        geneticProfile = paste0(cancerType, "_gistic"),
+        genes = genes
       )
     }
     rn <- rownames(cna)
     cna <- apply(cna, 2, function(x) {
       as.character(factor(x,
-                          levels = c(-2:2),
-                          labels = c("HOMDEL", "HETLOSS", "DIPLOID", "GAIN", "AMP")
+        levels = c(-2:2),
+        labels = c("HOMDEL", "HETLOSS", "DIPLOID", "GAIN", "AMP")
       ))
     })
     cna[is.na(cna)] <- ""
@@ -158,8 +199,8 @@ survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
 
 #' Peak_is_open
 #'
-#' @param candidate_peak_id_input 
-#' @param target_sample_input 
+#' @param candidate_peak_id_input
+#' @param target_sample_input
 #'
 #' @return
 #' @export
@@ -175,7 +216,7 @@ Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
 
 #' formatPositiveResult
 #'
-#' @param results_summary_input 
+#' @param results_summary_input
 #'
 #' @return
 #' @export
@@ -208,7 +249,7 @@ formatPositiveResult <- function(results_summary_input) {
 
 #' formatNegativeResult
 #'
-#' @param results_summary_input 
+#' @param results_summary_input
 #'
 #' @return
 #' @export
@@ -241,8 +282,8 @@ formatNegativeResult <- function(results_summary_input) {
 
 #' SampleHit
 #'
-#' @param results_summary_input 
-#' @param hit_tf 
+#' @param results_summary_input
+#' @param hit_tf
 #'
 #' @return
 #' @export
@@ -271,8 +312,8 @@ SampleHit <- function(results_summary_input, hit_tf) {
 
 #' SampleHitOnlyCNV
 #'
-#' @param high_exp_sample_input 
-#' @param hit_tf 
+#' @param high_exp_sample_input
+#' @param hit_tf
 #'
 #' @return
 #' @export
@@ -294,7 +335,7 @@ SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
 
 #' FrameRegulatoryTable
 #'
-#' @param res_frame_input 
+#' @param res_frame_input
 #'
 #' @return
 #' @export
@@ -355,7 +396,7 @@ FrameRegulatoryTable <- function(res_frame_input) {
 
 #' FramePositive
 #'
-#' @param res_frame_input 
+#' @param res_frame_input
 #'
 #' @return
 #' @export

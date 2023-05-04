@@ -1,14 +1,5 @@
-
-
 rm(list = ls())
-library("DESeq2")
-library("ggplot2")
-library("ggrepel")
-library("openxlsx")
-library("tidyr")
-library("tidyverse")
-library("ggrepel")
-library("patchwork")
+source("functions/Functions.R")
 
 pathRead <- "../data/"
 pathSave <- "../../Results/"
@@ -164,9 +155,10 @@ for (j in 1:length(table(samples_cluster$V2))) {
   DESeq2_volcano_list[[j]] <- DESeq2_volcano
 
   ggsave(paste0(pathSave, "/DESeq2/cluster", j, "/DESeq2_volcano.png"),
-         DESeq2_volcano,
-         width = 6,
-         height = 3.5)
+    DESeq2_volcano,
+    width = 6,
+    height = 3.5
+  )
 
   new_DESeq2 <- data.frame(
     geneID = dataset$gene,
@@ -177,12 +169,13 @@ for (j in 1:length(table(samples_cluster$V2))) {
   )
 
   new_DESeq2$label <- ifelse(new_DESeq2$p_val_adj < 0.01, "adjust P-val<0.01", "adjust P-val>=0.01")
-  write.table(new_DESeq2, 
-              paste0(pathSave, "/DESeq2/cluster", j, "/DESeq2_res_sort.csv"), 
-              row.names = FALSE, 
-              sep = ",", 
-              quote = FALSE)
-  
+  write.table(new_DESeq2,
+    paste0(pathSave, "/DESeq2/cluster", j, "/DESeq2_res_sort.csv"),
+    row.names = FALSE,
+    sep = ",",
+    quote = FALSE
+  )
+
   DESeq2_all <- rbind.data.frame(DESeq2_all, new_DESeq2)
 
   print(paste("------------cluster", j, "DESeq2 done !------------", sep = " "))
@@ -197,6 +190,6 @@ DESeq2_volcano_list_p <- DESeq2_volcano_list[[1]] +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom") +
     theme(text = element_text(size = 13)) # +
-    # theme(text = element_text(family = "Times New Roman"))
+# theme(text = element_text(family = "Times New Roman"))
 print(DESeq2_volcano_list_p)
 ggsave(paste0(pathSave, "Figure/Figure 3.pdf"), DESeq2_volcano_list_p, width = 8, height = 8, dpi = 600)

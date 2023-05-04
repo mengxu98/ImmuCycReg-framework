@@ -1,17 +1,4 @@
-
-
 rm(list = ls())
-library("NMF")
-library("doMPI")
-library("pheatmap")
-library("tidyr")
-library("tidyverse")
-library("survival")
-library("survminer")
-library("ggplot2")
-library("paletteer")
-library("Rtsne")
-library("tinyarray")
 
 pathRead <- "../data/"
 pathSave <- "../../results/"

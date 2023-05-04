@@ -1,13 +1,5 @@
-
-
 rm(list = ls())
-library("reshape")
-library("ggplot2")
-library("ggpubr")
-library("ggthemes")
-library("patchwork")
-library("reshape2")
-library("RColorBrewer")
+source("functions/Functions.R")
 mycol <- c("gray", "white")
 
 results_10nets <- read.csv("evaluation_gnw_10_1.csv")
@@ -25,7 +17,7 @@ p2 <- ggplot(df_res10, aes(x = Dataset, y = AUROC, fill = Method)) +
   # geom_errorbar(aes(ymin=AUROC - Sd, ymax=AUROC + Sd), position = position_dodge(.6), width=.2)
   scale_x_discrete(labels = c("Net1", "Net2", "Net3", "Net4", "Net5", "Net6", "Net7", "Net8", "Net9", "Net10")) +
   theme_bw() # +
-  # ylim(0, 1)
+# ylim(0, 1)
 
 results_5nets <- read.csv("evaluation_gnw_5_2.csv")
 results_5nets <- results_5nets[, -1]

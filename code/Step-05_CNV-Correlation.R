@@ -1,8 +1,5 @@
-
-
 rm(list = ls())
-library("psych")
-library("ggcorrplot")
+source("functions/Functions.R")
 
 pathRead <- "../data/"
 pathSave <- "../../Results/"
@@ -16,7 +13,7 @@ correction_results_all <- c()
 for (k in 1:4) {
   cluster <- samples_cluster[which(samples_cluster$V2 == k), 1]
   gene_list <- read.table(paste(paste0(pathRead, "Genes_17.txt"), sep = ""),
-                          header = TRUE
+    header = TRUE
   )
   samples_inter <- intersect(cluster, colnames(tcga_cnv))
   CNV_cluster <- tcga_cnv[gene_list$gene, samples_inter]

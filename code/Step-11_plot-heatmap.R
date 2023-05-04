@@ -1,11 +1,5 @@
-
-
 rm(list = ls())
-library(reshape)
-library(ggplot2)
-library(ggpubr)
-library(ggthemes)
-library(patchwork)
+source("functions/Functions.R")
 
 select_genes <- target_gene_list$gene
 intersect_samples <- intersect(colnames(raw_tcga_cnv), common_samples)

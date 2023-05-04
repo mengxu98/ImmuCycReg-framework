@@ -1,4 +1,4 @@
-	#' convertAdjMatrixToSortedRankTSV
+#' convertAdjMatrixToSortedRankTSV
 #'  Converts an adjacency matrix (genes x genes) to a TSV format where 
 #'  each line is formatted as [GENE_X][tab][GENE_Y][tab][RANK].
 #' @param inputFilename Name or full path to the file containing the matrix with the adjancency scores. 
@@ -147,7 +147,7 @@ isPositiveNonZeroIntegerVector <- function(integerVector){
 
 # Sorts a matrix according to col and rownames
 sortMatrix <- function(mat){
-	mat <- mat[sort.list(rownames(mat)),sort.list(colnames(mat))  ]
+	mat <- mat[sort.list(rownames(mat)),sort.list(colnames(mat))]
 	return(mat)
 }
 
@@ -169,6 +169,5 @@ factorToNumber <- function(vec){
 }
 
 numericMatrix <- function(a){
-	
 	a<- apply(a,c(1,2),function(x){as.numeric(x)})
 }

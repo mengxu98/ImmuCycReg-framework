@@ -1,18 +1,5 @@
-
-
 rm(list = ls())
-library("NMF")
-library("ConsensusClusterPlus")
-library("limma")
-library("pheatmap")
-library("tidyr")
-library("tidyverse")
-library("survival")
-library("survminer")
-library("ggplot2")
-library("paletteer")
-library("Rtsne")
-library("tinyarray")
+
 source("Functions.R")
 
 pathRead <- "../data/"
@@ -136,4 +123,3 @@ ggplot(pdat, aes(Y1, Y2)) +
   scale_fill_paletteer_d("RColorBrewer::Set3") +
   theme_classic() +
   theme(legend.position = "top")
-

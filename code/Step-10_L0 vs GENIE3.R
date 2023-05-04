@@ -1,7 +1,7 @@
 
 
 rm(list = ls())
-library(magrittr)
+source("functions/Functions.R")
 source("functions/Functions-L0REG.R")
 
 pathRead <- "../data/"

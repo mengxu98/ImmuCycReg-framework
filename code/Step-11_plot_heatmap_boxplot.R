@@ -1,12 +1,5 @@
-
-
 rm(list = ls())
-library(reshape)
-library(ggplot2)
-library(ggpubr)
-library(ggthemes)
-library(patchwork)
-library(ComplexHeatmap)
+source("functions/Functions.R")
 
 # Load --------------------------------------------------------------------
 if (T) {
