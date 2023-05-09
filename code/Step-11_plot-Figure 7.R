@@ -23,7 +23,7 @@ CIBERSORT_Results_all_LM14 <- read.table("../Cibersort_LUAD_TPM_nor_LM14/results
 CIBERSORT_Results_all <- cbind.data.frame(CIBERSORT_Results_all, CIBERSORT_Results_all_LM14)
 
 CIBERSORT_Results_all$NK <- CIBERSORT_Results_all$NK.cells.activated + CIBERSORT_Results_all$NK.cells.resting
-data_ALL_group_t <- data_ALL_group_t[row.names(CIBERSORT_Results_all), ] #<U+7528><U+6765><U+6392><U+5217><U+884C><U+540D>,<U+9632><U+6B62><U+51FA><U+9519>
+data_ALL_group_t <- data_ALL_group_t[row.names(CIBERSORT_Results_all), ]
 
 CIBERSORT_Results_all$group <- data_ALL_group_t$group
 CIBERSORT_Results <- as.data.frame(CIBERSORT_Results_all)
@@ -213,4 +213,4 @@ p_list[[1]] +
     theme(text = element_text(family = "Times New Roman"))
 
 ggsave(paste0("../manuscript_review1/figure/", "Fig. 7.png"), width = 9, height = 4.2, dpi = 600)
-ggsave(paste0("../manuscript_review1/figure/", "Fig, 7.pdf"), width = 9, height = 4.2)
+ggsave(paste0("../manuscript_review1/figure/", "Fig. 7.pdf"), width = 9, height = 4.2)

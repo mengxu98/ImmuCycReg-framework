@@ -1,47 +1,5 @@
-library(broom)
-library(bslib)
-library(car)
-library(caret)
-library(ComplexHeatmap)
-library(ConsensusClusterPlus)
-library(corrgram)
-library(cowplot)
-library(DESeq2)
-library(doMPI)
-library(dplyr)
-library(GGally)
-library(ggcorrplot)
-library(ggplot2)
-library(ggpubr)
-library(ggrepel)
-library(ggthemes)
-library(glmnet)
-library(HH)
-library(igraph)
-library(L0Learn)
-library(limma)
+library(rlang)
 library(magrittr)
-library(matrixStats)
-library(Metrics)
-library(NMF)
-library(olsrr)
-library(openxlsx)
-library(paletteer)
-library(patchwork)
-library(pheatmap)
-library(plotmo)
-library(psych)
-library(RColorBrewer)
-library(reshape)
-library(reshape2)
-library(rtracklayer)
-library(Rtsne)
-library(survival)
-library(survminer)
-library(svglite)
-library(tidyr)
-library(tidyverse)
-library(tinyarray)
 
 #' @title package.check
 #' @description Check, download and load packages
@@ -52,9 +10,9 @@ package.check <- function(packages) {
   for (package in packages) {
     if (!requireNamespace(package, quietly = TRUE)) {
       if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
-      library("dplyr")
+      suppressPackageStartupMessages(library("dplyr"))
       if (!requireNamespace("rvest", quietly = TRUE)) install.packages("rvest")
-      library("rvest")
+      suppressPackageStartupMessages(library("rvest"))
       message("No package: '", package, "' in R environment......")
       CRANpackages <- available.packages() %>%
         as.data.frame() %>%
@@ -70,17 +28,20 @@ package.check <- function(packages) {
       if (package %in% CRANpackages$Package) {
         message("Now install package: '", package, "' from CRAN......")
         install.packages(package)
-        library(package, character.only = TRUE)
+        suppressPackageStartupMessages(library(package, character.only = TRUE))
       } else if (package %in% biocPackages$Package) {
         message("Now install package: '", package, "' from BioConductor......")
         BiocManager::install(package)
-        library(package, character.only = TRUE)
+        suppressPackageStartupMessages(library(package, character.only = TRUE))
       }
     } else {
-      library(package, character.only = TRUE)
+      suppressPackageStartupMessages(library(package, character.only = TRUE))
     }
   }
 }
+
+packages <- read.table("required_packages.txt")
+package.check(packages[, 1])
 
 #' save.file
 #'  Save R object
