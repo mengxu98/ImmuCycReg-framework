@@ -1,10 +1,12 @@
 backports
+pbkrtest
+car
+tmvnsim
 bgsmtr
 BiocManager
 BiocVersion
 broom
 bslib
-car
 caret
 cgdsr
 clusterProfiler

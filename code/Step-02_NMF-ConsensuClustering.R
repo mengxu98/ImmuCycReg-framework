@@ -1,6 +1,6 @@
 rm(list = ls())
 
-source("Functions.R")
+source("functions/Functions.R")
 
 pathRead <- "../data/"
 pathSave <- "../../Results/"
@@ -19,7 +19,8 @@ dataset <- data_nmf[1:gene_no, ]
 
 max_cluster_num <- 6
 title <- paste0(pathSave, "NMF/")
-results <- ConsensusClusterPlus(dataset,
+results <- ConsensusClusterPlus(
+  dataset,
   maxK = max_cluster_num,
   reps = 50,
   pItem = 0.8,

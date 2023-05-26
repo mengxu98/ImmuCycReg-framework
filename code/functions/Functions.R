@@ -1,3 +1,5 @@
+Sys.setenv(LANG = "en_US.UTF-8")
+
 library(rlang)
 library(magrittr)
 
@@ -39,6 +41,9 @@ package.check <- function(packages) {
     }
   }
 }
+
+packages <- read.table("required_packages.txt")
+package.check(packages[, 1])
 
 #' save.file
 #'  Save R object
