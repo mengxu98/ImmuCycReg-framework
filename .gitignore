@@ -11,3 +11,5 @@ data/hg38.ncbiRefSeq.gtf.gz
 .idea/ImmuCycReg-framework.iml
 *.xml
 *.iml
+data/.DS_Store
+.DS_Store
