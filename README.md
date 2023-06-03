@@ -1,12 +1,12 @@
-# 📗ImmuCycReg-framework
+# ***ImmuCycReg-framework***
 
-<img src="https://img.shields.io/badge/-R-green"/> <img src="https://img.shields.io/badge/-Immune%20escape%20analysis-blue"/> <img src="https://img.shields.io/badge/-Gene%20Regulatory%20Network-blue"/> <img src="https://img.shields.io/eclipse-marketplace/last-update/mengxu98?style=flat"/>
+![R](https://img.shields.io/badge/-R-198ce7) [![code-size](https://img.shields.io/github/languages/code-size/mengxu98/ImmuCycReg-framework)](https://github.com/mengxu98/ImmuCycReg-framework) ![Gene%20Regulatory%20Network](https://img.shields.io/badge/Gene%20Regulatory%20Network-blue) ![Immune%20escape%20analysis](https://img.shields.io/badge/-Immune%20escape%20analysis-blue)
 
 The code repository is for paper: Integration of single sample and population analysis for understanding Immune evasion mechanisms of lung cancer.
 
-## 🔷 Workflow <img src="figures/ImmuCycReg-framework.svg" width="90%"/>
+## Workflow <img src="figures/ImmuCycReg-framework.svg" width="90%"/>
 
-## 🔷 DATA links:
+## DATA links:
 
 🔸 Processed data from this study are available in the reproducibility GitHub repository: `https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data`
 
@@ -18,7 +18,7 @@ The code repository is for paper: Integration of single sample and population an
 
 🔸 Genome annotation file was downloaded from hg38.ensGene.gtf: `ftp://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/`
 
-## 🔷 The input data:
+## The input data:
 
 🔸 The TCGA RNA-seq is necessary
 
@@ -26,11 +26,11 @@ The code repository is for paper: Integration of single sample and population an
 
 🔸 The CNV data is not required
 
-## 🔷 The results provide in Supplementary Data:
+## The results provide in Supplementary Data:
 
 `https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data/Supplementary%20Data`
 
-## 🔷 The environment and softwares required:
+## The environment and softwares required:
 
 ``` r
 R 4.1.2
@@ -55,15 +55,10 @@ JAVA v18.0.1.1
 GeneNetWeaver: http://gnw.sourceforge.net/
 ```
 
-## 🔷 LICENSE
+## LICENSE
 
 MIT License
 
-## 🔷 Cite
+## Cite
 
 Li, X., Meng, X., Chen, H. et al. Integration of single sample and population analysis for understanding immune evasion mechanisms of lung cancer. npj Syst Biol Appl 9, 4 (2023). <https://doi.org/10.1038/s41540-023-00267-8>
-
-<!--
-## If you encounter any problems when use these code, please contact me by Wechat or QQ: 
-Wechat: <img src="https://github.com/mengxu98/scGRN-L0/blob/master/contact/Wechat.jpg" width="100" height="100" alt="Wechat"/> QQ: <img src="https://github.com/mengxu98/scGRN-L0/blob/master/contact/QQ.PNG" width="100" height="100" alt="QQ"/>
--->
