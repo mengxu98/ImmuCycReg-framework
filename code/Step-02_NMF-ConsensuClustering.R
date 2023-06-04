@@ -62,18 +62,16 @@ optK
 
 table(results[[4]]$consensusClass)
 
-Cluster <- predict(res_4) %>% as.data.frame()
-
 Cluster <- results[[4]]$consensusClass %>% as.data.frame()
 Cluster$sample <- rownames(Cluster)
 
 survival.data(cancerType = "luad_tcga", genes = "IL2", pathWay = pathSave)
 load(paste0(pathSave, "survival_input.Rdata"))
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
-samples <- intersect(rownames(Cluster), rownames(myClinicalData))
+samples <- intersect(rownames(Cluster), rownames(ClinicalData))
 Cluster <- Cluster[samples, ] %>% as.data.frame()
-myClinicalData <- myClinicalData[samples, ]
-identical(rownames(Cluster), rownames(myClinicalData))
+ClinicalData <- ClinicalData[samples, ]
+identical(rownames(Cluster), rownames(ClinicalData))
 choose_columns <- c(
   "AJCC_METASTASIS_PATHOLOGIC_PM",
   "AJCC_NODES_PATHOLOGIC_PN",
@@ -86,8 +84,8 @@ choose_columns <- c(
   "DFS_MONTHS",
   "DFS_STATUS"
 )
-myClinicalData <- myClinicalData[, choose_columns]
-meta <- myClinicalData
+ClinicalData <- ClinicalData[, choose_columns]
+meta <- ClinicalData
 meta$OS_STATUS <- gsub("1:DECEASED", "1", meta$OS_STATUS)
 meta$OS_STATUS <- gsub("0:LIVING", "0", meta$OS_STATUS)
 
@@ -105,7 +103,7 @@ ggsurvplot(sfit,
 exp <- dataset %>% as.data.frame()
 colnames(exp) <- gsub("-", ".", colnames(exp))
 exp <- exp[, samples]
-#
+
 # PCA
 draw_pca(exp, Cluster$., addEllipses = F)
 # Tsne
