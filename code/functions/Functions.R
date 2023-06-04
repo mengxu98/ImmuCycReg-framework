@@ -105,7 +105,56 @@ countToEffCounts <- function(counts, len, effLen) {
 #' @return
 #' @export
 #'
-survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
+survival.data <- function(cancerType = NULL,
+                          genes = NULL,
+                          pathWay = NULL) {
+  if (is.null(cancerType)) stop("Pleasure ensure the cancer type......")
+  message(paste0("Choose '", cancerType, "' and preparing data......"))
+  package.check("cgdsr")
+  package.check("DT")
+  cgdsLoc <- cgdsr::CGDS("http://www.cbioportal.org/")
+  message(test(cgdsLoc))
+  # getCancerStudies(cgdsLoc)
+  # getCaseLists(cgdsLoc, cancerType)[, c(1, 2)]
+  # getGeneticProfiles(cgdsLoc, cancerType)[, 1]
+  if (is.null(genes)) stop("Pleasure input a single gene or gene list......")
+  
+  # Get expression data
+  expr <- getProfileData(cgdsLoc,
+                         genes = genes,
+                         caseList = paste0(cancerType, "_rna_seq_v2_mrna"),
+                         geneticProfile = paste0(cancerType, "_rna_seq_v2_mrna"))
+  
+  # Get mutation data
+  mut <- getProfileData(cgdsLoc,
+                        genes = genes,
+                        caseList = paste0(cancerType, "_sequenced"),
+                        geneticProfile = paste0(cancerType, "_mutations"))
+  mut <- apply(mut, 2, as.factor)
+  mut[mut == "NaN"] <- ""
+  mut[is.na(mut)] <- ""
+  mut[mut != ""] <- "MUT"
+  
+  # Get copy number data
+  cna <- getProfileData(cgdsLoc,
+                        genes = genes,
+                        caseList = paste0(cancerType, "_sequenced"),
+                        geneticProfile = paste0(cancerType, "_gistic"))
+  cnaNames <- rownames(cna)
+  cna <- apply(cna, 2, function(x) {
+    as.character(factor(x,
+                        levels = c(-2:2),
+                        labels = c("HOMDEL", "HETLOSS", "DIPLOID", "GAIN", "AMP")
+    ))
+  })
+  cna[is.na(cna)] <- ""
+  cna[cna == "DIPLOID"] <- ""
+  rownames(cna) <- cnaNames
+  
+  # Get clinical data
+  ClinicalData <- getClinicalData(cgdsLoc,
+                                  caseList = paste0(cancerType, "_rna_seq_v2_mrna"))
+  
   if (is.null(pathWay)) {
     pathWay <- ""
   } else {
@@ -113,51 +162,7 @@ survival.data <- function(cancerType = NULL, genes = NULL, pathWay = NULL) {
       dir.create(pathWay, recursive = TRUE)
     }
   }
-  if (is.null(cancerType)) {
-    message("----- Pleasure ensure the cancer type! -----")
-  } else {
-    message(paste0("----- Choose ", cancerType, "and prepare the data! -----"))
-    package.check("cgdsr")
-    package.check("DT")
-    mycgds <- CGDS("http://www.cbioportal.org/")
-    message(test(mycgds))
-    all <- getCancerStudies(mycgds)
-    getCaseLists(mycgds, cancerType)[, c(1, 2)]
-    getGeneticProfiles(mycgds, cancerType)[, 1]
-    getCaseLists(mycgds, cancerType)[, 1]
-    mycaselist <- paste0(cancerType, "_rna_seq_v2_mrna")
-    mygeneticprofile <- paste0(cancerType, "_rna_seq_v2_mrna")
-    if (is.null(genes)) {
-      message("----- Pleasure input a single gene or gene list! -----")
-    } else {
-      # Get expression data
-      expr <- getProfileData(mycgds, genes, mygeneticprofile, mycaselist)
-      # Get mutation data
-      mut_df <- getProfileData(mycgds, caseList = "luad_tcga_sequenced", geneticProfile = "luad_tcga_mutations", genes = genes)
-      mut_df <- apply(mut_df, 2, as.factor)
-      mut_df[mut_df == "NaN"] <- ""
-      mut_df[is.na(mut_df)] <- ""
-      mut_df[mut_df != ""] <- "MUT"
-      # Get copy number data
-      cna <- getProfileData(mycgds,
-        caseList = paste0(cancerType, "_sequenced"),
-        geneticProfile = paste0(cancerType, "_gistic"),
-        genes = genes
-      )
-    }
-    rn <- rownames(cna)
-    cna <- apply(cna, 2, function(x) {
-      as.character(factor(x,
-        levels = c(-2:2),
-        labels = c("HOMDEL", "HETLOSS", "DIPLOID", "GAIN", "AMP")
-      ))
-    })
-    cna[is.na(cna)] <- ""
-    cna[cna == "DIPLOID"] <- ""
-    rownames(cna) <- rn
-    myClinicalData <- getClinicalData(mycgds, mycaselist)
-    save(expr, myClinicalData, cna, mut_df, file = paste0(pathWay, "survival_input.Rdata"))
-  }
+  save(expr, ClinicalData, cna, mut, file = paste0(pathWay, "survival_input.Rdata"))
 }
 
 #' Peak_is_open
