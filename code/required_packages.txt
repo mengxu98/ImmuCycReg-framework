@@ -8,7 +8,7 @@ BiocVersion
 broom
 bslib
 caret
-cgdsr
+cBioPortal/cgdsr
 clusterProfiler
 ComplexHeatmap
 ConsensusClusterPlus
@@ -28,13 +28,11 @@ ggthemes
 glmnet
 gplots
 grImport2
-gWidgetsRGtk2
 HH
 igraph
-L0Learn
+hazimehh/L0Learn
 limma
 magrittr
-markdown
 matrixStats
 Metrics
 networkD3

@@ -1,9 +1,8 @@
 rm(list = ls())
 source("functions/Functions.R")
 
-
-pathRead <- "data/"
-pathSave <- "../Results/"
+pathRead <- "../data/"
+pathSave <- "../../Results/"
 
 String_names <- read.table(paste0(pathRead, "Datasets/STRING_9606.protein.info.v11.5.txt"))
 String_score <- read.table(paste0(pathRead, "Datasets/STRING_9606.protein.links.v11.5.txt.gz"), header = T)

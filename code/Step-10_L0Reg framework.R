@@ -5,7 +5,7 @@ source("functions/Functions.R")
 load("../../Results/TCGA-LUAD.Rdata")
 tcga_luad <- scale(tcga_luad)
 
-sample_label <- read.table("../data/sample_cluster_4.csv",
+sampleLabel <- read.table("../data/sample_cluster_4.csv",
   header = FALSE,
   sep = ",",
   check.names = FALSE
@@ -32,23 +32,23 @@ for (j in 1:4) {
     row.names = 1
   )
 
-  cluster <- sample_label[which(sample_label$V2 == j), 1]
+  cluster <- sampleLabel[which(sampleLabel$V2 == j), 1]
   Y_raw <- tcga_luad[row.names(genes_list), cluster]
   maxSNVSize <- 100
   evaluate_cluster <- c()
   for (i in 1:nrow(genes_list)) {
-    target_gene <- row.names(genes_list)[i]
-    if (file.exists(paste0("../data/TFs/", target_gene, "_TFs_list.txt")) == T) {
-      message(paste0("Running for cluster: ", j, ", ", "NO.", i, " gene: ", target_gene, "......"))
+    targetGene <- row.names(genes_list)[i]
+    if (file.exists(paste0("../data/TFs/", targetGene, "_TFs_list.txt")) == T) {
+      message(paste0("Running for cluster: ", j, ", ", "NO.", i, " gene: ", targetGene, "......"))
 
-      TFs_list <- read.table(paste0("../data/TFs/", target_gene, "_TFs_list.txt"),
+      TFs_list <- read.table(paste0("../data/TFs/", targetGene, "_TFs_list.txt"),
         header = T,
         row.names = 1
       )
 
       X <- t(tcga_luad[row.names(TFs_list), cluster]) %>% as.matrix()
       row.names(X) <- row.names(X)
-      Y <- t(tcga_luad[target_gene, cluster]) %>% as.numeric()
+      Y <- t(tcga_luad[targetGene, cluster]) %>% as.numeric()
 
       # Validation -------------------------------------------------------------
       set.seed(2022)
@@ -68,10 +68,10 @@ for (j in 1:4) {
       )
 
       # Extract coefficient at middle lambda
-      fit_L0_information <- print(fit_L0_validation) %>% as.data.frame()
-      fit_L0_information <- fit_L0_information[order(fit_L0_information$suppSize, decreasing = TRUE), ]
-      lambda_L0 <- fit_L0_information$lambda[1]
-      gamma_L0 <- fit_L0_information$gamma[1]
+      fitInformation <- print(fit_L0_validation) %>% as.data.frame()
+      fitInformation <- fitInformation[order(fitInformation$suppSize, decreasing = TRUE), ]
+      lambda_L0 <- fitInformation$lambda[1]
+      gamma_L0 <- fitInformation$gamma[1]
 
       test_data_y <- predict(fit_L0_validation,
         newx = test_data_X,
@@ -91,7 +91,7 @@ for (j in 1:4) {
 
       deg.data <- data.frame(
         Cluster = paste("Cluster", j),
-        Gene = target_gene,
+        Gene = targetGene,
         corr = peak_corr$r,
         pval = peak_corr$p
       )
@@ -105,10 +105,10 @@ for (j in 1:4) {
         geom_smooth(method = "lm", se = F, color = "#006699", size = 1) +
         labs(
           x = "True Expression", y = "L0Reg framework",
-          title = paste0("Gene: ", target_gene)
+          title = paste0("Gene: ", targetGene)
         )
 
-      ggsave(paste("../../Results/L0Reg-framework/cluster", j, "/", target_gene, "_corrgram.png", sep = ""),
+      ggsave(paste("../../Results/L0Reg-framework/cluster", j, "/", targetGene, "_corrgram.png", sep = ""),
         width = 3,
         height = 3
       )
@@ -118,10 +118,10 @@ for (j in 1:4) {
           penalty = "L0",
           maxSuppSize = maxSNVSize
         )
-        fit_L0_information <- as.data.frame(print(fit_L0))
-        fit_L0_information <- fit_L0_information[order(fit_L0_information$suppSize, decreasing = TRUE), ]
-        lambda_L0 <- fit_L0_information$lambda[1]
-        gamma_L0 <- fit_L0_information$gamma[1]
+        fitInformation <- as.data.frame(print(fit_L0))
+        fitInformation <- fitInformation[order(fitInformation$suppSize, decreasing = TRUE), ]
+        lambda_L0 <- fitInformation$lambda[1]
+        gamma_L0 <- fitInformation$gamma[1]
 
         y_hat <- predict(fit_L0,
           newx = X,
@@ -152,7 +152,7 @@ for (j in 1:4) {
         L0_Rsquare <- 1 - mse(Y, y_hat) / var(Y)
         evaluate_L0 <- data.frame(
           Cluster = paste0("Cluster", j),
-          Gene = target_gene,
+          Gene = targetGene,
           L0_Rsquare = 1 - mse(Y, y_hat) / var(Y),
           L0_RMSE = Metrics::rmse(Y, y_hat)
         )
@@ -177,21 +177,21 @@ for (j in 1:4) {
             }
           }
 
-          write.csv(res_data_f, sprintf(paste0("../../Results/L0Reg-framework/cluster", j, "/%s_TFs_Selected_L0.csv"), target_gene))
+          write.csv(res_data_f, sprintf(paste0("../../Results/L0Reg-framework/cluster", j, "/%s_TFs_Selected_L0.csv"), targetGene))
 
           res_TRN <- cbind(
             "TF" = row.names(res_data_f),
             "Reg" = res_data_f$reg,
-            "Gene" = target_gene,
+            "Gene" = targetGene,
             "Cluster" = paste("Cluster", j, sep = ""),
             "Strength" = res_data_f$strength
           )
           res_TRN_cluster <- rbind(res_TRN_cluster, res_TRN)
           survival_tfs_gene <- rownames(res_data_f) %>% as.data.frame()
-          survival_tfs <- rbind.data.frame(survival_tfs, survival_tfs_gene, target_gene)
+          survival_tfs <- rbind.data.frame(survival_tfs, survival_tfs_gene, targetGene)
 
           X <- tcga_luad[row.names(TFs_list), cluster]
-          X <- rbind(X, Gene = Y_raw[target_gene, ]) %>% as.matrix()
+          X <- rbind(X, Gene = Y_raw[targetGene, ]) %>% as.matrix()
           row.names(X) <- row.names(X)
 
           L0_matrix <- 0
@@ -204,7 +204,7 @@ for (j in 1:4) {
 
           # GENIE3
           if (T) {
-            Gene <- target_gene
+            Gene <- targetGene
             pre_time <- proc.time()
             weightMat <- GENIE3::GENIE3(X, verbose = TRUE)
             time_GRN <- proc.time() - pre_time
@@ -218,7 +218,7 @@ for (j in 1:4) {
               GENIE3_matrix <- 0
               for (g in 1:nrow(links)) {
                 gene <- links$regulatoryGene[g]
-                if (gene != target_gene) {
+                if (gene != targetGene) {
                   GENIE3_gene <- X[gene, ] * links$weight[g]
                   GENIE3_matrix <- GENIE3_matrix + GENIE3_gene
                 }
@@ -234,7 +234,7 @@ for (j in 1:4) {
           links_L0$weight <- as.numeric(links_L0$Strength)
           links_L0 <- links_L0[, c("TF", "Gene", "weight")]
           nodes_L0 <- data.frame(
-            name = c(target_gene, links_L0$TF),
+            name = c(targetGene, links_L0$TF),
             carac = c(rep("Gene", 1), rep("TF", nrow(links_L0)))
           )
 
@@ -246,7 +246,7 @@ for (j in 1:4) {
           links <- as.data.frame(links)
           links$regulatoryGene <- as.character(links$regulatoryGene)
           nodes <- data.frame(
-            name = c(target_gene, links$regulatoryGene),
+            name = c(targetGene, links$regulatoryGene),
             carac = c(rep("Gene", 1), rep("TF", nrow(links)))
           )
 
@@ -257,7 +257,7 @@ for (j in 1:4) {
           my_color <- coul[as.numeric(as.factor(V(network)$carac))]
           my_color
 
-          png(paste0("../../Results/L0Reg-framework/cluster", j, "/", target_gene, "_GENIE3-L0.png"),
+          png(paste0("../../Results/L0Reg-framework/cluster", j, "/", targetGene, "_GENIE3-L0.png"),
             width = 6000, height = 3000, res = 600
           )
 
@@ -287,7 +287,7 @@ for (j in 1:4) {
           # L0 VS GENIE3
           Contrast <- data.frame(
             Cluster = paste0("Cluster", j),
-            Gene = target_gene,
+            Gene = targetGene,
             L0 = cor(X["Gene", ], L0_matrix),
             GENIE3 = cor(X["Gene", ], GENIE3_matrix)
           )
@@ -295,7 +295,7 @@ for (j in 1:4) {
         }
       }
     } else {
-      print(paste("No", target_gene, "TF file......", sep = " "))
+      print(paste0("No ", targetGene, " TF file......"))
       break
     }
   }
@@ -312,7 +312,8 @@ for (j in 1:4) {
   res_TRN_all <- rbind(res_TRN_all, res_TRN_cluster)
   survival_tfs <- survival_tfs[!duplicated(survival_tfs), ] %>% as.data.frame()
   write.csv(survival_tfs, paste0("../../Results/L0Reg-framework/genes_list_cluster", j, ".csv"))
-  print(paste0("Cluster", j, "done......"))
+  
+  message(paste0("Cluster", j, "done......"))
 }
 
 write.csv(res_TRN_all, "../../Results/L0Reg-framework/res_TRN_all.csv", row.names = T)

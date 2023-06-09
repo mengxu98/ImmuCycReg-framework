@@ -3,48 +3,6 @@ Sys.setenv(LANG = "en_US.UTF-8")
 library(rlang)
 library(magrittr)
 
-#' @title package.check
-#' @description Check, download and load packages
-#'
-#' @param packages list
-#'
-package.check <- function(packages) {
-  for (package in packages) {
-    if (!requireNamespace(package, quietly = TRUE)) {
-      if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
-      suppressPackageStartupMessages(library("dplyr"))
-      if (!requireNamespace("rvest", quietly = TRUE)) install.packages("rvest")
-      suppressPackageStartupMessages(library("rvest"))
-      message("No package: '", package, "' in R environment......")
-      CRANpackages <- available.packages() %>%
-        as.data.frame() %>%
-        select(Package) %>%
-        mutate(source = "CRAN")
-      url <- "https://www.bioconductor.org/packages/release/bioc/"
-      biocPackages <- url %>%
-        read_html() %>%
-        html_table() %>%
-        .[[1]] %>%
-        select(Package) %>%
-        mutate(source = "BioConductor")
-      if (package %in% CRANpackages$Package) {
-        message("Now install package: '", package, "' from CRAN......")
-        install.packages(package)
-        suppressPackageStartupMessages(library(package, character.only = TRUE))
-      } else if (package %in% biocPackages$Package) {
-        message("Now install package: '", package, "' from BioConductor......")
-        BiocManager::install(package)
-        suppressPackageStartupMessages(library(package, character.only = TRUE))
-      }
-    } else {
-      suppressPackageStartupMessages(library(package, character.only = TRUE))
-    }
-  }
-}
-
-packages <- read.table("required_packages.txt")
-package.check(packages[, 1])
-
 #' save.file
 #'  Save R object
 #'
@@ -483,3 +441,54 @@ FrameNegative <- function(res_frame_input) {
   res_frame_negative$TRANSFAC_Predicted <- TRANSFAC_Predicted_hit
   return(res_frame_negative)
 }
+
+#' @title package.check
+#' @description Check, install and library packages
+#'
+#' @param packages Packages list
+#'
+package.check <- function(packages) {
+  for (package in packages) {
+    message("Checking: '", package, "' in R environment......")
+    if (grepl("/", package)) {
+      if (!requireNamespace(strsplit(package, "/")[[1]][2], quietly = TRUE)) {
+        if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+        message("Now install package: '", package, "' from Github......")
+        devtools::install_github(package)
+      }
+      suppressPackageStartupMessages(library(strsplit(package, "/")[[1]][2], character.only = TRUE))
+    } else {
+      if (!requireNamespace(package, quietly = TRUE)) {
+        if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+        suppressPackageStartupMessages(library("dplyr"))
+        if (!requireNamespace("rvest", quietly = TRUE)) install.packages("rvest")
+        suppressPackageStartupMessages(library("rvest"))
+        CRANpackages <- available.packages() %>%
+          as.data.frame() %>%
+          # select(Package) %>%
+          mutate(source = "CRAN")
+        url <- "https://www.bioconductor.org/packages/release/bioc/"
+        biocPackages <- url %>%
+          read_html() %>%
+          html_table() %>%
+          .[[1]] %>%
+          # select(Package) %>%
+          mutate(source = "BioConductor")
+        if (package %in% CRANpackages$Package) {
+          message("Now install package: '", package, "' from CRAN......")
+          install.packages(package)
+          suppressPackageStartupMessages(library(package, character.only = TRUE))
+        } else if (package %in% biocPackages$Package) {
+          message("Now install package: '", package, "' from BioConductor......")
+          BiocManager::install(package)
+          suppressPackageStartupMessages(library(package, character.only = TRUE))
+        }
+      }  else {
+        suppressPackageStartupMessages(library(package, character.only = TRUE))
+      }
+    }
+  }
+}
+
+packages <- read.table("required_packages.txt")
+package.check(packages[, 1])

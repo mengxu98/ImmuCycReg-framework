@@ -4,29 +4,6 @@ source("functions/Functions.R")
 pathRead <- "../data/"
 pathSave <- "../../Results/"
 
-# TCGA --------------------------------------------------------------------
-tcga_raw <- read.table(paste0(pathRead, "luad-rsem-fpkm-tcga-t_normlized.txt.gz"),
-                       header = T,
-                       sep = "\t",
-                       row.names = 1,
-                       check.names = FALSE
-) %>% .[, -1]
-names(tcga_raw) <- substr(colnames(tcga_raw), 1, 15)
-raw_tcga <- apply(tcga_raw, 2, fpkmToTpm) %>% as.data.frame()
-write.table(raw_tcga, paste0(pathSave, "TCGA-LUAD-TPM_normlized.txt"), sep = "\t", quote = F)
-
-# GTEx --------------------------------------------------------------------
-gtex_raw <- read.table(paste0(pathRead, "lung-rsem-fpkm-gtex_normlized.txt.gz"),
-                       header = T,
-                       sep = "\t",
-                       row.names = 1,
-                       check.names = FALSE
-) %>% .[, -1]
-names(gtex_raw) <- substr(colnames(gtex_raw), 1, 15)
-raw_gtex <- apply(gtex_raw, 2, fpkmToTpm)
-raw_gtex <- as.data.frame(raw_gtex)
-write.table(raw_gtex, paste0(pathSave, "GTEx-LUAD-TPM_normlized.txt"), sep = "\t", quote = F)
-
 # ------------------------------------------------------------------------------#
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "GTEx-LUAD.Rdata"))
