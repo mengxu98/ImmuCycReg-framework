@@ -37,8 +37,6 @@ p1 <- ggplot(df_res5, aes(x = Dataset, y = AUROC, fill = Method)) +
 
 p1 + p2 + plot_layout(widths = c(1, 2)) +
   plot_annotation(tag_levels = "a") +
-  # plot_layout(ncol = 2) +
-  plot_annotation(tag_levels = "a") +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom") +
     theme(text = element_text(size = 12)) +
