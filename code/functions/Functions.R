@@ -3,8 +3,7 @@ Sys.setenv(LANG = "en_US.UTF-8")
 library(rlang)
 library(magrittr)
 
-#' save.file
-#'  Save R object
+#' Save R object
 #'
 #' @param ...
 #' @param fileName
@@ -53,8 +52,7 @@ countToEffCounts <- function(counts, len, effLen) {
   counts * (len / effLen)
 }
 
-#' survival.data
-#'  To obtain survival data of TCGA samples
+#' To obtain survival data of TCGA samples
 #'
 #' @param cancerType
 #' @param genes It is required to specify the single gene or genes list to obtain survival data
@@ -72,9 +70,6 @@ survival.data <- function(cancerType = NULL,
   package.check("DT")
   cgdsLoc <- cgdsr::CGDS("http://www.cbioportal.org/")
   message(test(cgdsLoc))
-  # getCancerStudies(cgdsLoc)
-  # getCaseLists(cgdsLoc, cancerType)[, c(1, 2)]
-  # getGeneticProfiles(cgdsLoc, cancerType)[, 1]
   if (is.null(genes)) stop("Pleasure input a single gene or gene list......")
   
   # Get expression data

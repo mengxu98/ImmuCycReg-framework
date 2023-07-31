@@ -1,20 +1,17 @@
 rm(list = ls())
-source("functions/Functions.R")
 
 pathRead <- "../data/"
 pathSave <- "../../Results/"
 
-# ------------------------------------------------------------------------------#
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "GTEx-LUAD.Rdata"))
 LM22Genes <- read.table("../data/LM22_2.0.txt",
-                        header = T,
-                        # row.names = 1,
+                        header = TRUE,
                         sep = "\t"
 ) %>% .[, 1]
 
 sampleLabel <- read.table("../data/sample_cluster_4.csv",
-                          header = F,
+                          header = FALSE,
                           sep = ",",
                           check.names = FALSE,
                           col.names = c("sample", "cluster")
@@ -24,10 +21,9 @@ rawTCGA <- tcga_luad[LM22Genes, ] %>% na.omit()
 rawGTEx <- gtex_luad[LM22Genes, ] %>% na.omit()
 
 dataList <- list()
-dataList[[1]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == 1) %>% .[, 1]]
-dataList[[2]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == 2) %>% .[, 1]]
-dataList[[3]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == 3) %>% .[, 1]]
-dataList[[4]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == 4) %>% .[, 1]]
+for (i in 1:4) {
+  dataList[[i]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == i) %>% .[, 1]]
+}
 dataList[[5]] <- rawGTEx
 
 CibersortData <- map_dfc(1:5, function(x){
@@ -36,21 +32,24 @@ CibersortData <- map_dfc(1:5, function(x){
 
 write.table(CibersortData, "Cibersort_data_ALL.txt",
             sep = "\t",
-            quote = F,
-            row.names = T
+            quote = FALSE,
+            row.names = TRUE
 )
 
-# -----------------------------------------------------------------------------
-
-data_ALL_group <- map_dfc(1:5, function(x){
-  tcga_cluster1_t <- as.data.frame(t(dataList[[x]]))
-  tcga_cluster1_t$group <- "Cluster1"
-  as.data.frame(t(tcga_cluster1_t))
+CibersortDataLable <- map_dfc(1:5, function(x){
+  cluster <- as.data.frame(t(dataList[[x]]))
+  if (x < 5) {
+    clusterLable <- paste0("Cluster", x)
+  } else {
+    clusterLable <- "GTEx"
+  }
+  cluster$group <- clusterLable
+  as.data.frame(t(cluster))
 })
 
-write.table(data_ALL_group, 
+write.table(CibersortDataLable, 
             "data_ALL_group.txt",
             sep = "\t",
-            quote = F,
-            row.names = T
+            quote = FALSE,
+            row.names = TRUE
 )
