@@ -7,34 +7,34 @@ pathSave <- "../../Results/"
 # ------------------------------------------------------------------------------#
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "GTEx-LUAD.Rdata"))
-LM22_2.0_genes <- read.table("../data/LM22_2.0.txt",
-                            header = T,
-                            # row.names = 1,
-                            sep = "\t"
+LM22Genes <- read.table("../data/LM22_2.0.txt",
+                        header = T,
+                        # row.names = 1,
+                        sep = "\t"
 ) %>% .[, 1]
 
-sample_label <- read.table("../data/sample_cluster_4.csv",
-                           header = F,
-                           sep = ",",
-                           check.names = FALSE,
-                           col.names = c("sample", "cluster")
+sampleLabel <- read.table("../data/sample_cluster_4.csv",
+                          header = F,
+                          sep = ",",
+                          check.names = FALSE,
+                          col.names = c("sample", "cluster")
 )
 
-raw_tcga <- tcga_luad[LM22_2.0_genes, ] %>% na.omit()
-raw_gtex <- gtex_luad[LM22_2.0_genes, ] %>% na.omit()
+rawTCGA <- tcga_luad[LM22Genes, ] %>% na.omit()
+rawGTEx <- gtex_luad[LM22Genes, ] %>% na.omit()
 
 dataList <- list()
-dataList[[1]] <- raw_tcga[, sample_label %>% dplyr::filter(cluster == 1) %>% .[, 1]]
-dataList[[2]] <- raw_tcga[, sample_label %>% dplyr::filter(cluster == 2) %>% .[, 1]]
-dataList[[3]] <- raw_tcga[, sample_label %>% dplyr::filter(cluster == 3) %>% .[, 1]]
-dataList[[4]] <- raw_tcga[, sample_label %>% dplyr::filter(cluster == 4) %>% .[, 1]]
-dataList[[5]] <- raw_gtex
+dataList[[1]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == 1) %>% .[, 1]]
+dataList[[2]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == 2) %>% .[, 1]]
+dataList[[3]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == 3) %>% .[, 1]]
+dataList[[4]] <- rawTCGA[, sampleLabel %>% dplyr::filter(cluster == 4) %>% .[, 1]]
+dataList[[5]] <- rawGTEx
 
-Cibersort_data_tcga_gtex <- map_dfc(1:5, function(x){
+CibersortData <- map_dfc(1:5, function(x){
   dataList[[x]]
 })
 
-write.table(Cibersort_data_tcga_gtex, "Cibersort_data_ALL.txt",
+write.table(CibersortData, "Cibersort_data_ALL.txt",
             sep = "\t",
             quote = F,
             row.names = T
@@ -42,7 +42,7 @@ write.table(Cibersort_data_tcga_gtex, "Cibersort_data_ALL.txt",
 
 # -----------------------------------------------------------------------------
 
-data_ALL_group1 <- map_dfc(1:5, function(x){
+data_ALL_group <- map_dfc(1:5, function(x){
   tcga_cluster1_t <- as.data.frame(t(dataList[[x]]))
   tcga_cluster1_t$group <- "Cluster1"
   as.data.frame(t(tcga_cluster1_t))

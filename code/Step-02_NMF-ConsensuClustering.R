@@ -37,10 +37,10 @@ icl[["itemConsensus"]][1:6, ]
 
 for (i in 2:max_cluster_num) {
   write.table(results[[i]][["consensusClass"]],
-    file = paste0(title, "sample_cluster_", as.character(i), ".csv"),
-    na = "",
-    col.names = FALSE,
-    sep = ","
+              file = paste0(title, "sample_cluster_", as.character(i), ".csv"),
+              na = "",
+              col.names = FALSE,
+              sep = ","
   )
 }
 
@@ -92,11 +92,11 @@ meta$OS_STATUS <- gsub("0:LIVING", "0", meta$OS_STATUS)
 meta$Cluster <- as.character(Cluster$.)
 
 sfit <- survfit(Surv(OS_MONTHS, OS_STATUS == "1") ~ Cluster,
-  data = meta
+                data = meta
 )
 ggsurvplot(sfit,
-  pval = TRUE,
-  palette = c("#0050ef", "#008a00", "#fa6800", "#ffff88")
+           pval = TRUE,
+           palette = c("#0050ef", "#008a00", "#fa6800", "#ffff88")
 )
 
 ###
@@ -114,11 +114,11 @@ colnames(pdat) <- c("Y1", "Y2", "group")
 ggplot(pdat, aes(Y1, Y2)) +
   geom_point(aes(Y1, Y2, fill = group), shape = 21, color = "black") +
   stat_ellipse(aes(color = group, fill = group),
-    geom = "polygon",
-    alpha = 0.3,
-    linetype = 2
+               geom = "polygon",
+               alpha = 0.3,
+               linetype = 2
   ) +
   scale_color_paletteer_d("RColorBrewer::Set3") +
   scale_fill_paletteer_d("RColorBrewer::Set3") +
-  theme_classic() +
+  theme_bw() +
   theme(legend.position = "top")
