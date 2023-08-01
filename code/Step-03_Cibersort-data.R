@@ -26,7 +26,7 @@ for (i in 1:4) {
 }
 dataList[[5]] <- rawGTEx
 
-CibersortData <- map_dfc(1:5, function(x){
+CibersortData <- purrr::map_dfc(1:5, function(x){
   dataList[[x]]
 })
 
@@ -36,7 +36,7 @@ write.table(CibersortData, "Cibersort_data_ALL.txt",
             row.names = TRUE
 )
 
-CibersortDataLable <- map_dfc(1:5, function(x){
+CibersortDataLable <- purrr::map_dfc(1:5, function(x){
   cluster <- as.data.frame(t(dataList[[x]]))
   if (x < 5) {
     clusterLable <- paste0("Cluster", x)

@@ -20,7 +20,6 @@ gtex_luad <- read.table(paste0(pathRead, "lung-rsem-count-gtex.txt.gz"),
   sep = "\t",
   check.names = FALSE
 ) %>% .[, -1]
-colnames(gtex_luad) <- substr(colnames(gtex_luad), 1, 15)
 save.file(gtex_luad, fileName = "GTEx-LUAD.Rdata", pathWay = pathSave)
 
 # --------------------------------------------------
