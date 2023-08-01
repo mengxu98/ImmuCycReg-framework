@@ -6,22 +6,22 @@ pathRead <- "../data/"
 pathSave <- "../../Results/"
 
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
-genes_2230 <- read.csv(paste0(pathRead, "Genes_2230.csv"))
-data_nmf <- tcga_luad[genes_2230$Gene, ] %>% as.matrix()
+genes2230 <- read.csv(paste0(pathRead, "genes2230.csv"))
+dataNMF <- tcga_luad[genes2230$Gene, ] %>% as.matrix()
 
 # --------------------------------------------------
 seed <- "20210101"
-data_nmf <- log(data_nmf + 1, 10)
-gene_no <- 30
-mads <- apply(data_nmf, 1, mad)
-data_nmf <- data_nmf[rev(order(mads)), ]
-dataset <- data_nmf[1:gene_no, ]
+dataNMF <- log(dataNMF + 1, 10)
+genesNums <- 30
+mads <- apply(dataNMF, 1, mad)
+dataNMF <- dataNMF[rev(order(mads)), ]
+dataset <- dataNMF[1:genesNums, ]
 
-max_cluster_num <- 6
+maxClusterNums <- 6
 title <- paste0(pathSave, "NMF/")
 results <- ConsensusClusterPlus(
   dataset,
-  maxK = max_cluster_num,
+  maxK = maxClusterNums,
   reps = 50,
   pItem = 0.8,
   pFeature = 0.8,
@@ -35,9 +35,9 @@ results <- ConsensusClusterPlus(
 icl <- calcICL(results, title = title, plot = "pdf")
 icl[["itemConsensus"]][1:6, ]
 
-for (i in 2:max_cluster_num) {
+for (i in 2:maxClusterNums) {
   write.table(results[[i]][["consensusClass"]],
-              file = paste0(title, "sample_cluster_", as.character(i), ".csv"),
+              file = paste0(title, "sample_cluster_", i, ".csv"),
               na = "",
               col.names = FALSE,
               sep = ","
