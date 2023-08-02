@@ -11,7 +11,7 @@ eveluate_L0 <- eveluate_L0[, -4]
 eveluate_L0 <- arrange(eveluate_L0, desc(Cluster))
 eveluate_L0$Gene <- factor(eveluate_L0$Gene, levels = genes_list$gene)
 
-eveluate_CNV <- read.csv("results/CNV values.csv")
+eveluate_CNV <- read.csv("results/CNV_values.csv")
 eveluate_CNV <- arrange(eveluate_CNV, desc(Cluster))
 eveluate_CNV$Gene <- factor(eveluate_CNV$Gene, levels = genes_list$gene)
 
@@ -35,7 +35,7 @@ p1 <- ggplot() +
 p2 <- ggplot() +
   geom_bar(
     data = eveluate_CNV,
-    aes(x = Gene, y = CNVs, fill = Cluster),
+    aes(x = Gene, y = CNV, fill = Cluster),
     stat = "identity", position = "dodge", width = 0.9, size = 0.5
   ) +
   theme_bw() +

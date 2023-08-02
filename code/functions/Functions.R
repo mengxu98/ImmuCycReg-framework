@@ -3,6 +3,23 @@ Sys.setenv(LANG = "en_US.UTF-8")
 library(rlang)
 library(magrittr)
 
+#' Check dir exist
+#'
+#' @param dirPath 
+#'
+#' @return
+#' @export
+#'
+check.dir <- function(dirPath) {
+  if (dir.exists(dirPath)) {
+    message("'", dirPath, "'", " existed......")
+  } else {
+    message("'", dirPath, "' not exist, creat it......")
+    dir.create(dirPath, recursive = TRUE)
+  }
+  return(dirPath)
+}
+
 #' Save R object
 #'
 #' @param ...
@@ -16,9 +33,7 @@ save.file <- function(..., fileName, pathWay = NULL) {
   if (is.null(pathWay)) {
     pathWay <- ""
   } else {
-    if (!dir.exists(pathWay)) {
-      dir.create(pathWay, recursive = TRUE)
-    }
+    check.dir(pathWay)
   }
   if (as.numeric(...length()) > 1) {
     if (grepl(fileName, pattern = ".Rdata$") | grepl(fileName, pattern = ".rdata$")) {
@@ -69,7 +84,6 @@ survival.data <- function(cancerType = NULL,
   package.check("cgdsr")
   package.check("DT")
   cgdsLoc <- cgdsr::CGDS("http://www.cbioportal.org/")
-  message(test(cgdsLoc))
   if (is.null(genes)) stop("Pleasure input a single gene or gene list......")
   
   # Get expression data
@@ -105,17 +119,16 @@ survival.data <- function(cancerType = NULL,
   rownames(cna) <- cnaNames
   
   # Get clinical data
-  ClinicalData <- getClinicalData(cgdsLoc,
+  clinicalData <- getClinicalData(cgdsLoc,
                                   caseList = paste0(cancerType, "_rna_seq_v2_mrna"))
   
   if (is.null(pathWay)) {
     pathWay <- ""
   } else {
-    if (!dir.exists(pathWay)) {
-      dir.create(pathWay, recursive = TRUE)
-    }
+    check.dir(pathWay)
   }
-  save(expr, ClinicalData, cna, mut, file = paste0(pathWay, "survival_input.Rdata"))
+  save(expr, clinicalData, cna, mut, file = paste0(pathWay, "survival_input.Rdata"))
+  message("Successed make survuval data......")
 }
 
 #' Peak_is_open

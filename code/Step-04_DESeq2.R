@@ -17,10 +17,8 @@ VolcanoPlotList <- list()
 
 for (j in 1:length(table(samplesCluster[, 2]))) {
   message(paste0("Cluster ", j, " DESeq2 start......"))
-  
-  if (!dir.exists(paste0(pathSave, "/DESeq2/cluster", j))) {
-    dir.create(file.path(paste0(pathSave, "/DESeq2/cluster", j)), recursive = TRUE)
-  }
+  check.dir(paste0(pathSave, "/DESeq2/cluster", j))
+
   samples <- samplesCluster[which(samplesCluster$V2 == j), 1]
   tcgaCluster <- tcga_luad[Genes249, samples] %>% na.omit()
   gtexCluster <- gtex_luad[Genes249, ] %>% na.omit()
