@@ -1,25 +1,25 @@
-#' ElVariableEnsembleSolve
-#' Solves the feature selection problem using L0 regularization.
+#' L0VariableEnsembleSolve
+#'  Solves the feature selection problem using L0 regularization.
 #'
-#' @param expressionMatrix Expression matrix as returned by "constructExpressionMatrixFromFile".
+#' @param expressionMatrix Expression matrix as returned by "constructExpressionMatrixFromFile"
 #'                         Format: samples x genes ; colnames are unique gene labels ; rownames could be ignored
 #' @param predictorIndices Indicates the rows of the matrix that should be considered as predictors for a regression problem
 #' @param targetIndices Indicates which genes should be considered as targets for a regression problem
-#' @param rankThreshold [DEFAULT=round((length(predictorIndices)/20))] : 
-#'    the amount of top ranked features that should be awarded 1 instead of 0 during a feature ranking in an iteration step
+#' @param rankThreshold [DEFAULT=round((length(predictorIndices)/20))]
+#'    The amount of top ranked features that should be awarded 1 instead of 0 during a feature ranking in an iteration step
 #' @param ensembleSize [DEFAULT=2000] The amount of models in the ensemble
-#' @param minSampleSize [DEFAULT=round((dim(expressionMatrix)[1])/5)] : mininimum sample size of the experiments
-#' @param maxSampleSize [DEFAULT=4*round((dim(expressionMatrix)[1])/5)] : maximum sample size of the experiments
-#' @param predictorSampleSizeMin [DEFAULT=round(length(predictorIndices)/5)] : mininimum sample size of predictors
-#' @param predictorSampleSizeMax [DEFAULT=4*round(length(predictorIndices)/5)] : maximum sample size of the predictors
-#' @param trace [DEFAULT=TRUE]: index of target currently computed is reported to stdout
-#' @param traceDetail [DEFAULT=FALSE] : index of subproblen is reported to stdout
-#' @param ... 
+#' @param minSampleSize [DEFAULT=round((dim(expressionMatrix)[1])/5)] Mininimum sample size of the experiments
+#' @param maxSampleSize [DEFAULT=4*round((dim(expressionMatrix)[1])/5)] Maximum sample size of the experiments
+#' @param predictorSampleSizeMin [DEFAULT=round(length(predictorIndices)/5)] Mininimum sample size of predictors
+#' @param predictorSampleSizeMax [DEFAULT=4*round(length(predictorIndices)/5)] Maximum sample size of the predictors
+#' @param trace [DEFAULT=TRUE] Index of target currently computed is reported to stdout
+#' @param traceDetail [DEFAULT=FALSE] Index of subproblen is reported to stdout
+#' @param ...
 #'
-#' @return A matrix where each cell(row i, column j) specifies the importance of variable i to target j
+#' @return A matrix where each cell (row i, column j) specifies the importance of variable i to target j
 #' @export
 #'
-ElVariableEnsembleSolve <- function(expressionMatrix,
+L0VariableEnsembleSolve <- function(expressionMatrix,
                                     predictorIndices,
                                     targetIndices,
                                     rankThreshold = round((length(predictorIndices) / 20)),
@@ -34,7 +34,7 @@ ElVariableEnsembleSolve <- function(expressionMatrix,
   
   # Check input
   if ((minSampleSize <= 0 || maxSampleSize > dim(expressionMatrix)[1] || maxSampleSize < minSampleSize)) {
-    stop("Please specify a valid sample sample size minimum and maximum.")
+    stop("Please specify a valid sample sample size minimum and maximum......")
   }
   
   # Preallocate the return matrix
@@ -44,7 +44,6 @@ ElVariableEnsembleSolve <- function(expressionMatrix,
   
   # Take a sample this many times
   for (i in 1:ensembleSize) {
-    
     # sampling
     if (minSampleSize == maxSampleSize) {
       sampleSize <- minSampleSize
@@ -65,47 +64,45 @@ ElVariableEnsembleSolve <- function(expressionMatrix,
     }
     
     # Call procedure
-    resultMatrix <- resultMatrix + elasticNetRankedSolve(sampleMatrix, 
-                                                         predictorIndices = predictorIndices, 
-                                                         targetIndices = targetIndices,
-                                                         traceDetail = traceDetail, 
-                                                         rankThreshold = rankThreshold, 
-                                                         predictorSampleSizeMin = predictorSampleSizeMin, 
-                                                         predictorSampleSizeMax = predictorSampleSizeMax)
+    resultMatrix <- resultMatrix + L0RankedSolve(sampleMatrix, 
+                                                 predictorIndices = predictorIndices, 
+                                                 targetIndices = targetIndices,
+                                                 traceDetail = traceDetail, 
+                                                 rankThreshold = rankThreshold, 
+                                                 predictorSampleSizeMin = predictorSampleSizeMin, 
+                                                 predictorSampleSizeMax = predictorSampleSizeMax)
     
   }
   return(resultMatrix)
 }
 
-#' elasticNetRankedSolve
+#' L0RankedSolve
 #'
 #' @param expressionMatrix Expression matrix as returned by constructExpressionMatrixFromFile
 #'  Format: samples x genes ; colnames are unique gene labels ; rownames are ignored
 #' @param predictorIndices Indicates the rows of the matrix that should be considered as predictors for a regression problem
 #' @param targetIndices Indicates which genes should be considered as targets for a regression problem
-#' @param alpha 
 #' @param rankThreshold The amount of top ranked features that should be awarded 1 instead of 0 during a feature ranking in an iteration step
 #' @param traceDetail 
 #' @param predictorSampleSizeMin Mininimum sample size of predictors
 #' @param predictorSampleSizeMax Maximum sample size of the predictors
 #' @param penalty 
-#' @param ... 
+#' @param ...
 #'
 #' @return A matrix where each cell(row i, column j) specifies the importance of variable i to target j
 #' @export
 #'
-elasticNetRankedSolve <- function(expressionMatrix,
-                                  predictorIndices,
-                                  targetIndices,
-                                  alpha,
-                                  rankThreshold,
-                                  traceDetail,
-                                  predictorSampleSizeMin,
-                                  predictorSampleSizeMax,
-                                  penalty = "L0") {
+L0RankedSolve <- function(expressionMatrix,
+                          predictorIndices,
+                          targetIndices,
+                          rankThreshold,
+                          traceDetail,
+                          predictorSampleSizeMin,
+                          predictorSampleSizeMax,
+                          penalty = "L0") {
   # Check arguments
   if ((predictorSampleSizeMin <= 0 || predictorSampleSizeMax >= length(predictorIndices) || predictorSampleSizeMin > predictorSampleSizeMax)) {
-    stop("Please specify a valid predictor sample size minimum and maximum (between 1 inclusive and the length of the predictorIndices exclusive).")
+    stop("Please specify a valid predictor sample size minimum and maximum......")
   }
   
   # Only the predictors should be evaluated
@@ -124,45 +121,42 @@ elasticNetRankedSolve <- function(expressionMatrix,
       cat(paste("Computing target ", targetIndex, " iteration ", i, "\\", length(targetIndices), "\n"))
       flush.console()
     }
-    # extract the target
+    
+    # Extract the target
     target <- expressionMatrix[, targetIndex, drop = FALSE]
     # Check if the target has already been removed from the predictors, if not, remove it
     if (targetIndex %in% predictorIndices) {
       nameCol <- colnames(expressionMatrix)[targetIndex]
       indexInPredictorsToRemove <- which(nameCol == colnames(predictors))
       predictorsWithoutTarget <- predictors[, - indexInPredictorsToRemove, drop = FALSE]
-    }
-    else {
+    } else {
       predictorsWithoutTarget <- predictors
     }
     
     # Sample on possible predictors
     if (predictorSampleSizeMin == predictorSampleSizeMax) {
       predictorSampleSize <- predictorSampleSizeMin
-      pIndices <- sample(1:(dim(predictorsWithoutTarget)[2]), predictorSampleSize)
+      pIndices <- sample(1:dim(predictorsWithoutTarget)[2], predictorSampleSize)
       predictorsWithoutTarget <- predictorsWithoutTarget[, pIndices, drop = FALSE]
-    }
-    else {
+    } else {
       predictorSampleSize <- sample(predictorSampleSizeMin:predictorSampleSizeMax, 1)
-      pIndices <- sample(1:(dim(predictorsWithoutTarget)[2]), predictorSampleSize)
+      pIndices <- sample(1:dim(predictorsWithoutTarget)[2], predictorSampleSize)
       predictorsWithoutTarget <- predictorsWithoutTarget[, pIndices, drop = FALSE]
     }
     
-    L0_Model <- inferCSN::inferCSN.fit(predictorsWithoutTarget,
-                                       target,
-                                       penalty = penalty,
-                                       maxSuppSize = ncol(predictorsWithoutTarget))
-    L0_Model_Information <- as.data.frame(print(L0_Model))
-    L0_Model_Information <- L0_Model_Information[order(L0_Model_Information$suppSize,
-                                                         decreasing = TRUE), ]
-    lambda_L0 <- L0_Model_Information$lambda[1]
-    gamma_L0 <- L0_Model_Information$gamma[1]
-    temp <- coef(L0_Model,
-                   lambda = lambda_L0,
-                   gamma = gamma_L0) %>% as.vector()
-
-    wghts <- temp[-1]
-    wghts <- abs(wghts)
+    L0Model <- inferCSN::inferCSN.fit(predictorsWithoutTarget,
+                                      target,
+                                      penalty = penalty,
+                                      maxSuppSize = ncol(predictorsWithoutTarget))
+    L0ModelInfor <- as.data.frame(print(L0Model))
+    L0ModelInfor <- L0ModelInfor[order(L0ModelInfor$suppSize,
+                                       decreasing = TRUE), ]
+    
+    temp <- coef(L0Model,
+                 lambda = L0ModelInfor$lambda[1],
+                 gamma = L0ModelInfor$gamma[1]) %>% as.vector()
+    
+    wghts <- temp[-1] %>% abs()
     wghts <- wghts / sum(wghts)
     
     # Now sort the wghts
@@ -175,9 +169,9 @@ elasticNetRankedSolve <- function(expressionMatrix,
     # Set the ones that were zero to zero anyway
     wghts[zeros] <- 0
     
-    # write result to matrix
-    resultMatrix[colnames(predictorsWithoutTarget), colnames(expressionMatrix)[targetIndex]] <- wghts
-    
+    # Write result to matrix
+    resultMatrix[colnames(predictorsWithoutTarget),
+                 colnames(expressionMatrix)[targetIndex]] <- wghts
   }
   return(resultMatrix)
 }
