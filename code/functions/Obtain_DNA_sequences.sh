@@ -7,6 +7,7 @@ arg3=$3 # hg38 file
 BED_FILE="$arg1"
 RESULTS_FILE="$arg2"
 HG38_FILE="$arg3"
+# http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/
 HG38_URL="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz"
 TF_URL="http://alggen.lsi.upc.es/cgi-bin/promo_v3/promo/promoinit.cgi?dirDB=TF_8.3"
 GENECARDS_URL="https://www.genecards.org/"
