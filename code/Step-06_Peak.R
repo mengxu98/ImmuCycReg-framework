@@ -11,38 +11,39 @@ load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "Peak-LUAD.Rdata"))
 load(paste0(pathSave, "ATAC-LUAD.Rdata"))
 load(paste0(pathSave, "Geneinfo_df.Rdata"))
-row_names <- row.names(genes_adj_peak)
-genes_temp <- as.vector(genes_adj_peak[, 1])
-genes_list <- strsplit(genes_temp, ",")
-sample_name <- intersect(colnames(tcga_luad), colnames(peak_luad))
+peakName <- rownames(genes_adj_peak)
+peakGeneList <- strsplit(as.vector(genes_adj_peak[, 1]), ",")
+sampleATAC <- intersect(colnames(tcga_luad), colnames(peak_luad))
 
 geneList <- read.table(paste0(pathRead, "Genes_17.txt"), header = TRUE) %>% .[, 1]
 
 # Run ---------------------------------------------------------------------
+check.dir(paste0(pathSave, "BED"))
+
 peakSeqPosAll <- c()
 volcanoPlotList <- list()
 for (j in 1:length(geneList)) {
-  check.dir(paste0(pathSave, "BED"))
   targetGene <- geneList[j]
+  message("Running for ", targetGene, "......")
   peaksAroundGene <- c()
-  for (i in 1:nrow(genes_adj_peak)) {
-    if (targetGene %in% genes_list[[i]]) {
-      peaksAroundGene <- c(peaksAroundGene, row_names[i])
+  for (i in 1:length(peakName)) {
+    if (targetGene %in% peakGeneList[[i]]) {
+      peaksAroundGene <- c(peaksAroundGene, peakName[i])
     }
   }
   
-  # choice 1: correlation ---------------------------------------------------
+  # Choice 1: correlation ---------------------------------------------------
   check.dir(paste0(pathSave, "corrgram/", targetGene))
   
   # select peaks according to distance and score correlation (population level)
-  Y <- t(tcga_luad[targetGene, sample_name]) %>% as.data.frame()
-  X <- t(peak_luad[peaksAroundGene, sample_name]) %>% as.data.frame()
-  peak_name <- colnames(X)
+  mrna <- t(tcga_luad[targetGene, sampleATAC]) %>% as.data.frame()
+  atac <- t(peak_luad[peaksAroundGene, sampleATAC]) %>% as.data.frame()
+  peakNameSelected <- colnames(atac)
   
-  for (i in 1:length(peak_name)) {
-    peak <- X[, i]
-    peak_data <- cbind.data.frame(Y, peak)
-    names(peak_data) <- c(targetGene, peak_name[i])
+  for (i in 1:length(peakNameSelected)) {
+    peak <- atac[, i]
+    peak_data <- cbind.data.frame(mrna, peak)
+    names(peak_data) <- c(targetGene, peakNameSelected[i])
     p <- ggpairs(peak_data,
                  title = targetGene,
                  upper = list(continuous = wrap("cor",
@@ -50,141 +51,129 @@ for (j in 1:length(geneList)) {
                  ))
     )
     print(p)
-    ggsave(paste(pathSave, "corrgram/", targetGene, "/", targetGene, "_", peak_name[i], "_corrgram.png", sep = ""),
+    ggsave(paste(pathSave, "corrgram/", targetGene, "/", targetGene, "_", peakNameSelected[i], "_corrgram.png", sep = ""),
            width = 4,
            height = 3
     )
   }
-  peak_corr_r <- c()
-  peak_corr_p <- c()
+  peakGeneCorR <- c()
+  peakGeneCorP <- c()
   for (i in 1:length(peaksAroundGene)) {
-    peak_corr <- corr.test(X[, i],
-                           Y,
-                           method = "spearman",
-                           adjust = "none"
-    )
-    peak_corr_r <- c(peak_corr_r, peak_corr$r)
-    peak_corr_p <- c(peak_corr_p, peak_corr$p)
+    peakGeneCor <- corr.test(atac[, i],
+                             mrna,
+                             method = "spearman",
+                             adjust = "none")
+    peakGeneCorR <- c(peakGeneCorR, peakGeneCor$r)
+    peakGeneCorP <- c(peakGeneCorP, peakGeneCor$p)
   }
   
-  deg.data <- data.frame(
+  degData <- data.frame(
     Symbol = peaksAroundGene,
-    corr = peak_corr_r,
-    pval = peak_corr_p
-  )
-  deg.data$logP <- -log10(deg.data$pval)
-  deg.data$Group <- "not-significant"
-  deg.data$Group[which((deg.data$pval < 0.05) & (deg.data$corr > 0.1))] <- "up-regulated"
-  deg.data$Group[which((deg.data$pval < 0.05) & (deg.data$corr < -0.1))] <- "down-regulated"
+    corr = peakGeneCorR,
+    pval = peakGeneCorP)
   
-  deg.data$Label <- ""
-  deg.data <- deg.data[order(deg.data$pval), ]
+  degData$logP <- -log10(degData$pval)
+  degData$Group <- "Not-significant"
+  degData$Group[which((degData$pval < 0.05) & (degData$corr > 0.1))] <- "Up-regulated"
+  degData$Group[which((degData$pval < 0.05) & (degData$corr < -0.1))] <- "Down-regulated"
   
-  up.peak <- head(deg.data$Symbol[which(deg.data$Group == "up-regulated")], 20)
-  down.peak <- head(deg.data$Symbol[which(deg.data$Group == "down-regulated")], 20)
-  not.sig.peak <- head(deg.data$Symbol[which(deg.data$Group == "not-significant")], 20)
-  deg.top.peak <- c(as.character(up.peak), as.character(down.peak), as.character(not.sig.peak))
-  deg.data$Label[match(deg.top.peak, deg.data$Symbol)] <- deg.top.peak
+  degData$Label <- ""
+  degData <- degData[order(degData$pval), ]
   
-  write.csv(deg.data,
-            file = paste(pathSave, "corrgram/", targetGene, "/", targetGene, "_peak_corr.csv", sep = ""),
+  upPeaks <- head(degData$Symbol[which(degData$Group == "Up-regulated")], 20)
+  downPeaks <- head(degData$Symbol[which(degData$Group == "Down-regulated")], 20)
+  notSigPeaks <- head(degData$Symbol[which(degData$Group == "Not-significant")], 20)
+  labelPeaks <- c(as.character(upPeaks), as.character(downPeaks), as.character(notSigPeaks))
+  degData$Label[match(labelPeaks, degData$Symbol)] <- labelPeaks
+  
+  write.csv(degData,
+            file = paste(pathSave, "corrgram/", targetGene, "/", targetGene, "_peakGeneCor.csv", sep = ""),
             row.names = F
   )
   
-  high_cor_peak <- as.character(up.peak[1])
-  down_cor_peak <- as.character(down.peak[1])
+  highCorPeak <- as.character(upPeaks[1])
+  downCorPeak <- as.character(downPeaks[1])
   
-  # choice2: distance----------------------------------------------------------
-  # http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/
+  # Choice2: distance ----------------------------------------------------------
   
-  pos_col_name <- c("chrom", "chromStart", "chromEnd", "strand")
-  temp_res <- geneinfo_df[
-    which(geneinfo_df[, "gene_name"] == targetGene),
-    c("seqnames", "type", "gene_id", "start", "end", "width")
-  ]
-  temp_res <- temp_res[which(temp_res[, "type"] == "transcript"), ]
-  # select the NEAREST long region
-  order_index <- order(temp_res[, "start"], decreasing = FALSE)
-  mostStart <- temp_res[order_index[1], "start"]
-  mostEnd <- temp_res[order_index[1], "end"]
-  most_mid <- (mostStart + mostEnd) / 2
+  posColNames <- c("chrom", "chromStart", "chromEnd", "strand")
+  tempRes <- geneinfo_df[which(geneinfo_df[, "gene_name"] == targetGene),
+                         c("seqnames", "type", "gene_id", "start", "end", "width")]
+  tempRes <- tempRes[which(tempRes[, "type"] == "transcript"), ]
+  # Select the NEAREST long region
+  orderIndex <- order(tempRes[, "start"], decreasing = FALSE)
+  mostStart <- tempRes[orderIndex[1], "start"]
+  mostEnd <- tempRes[orderIndex[1], "end"]
+  mostMid <- (mostStart + mostEnd) / 2
   
-  peaks_pos_temp <- genes_adj_peak[peaksAroundGene, pos_col_name]
-  peaks_pos_temp$mid <- (peaks_pos_temp$chromStart + peaks_pos_temp$chromEnd) / 2
-  peaks_pos_temp$mid_distance <- peaks_pos_temp$mid - most_mid
-  peaks_pos_temp$start_distance <- peaks_pos_temp$chromEnd - mostStart
-  distance_thres <- -8000
-  nearest_peaks <- row.names(peaks_pos_temp[which(peaks_pos_temp$start_distance < 0 &
-                                                    peaks_pos_temp$start_distance > distance_thres &
-                                                    peaks_pos_temp$chromEnd < mostStart), ])
-  no_peaks <- length(nearest_peaks)
-  nearest_peak <- nearest_peaks[no_peaks] # the most nearest peak
+  peaksPosTemp <- genes_adj_peak[peaksAroundGene, posColNames]
+  peaksPosTemp$mid <- (peaksPosTemp$chromStart + peaksPosTemp$chromEnd) / 2
+  peaksPosTemp$mid_distance <- peaksPosTemp$mid - mostMid
+  peaksPosTemp$start_distance <- peaksPosTemp$chromEnd - mostStart
+  distanceThres <- -8000
+  nearestPeaks <- row.names(peaksPosTemp[which(peaksPosTemp$start_distance < 0 &
+                                                 peaksPosTemp$start_distance > distanceThres &
+                                                 peaksPosTemp$chromEnd < mostStart), ])
   
-  # choice 3:get top peaks in score BUT SCORE IS SAMPLE LEVEL
-  top_k <- min(1, length(peaksAroundGene))
-  target_sample <- "TCGA-73-A9RS-01"
+  nearestPeak <- nearestPeaks[length(nearestPeaks)] # The most nearest peak
   
-  order_peak_id <- peaksAroundGene[order(peak_luad[peaksAroundGene, target_sample], decreasing = TRUE)]
-  highest_score_peak <- order_peak_id[1:top_k]
+  # Choice 3: get top peaks in score but score is sample level
   
-  # get the sequence position of peak
-  if (length(nearest_peak) != 0) {
-    if (nearest_peak %in% c(high_cor_peak, down_cor_peak)) {
-      candidate_peak_id <- nearest_peak
+  orderPeaks <- peaksAroundGene[order(peak_luad[peaksAroundGene, sampleATAC[1]], decreasing = TRUE)]
+  highestScorePeak <- orderPeaks[1 : min(1, length(peaksAroundGene))]
+  
+  # Get the sequence position of peak
+  if (length(nearestPeak) != 0) {
+    if (nearestPeak %in% c(highCorPeak, downCorPeak)) {
+      candidatePeak <- nearestPeak
     }
   } else {
-    if (highest_score_peak %in% c(high_cor_peak, down_cor_peak)) {
-      candidate_peak_id <- highest_score_peak
+    if (highestScorePeak %in% c(highCorPeak, downCorPeak)) {
+      candidatePeak <- highestScorePeak
     } else {
-      if (!is.na(high_cor_peak)) {
-        candidate_peak_id <- c(high_cor_peak)
+      if (!is.na(highCorPeak)) {
+        candidatePeak <- c(highCorPeak)
       } else {
-        candidate_peak_id <- c(down_cor_peak)
+        candidatePeak <- c(downCorPeak)
       }
     }
   }
-  candidate_peak_id <- na.omit(candidate_peak_id)
+  candidatePeak <- na.omit(candidatePeak)
   
-  peak_seq_pos <- genes_adj_peak[candidate_peak_id, pos_col_name]
-  peak_seq_pos[, "chromStart"] <- peak_seq_pos[, "chromStart"] - 1
+  peakSeqPos <- genes_adj_peak[candidatePeak, posColNames]
+  peakSeqPos[, "chromStart"] <- peakSeqPos[, "chromStart"] - 1
   
-  check.dir(paste0(pathSave, "volcano/"))
-  
-  if (nrow(peak_seq_pos) > 0) {
-    volcanoPlot <- ggscatter(deg.data,
+  if (nrow(peakSeqPos) > 0) {
+    palette = c(`Down-regulated`="#006699",
+                `Not-significant`="gray",
+                `Up-regulated`="#EE3A8C")
+    
+    volcanoPlot <- ggscatter(degData,
                              x = "corr",
                              y = "logP",
                              color = "Group",
-                             palette = c("#006699", "#008B00", "#EE3A8C"),
-                             label = deg.data$Label,
+                             # palette = palette,
+                             label = degData$Label,
                              font.label = 8,
-                             repel = T,
-                             xlab = paste(targetGene, "Correlation"),
+                             repel = TRUE,
+                             xlab = paste(targetGene, "correlation"),
                              ylab = "-Log10(P-value)",
                              size = 3) +
+      scale_color_manual(values = palette) +
       theme_bw() +
-      theme(text = element_text(size = 16), legend.position = "none") +
-      geom_hline(yintercept = 1.30, linetype = "dashed") +
-      geom_vline(xintercept = c(-0.1, 0.1), linetype = "dashed")
+      theme(text = element_text(size = 16), legend.position = "bottom") +
+      geom_hline(yintercept = 1.5, linetype = "dashed") +
+      geom_vline(xintercept = c(-0.3, 0.3), linetype = "dashed")
     volcanoPlot
-    ggsave(paste0(pathSave, "volcano/", targetGene, "_volcano.pdf"),
-           volcanoPlot,
-           width = 6.5,
-           height = 5)
+    
     volcanoPlotList[[j]] <- volcanoPlot
     
-    write.table(peak_seq_pos[, 1:3],
-                file = paste0(pathSave, "BED/", targetGene, "_around_peak.bed"),
-                sep = "\t",
-                row.names = F,
-                col.names = F,
-                quote = F)
-    
-    peak_seq_pos$gene <- targetGene
-    peakSeqPosAll <- rbind(peakSeqPosAll, peak_seq_pos)
+    peakSeqPos$gene <- targetGene
+    peakSeqPosAll <- rbind(peakSeqPosAll, peakSeqPos)
   }
 }
 
+check.dir(paste0(pathSave, "Figure/"))
 volcanoPlotList[[1]] +
   volcanoPlotList[[2]] +
   volcanoPlotList[[3]] +
@@ -194,7 +183,10 @@ volcanoPlotList[[1]] +
   volcanoPlotList[[7]] +
   volcanoPlotList[[8]] +
   plot_layout(ncol = 4)
-ggsave(paste0(pathSave, "Figure/Supplementary Figure 1-peaks_1.pdf"), width = 12, height = 6, dpi = 600)
+ggsave(paste0(pathSave, "Figure/Supplementary Figure 1-peaks_1.pdf"),
+       width = 12,
+       height = 6,
+       dpi = 600)
 
 volcanoPlotList[[9]] +
   volcanoPlotList[[10]] +
@@ -206,19 +198,21 @@ volcanoPlotList[[9]] +
   volcanoPlotList[[16]] +
   volcanoPlotList[[17]] +
   plot_layout(ncol = 4)
-ggsave(paste0(pathSave, "Figure/Supplementary Figure 1-peaks_2.pdf"), width = 12, height = 9, dpi = 600)
+ggsave(paste0(pathSave, "Figure/Supplementary Figure 1-peaks_2.pdf"),
+       width = 12,
+       height = 9,
+       dpi = 600)
 
-peakSeqPosAll$peak <- row.names(peakSeqPosAll)
+peakSeqPosAll$peak <- rownames(peakSeqPosAll)
 write.table(peakSeqPosAll[, 1:3],
             paste0(pathSave, "all_BED.bed"),
             sep = "\t",
-            row.names = F,
-            col.names = F,
-            quote = F
-)
+            row.names = FALSE,
+            col.names = FALSE,
+            quote = FALSE)
+
 write.table(peakSeqPosAll[c(5:6, 1:4)],
             paste0(pathSave, "all_peaks.csv"),
             sep = ",",
-            quote = F,
-            row.names = F
-)
+            quote = FALSE,
+            row.names = FALSE)
