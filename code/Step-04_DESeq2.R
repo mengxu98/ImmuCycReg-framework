@@ -75,21 +75,19 @@ for (j in 1:length(table(samplesCluster[, 2]))) {
   dataPlot$change <- ifelse(dataPlot$pvalue < padjThreshold & abs(dataPlot$log2FoldChange) >= foldChange,
                             ifelse(dataPlot$log2FoldChange > foldChange,
                                    "Up (log2FC > 1, P-value < 0.05)",
-                                   "Down (log2FC < -1, P-value < 0.05)"
-                            ),
-                            "no sig"
-  )
+                                   "Down (log2FC < -1, P-value < 0.05)"),
+                            "no sig")
+  
   dataPlot$gene <- rownames(dataPlot)
   dataPlot$label <- ifelse(dataPlot$pvalue < padjThreshold & abs(dataPlot$log2FoldChange) >= 1,
-                           as.character(dataPlot$gene), ""
-  )
+                           as.character(dataPlot$gene), "")
   
   DESeq2_volcano <- ggplot(dataPlot, aes(x = log2FoldChange, y = -log10(pvalue), colour = change)) +
     geom_point(alpha = 0.5, size = 3) +
     scale_color_manual(values = c("#006699", "#d2dae2", "#990033")) +
     geom_vline(xintercept = c(-1, 1), lty = 4, col = "black", lwd = 0.8) +
     geom_hline(yintercept = -log10(padjThreshold), lty = 4, col = "black", lwd = 0.8) +
-    labs(x = "log2FoldChange", y = "-log10(P-value)") +
+    labs(x = "Log2FoldChange", y = "-Log10(P-value)") +
     theme_bw() +
     theme(plot.title = element_text(hjust = 0.5),
           legend.position = "right",
