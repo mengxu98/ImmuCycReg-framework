@@ -450,6 +450,38 @@ FrameNegative <- function(res_frame_input) {
   return(res_frame_negative)
 }
 
+#' multiple.plot
+#'
+#' @param ggplotObj 
+#' @param ncol 
+#' @param legend 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+multiple.plot <- function(ggplotObject,
+                          ncol = 4,
+                          legend = "none") {
+  if (!is.list(ggplotObject)) stop("Please provide a ggplot object......")
+  for (i in 1:length(ggplotObject)) {
+    x <- ggplotObject[[i]]
+    if (is.ggplot(x)) {
+      if (i == 1) {
+        p <- x
+      } else {
+        p <- p + x
+      }
+    }
+  }
+  
+  p <- p +
+    plot_layout(ncol = ncol) +
+    theme(legend.position = legend)
+  
+  return(p)
+}
+
 #' @title package.check
 #' @description Check, install and library packages
 #'
