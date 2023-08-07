@@ -32,10 +32,11 @@ for (j in 1:length(geneList)) {
     }
   }
   
+  # Select peaks according to distance or correlation (population level)
+  
   # Choice 1: correlation ---------------------------------------------------
   check.dir(paste0(pathSave, "corrgram/", targetGene))
   
-  # select peaks according to distance and score correlation (population level)
   mrna <- t(tcga_luad[targetGene, sampleATAC]) %>% as.data.frame()
   atac <- t(peak_luad[peaksAroundGene, sampleATAC]) %>% as.data.frame()
   peakNameSelected <- colnames(atac)
@@ -47,14 +48,14 @@ for (j in 1:length(geneList)) {
     p <- ggpairs(peak_data,
                  title = targetGene,
                  upper = list(continuous = wrap("cor",
-                                                method = "spearman"
-                 ))
-    )
+                                                method = "spearman")))
     print(p)
-    ggsave(paste(pathSave, "corrgram/", targetGene, "/", targetGene, "_", peakNameSelected[i], "_corrgram.png", sep = ""),
+    ggsave(paste0(pathSave, "corrgram/", targetGene, "/",
+                  targetGene, "_", peakNameSelected[i],
+                  "_corrgram.png"),
+           p,
            width = 4,
-           height = 3
-    )
+           height = 3)
   }
   peakGeneCorR <- c()
   peakGeneCorP <- c()
@@ -161,7 +162,7 @@ for (j in 1:length(geneList)) {
                              size = 3) +
       scale_color_manual(values = palette) +
       theme_bw() +
-      theme(text = element_text(size = 16), legend.position = "bottom") +
+      theme(legend.position = "bottom") +
       geom_hline(yintercept = 1.5, linetype = "dashed") +
       geom_vline(xintercept = c(-0.3, 0.3), linetype = "dashed")
     volcanoPlot
@@ -174,33 +175,12 @@ for (j in 1:length(geneList)) {
 }
 
 check.dir(paste0(pathSave, "Figure/"))
-volcanoPlotList[[1]] +
-  volcanoPlotList[[2]] +
-  volcanoPlotList[[3]] +
-  volcanoPlotList[[4]] +
-  volcanoPlotList[[5]] +
-  volcanoPlotList[[6]] +
-  volcanoPlotList[[7]] +
-  volcanoPlotList[[8]] +
-  plot_layout(ncol = 4)
-ggsave(paste0(pathSave, "Figure/Supplementary Figure 1-peaks_1.pdf"),
-       width = 12,
-       height = 6,
-       dpi = 600)
 
-volcanoPlotList[[9]] +
-  volcanoPlotList[[10]] +
-  volcanoPlotList[[11]] +
-  volcanoPlotList[[12]] +
-  volcanoPlotList[[13]] +
-  volcanoPlotList[[14]] +
-  volcanoPlotList[[15]] +
-  volcanoPlotList[[16]] +
-  volcanoPlotList[[17]] +
-  plot_layout(ncol = 4)
-ggsave(paste0(pathSave, "Figure/Supplementary Figure 1-peaks_2.pdf"),
-       width = 12,
-       height = 9,
+p <- multiple.plot(volcanoPlotList)
+ggsave(paste0(pathSave, "Figure/Supplementary Figure 1-peaks.pdf"),
+       p, 
+       width = 11,
+       height = 12,
        dpi = 600)
 
 peakSeqPosAll$peak <- rownames(peakSeqPosAll)
