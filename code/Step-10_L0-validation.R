@@ -10,33 +10,36 @@ tcgaScale <- scale(tcga_luad)
 samplesCluster <- read.csv(paste0(pathRead, "sample_cluster_4.csv"), header = F) %>% .[, 1]
 geneList <- read.table(paste0(pathRead, "Genes_17.txt"), header = TRUE) %>% .[, 1]
 
-evaluateResultAll <- c()
-conditions <- c("randomize", "random", "TCGA-LUAD")
+conditions <- c("Random", "Randomize", "TCGA_LUAD")
 
+evaluateResultAll <- c()
+resultTrainClusterList <- list()
+resultTestClusterList <- list()
 for (c in 1:length(conditions)) {
   condition <- conditions[c]
   check.dir(paste0(pathSave, "Vaildation/", condition))
   
   resultTestCluster <- c()
   resultTrainCluster <- c()
-  correctionPlotList <- list()
+  correctionPlotListTest <- list()
+  correctionPlotListTrain <- list()
   for (i in 1:length(geneList)) {
     targetGene <- geneList[i]
     if (file.exists(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt")) == T) {
       TFsList <- read.table(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"),
                             header = T) %>% .[, 1]
       
-      X <- tcgaScale[TFsList, samplesCluster] %>% t()
-      Y <- tcgaScale[targetGene, samplesCluster] %>% t()
+      X <- t(tcgaScale[TFsList, samplesCluster])
+      Y <- t(tcgaScale[targetGene, samplesCluster])
       
-      # Data -------------------------------------------------------------------
-      if (condition == "TCGA-LUAD") {
+      # Condition set
+      if (condition == "TCGA_LUAD") {
         message("Using '", condition, "' data......")
-      } else if (condition == "randomize") {
+      } else if (condition == "Randomize") {
         message("Using '", condition, "' data......")
         X <- NMF::randomize(X)
         Y <- NMF::randomize(Y) %>% as.numeric()
-      } else if (condition == "random") {
+      } else if (condition == "Random") {
         message("Using '", condition, "' data......")
         Y <- rnorm(nrow(X), 0, 1)
         for (r in 1:ncol(X)) {
@@ -45,8 +48,9 @@ for (c in 1:length(conditions)) {
         }
       }
       
-      # Validation -------------------------------------------------------------
       set.seed(2022)
+      
+      # Split train and test datasets
       trainIdx <- sample(nrow(X), 0.7 * nrow(X))
       trainDataX <- X[trainIdx, ]
       trainDataY <- Y[trainIdx]
@@ -74,6 +78,11 @@ for (c in 1:length(conditions)) {
       corDataTrain <- psych::corr.test(dataFrameTrain$Raw,
                                        dataFrameTrain$Pre)
       
+      correctionPlotListTrain[[i]] <- scatter.plot(dataFrameTrain,
+                                                   title = paste("Gene:", targetGene),
+                                                   xTitle = paste0("True expression"),
+                                                   yTitle = "Prediction expression")
+      
       testDataYPre <- predict(L0Model,
                               newx = testDataX,
                               lambda = L0ModelInfor$lambda[1],
@@ -86,16 +95,10 @@ for (c in 1:length(conditions)) {
       corDataTest <- psych::corr.test(dataFrameTest$Raw,
                                       dataFrameTest$Pre)
       
-      correctionPlot <- ggplot(dataFrameTest, aes(x = Raw, y = Pre)) +
-        geom_point() +
-        theme_bw() +
-        stat_cor(data = dataFrameTest) +
-        geom_smooth(formula = 'y ~ x',
-                    method = "loess", # lm
-                    color = "#006699") +
-        labs(x = paste0("Expression of ", targetGene), y = "L0Reg framework")
-      correctionPlot
-      correctionPlotList[[i]] <- correctionPlot
+      correctionPlotListTest[[i]] <- scatter.plot(dataFrameTest,
+                                                  title = paste("Gene:", targetGene),
+                                                  xTitle = paste0("True expression"),
+                                                  yTitle = "Prediction expression")
       
       resultTrain <- data.frame(Gene = targetGene,
                                 Corr = corDataTrain$r,
@@ -115,11 +118,18 @@ for (c in 1:length(conditions)) {
     }
   }
   
-  p <- multiple.plot(correctionPlotList)
-  ggsave(paste0(pathSave, "Vaildation/", condition, "/Cor_", condition,".pdf"),
-         p,
+  p1 <- combine.multiple.plot(correctionPlotListTest)
+  ggsave(paste0(pathSave, "Vaildation/", condition, "/Cor_", condition,"_test.pdf"),
+         p1,
          width = 11,
-         height = 12,
+         height = 13,
+         dpi = 600)
+  
+  p2 <- combine.multiple.plot(correctionPlotListTrain)
+  ggsave(paste0(pathSave, "Vaildation/", condition, "/Cor_", condition,"_train.pdf"),
+         p2,
+         width = 11,
+         height = 13,
          dpi = 600)
   
   resultTrainClusterFilter <- c()
@@ -137,21 +147,7 @@ for (c in 1:length(conditions)) {
   }
   write.csv(resultTestCluster, paste0(pathSave, "Vaildation/", condition, "/", condition, "_Cor-RMSD.csv"))
   write.csv(resultTestClusterFilter, paste0(pathSave, "Vaildation/", condition, "/", condition, "_Cor-RMSD_filter.csv"))
-  
-  pRMSD <- ggplot() +
-    geom_bar(data = resultTestCluster,
-             aes(x = Gene, y = RMSD),
-             stat = "identity", position = "dodge", width = 0.6) +
-    theme_bw() +
-    labs(x = "", y = "RMSD", fill = "", color = "") +
-    theme(axis.text.x = element_text(size = rel(1.5), angle = 45, hjust = 1))
-  pRMSD
-  ggsave(paste0(pathSave, "Vaildation/RMSD.pdf"),
-         pRMSD,
-         width = 5,
-         height = 3,
-         dpi = 600)
-  
+
   evaluateResult <- data.frame("Condition" = condition,
                                "train_Corr" = mean(resultTrainCluster$Corr),
                                "train_RMSD" = mean(resultTrainCluster$RMSD),
@@ -162,5 +158,73 @@ for (c in 1:length(conditions)) {
                                "test_0.7_Corr" = mean(resultTestClusterFilter$Corr),
                                "test_0.7_RMSD" = mean(resultTestClusterFilter$RMSD))
   evaluateResultAll <- rbind(evaluateResultAll, evaluateResult)
+  
+  resultTrainClusterList[[c]] <- resultTrainCluster
+  resultTestClusterList[[c]] <- resultTestCluster
 }
 write.csv(evaluateResultAll, paste0(pathSave, "Vaildation/Cor-RMSD.csv"))
+
+corPlotDataTrain <- data.frame(Gene = resultTrainClusterList[[1]]$Gene,
+                               Random = resultTrainClusterList[[1]]$Corr,
+                               Randomize = resultTrainClusterList[[2]]$Corr,
+                               TCGA_LUAD = resultTrainClusterList[[3]]$Corr) %>% 
+  melt(., id = "Gene", variable.name = "Condition", value.name = "Correlation")
+
+corPlotDataTest <- data.frame(Gene = resultTestClusterList[[1]]$Gene,
+                              Random = resultTestClusterList[[1]]$Corr,
+                              Randomize = resultTestClusterList[[2]]$Corr,
+                              TCGA_LUAD = resultTestClusterList[[3]]$Corr) %>% 
+  melt(., id = "Gene", variable.name = "Condition", value.name = "Correlation")
+
+RMSDPlotDataTrain <- data.frame(Gene = resultTrainClusterList[[1]]$Gene,
+                                Random = resultTrainClusterList[[1]]$RMSD,
+                                Randomize = resultTrainClusterList[[2]]$RMSD,
+                                TCGA_LUAD = resultTrainClusterList[[3]]$RMSD) %>% 
+  melt(., id = "Gene", variable.name = "Condition", value.name = "RMSD")
+
+RMSDPlotDataTest <- data.frame(Gene = resultTestClusterList[[1]]$Gene,
+                               Random = resultTestClusterList[[1]]$RMSD,
+                               Randomize = resultTestClusterList[[2]]$RMSD,
+                               TCGA_LUAD = resultTestClusterList[[3]]$RMSD) %>% 
+  melt(., id = "Gene", variable.name = "Condition", value.name = "RMSD")
+
+p3 <- bar.plot(corPlotDataTrain, title = "Test", yTitle = "Correlation")
+p4 <- bar.plot(corPlotDataTest, title = "Test", yTitle = "Correlation")
+p6 <- bar.plot(RMSDPlotDataTrain, title = "Test", yTitle = "RMSD")
+p7 <- bar.plot(RMSDPlotDataTest, title = "Test", yTitle = "RMSD")
+
+p5 <- p3 + p4 +
+  plot_layout(ncol = 2) +
+  plot_annotation(tag_levels = "a") +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+p5
+ggsave(paste0(pathSave, "Vaildation/Contrast_correlation.pdf"),
+       p5,
+       width = 7,
+       height = 3.5,
+       dpi = 600)
+
+p8 <- p6 + p7 +
+  plot_layout(ncol = 2) +
+  plot_annotation(tag_levels = "a") +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+p8
+ggsave(paste0(pathSave, "Vaildation/Contrast_RMSD.pdf"),
+       p8,
+       width = 7,
+       height = 3.5,
+       dpi = 600)
+
+p9 <- p3 + p4 + p6 + p7 +
+  plot_layout(ncol = 2) +
+  plot_annotation(tag_levels = "a") +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+p9
+ggsave(paste0(pathSave, "Vaildation/Contrast_correlation&RMSD.pdf"),
+       p9,
+       width = 7,
+       height = 6,
+       dpi = 600)
