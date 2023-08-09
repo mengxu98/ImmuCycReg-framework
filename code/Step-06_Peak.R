@@ -176,11 +176,11 @@ for (j in 1:length(geneList)) {
 
 check.dir(paste0(pathSave, "Figure/"))
 
-p <- multiple.plot(volcanoPlotList)
+p <- combine.multiple.plot(volcanoPlotList, legend = "bottom")
 ggsave(paste0(pathSave, "Figure/Supplementary Figure 1-peaks.pdf"),
        p, 
        width = 11,
-       height = 12,
+       height = 13,
        dpi = 600)
 
 peakSeqPosAll$peak <- rownames(peakSeqPosAll)
