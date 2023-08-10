@@ -450,7 +450,7 @@ FrameNegative <- function(res_frame_input) {
   return(res_frame_negative)
 }
 
-#' multiple.plot
+#' combine.multiple.plot
 #'
 #' @param ggplotObj 
 #' @param ncol 
@@ -460,10 +460,10 @@ FrameNegative <- function(res_frame_input) {
 #' @export
 #'
 #' @examples
-multiple.plot <- function(ggplotObject,
-                          ncol = 4,
-                          legend = "none") {
-  if (!is.list(ggplotObject)) stop("Please provide a ggplot object......")
+combine.multiple.plot <- function(ggplotObject,
+                                  ncol = 4,
+                                  legend = "none") {
+  if (!is.list(ggplotObject)) stop("Please provide a list of ggplot objects......")
   for (i in 1:length(ggplotObject)) {
     x <- ggplotObject[[i]]
     if (is.ggplot(x)) {
@@ -477,13 +477,148 @@ multiple.plot <- function(ggplotObject,
   
   p <- p +
     plot_layout(ncol = ncol) +
+    plot_layout(guides = "collect") &
     theme(legend.position = legend)
   
   return(p)
 }
 
-#' @title package.check
-#' @description Check, install and library packages
+#' scatter.plot
+#'
+#' @param data 
+#' @param method 
+#' @param lineColor 
+#' @param titleColor 
+#' @param title 
+#' @param xTitle 
+#' @param yTitle 
+#' @param legendTitle 
+#' @param legend 
+#'
+#' @return
+#' @export
+#'
+scatter.plot <- function(data,
+                         method = NULL,
+                         lineColor = NULL,
+                         titleColor = NULL,
+                         title = NULL,
+                         xTitle = NULL,
+                         yTitle = NULL,
+                         legendTitle = NULL,
+                         legend = "bottom") {
+  if (is.null(method)) {
+    method = "loess"
+  } else if (!(method %in% c("lm", "loess"))) {
+    stop("Select method in 'lm' or 'loess'")
+  }
+  if (ncol(data) == 2) colnames(data) <- c("Raw", "Pre")
+  if (is.null(lineColor)) lineColor = "#006699"
+  if (is.null(titleColor)) titleColor = lineColor
+  
+  p <- ggplot(data = data,
+              mapping = aes(x = Raw, y = Pre)) +
+    geom_point() +
+    theme_bw() +
+    stat_cor(data = data) + # , method = "spearman"
+    geom_smooth(formula = 'y ~ x',
+                method = method,
+                color = lineColor) +
+    labs(title = title, x = xTitle, y = yTitle, fill = legendTitle) + 
+    theme(plot.title = element_text(color = titleColor),
+          legend.position = legend)
+  
+  return(p)
+}
+
+#' bar.plot
+#'
+#' @param data 
+#' @param barColor 
+#' @param titleColor 
+#' @param title 
+#' @param xTitle 
+#' @param yTitle 
+#' @param legendTitle 
+#' @param legend 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+bar.plot <- function(data,
+                     barColor = NULL,
+                     titleColor = NULL,
+                     title = NULL,
+                     xTitle = NULL,
+                     yTitle = NULL,
+                     legendTitle = NULL,
+                     legend = "bottom") {
+  if (ncol(data) == 3) colnames(data) <- c("id", "Variable", "Value")
+  if (is.null(barColor)) barColor <- c("white", "black", "gray")
+  if (is.null(titleColor)) titleColor = "#006699"
+  
+  data$Variable <- factor(data$Variable,
+                          levels = gtools::mixedsort(unique(data$Variable)),
+                          labels = gtools::mixedsort(unique(data$Variable)))
+  data$id <- factor(data$id,
+                    levels = gtools::mixedsort(unique(data$id)),
+                    labels = gtools::mixedsort(unique(data$id)))
+  
+  p <- ggplot() +
+    geom_bar(data = data,
+             mapping = aes(x = id, y = Value, fill = Variable),
+             stat = "identity",
+             position = "dodge",
+             color = "black",
+             width = 0.8) +
+    theme_bw() +
+    scale_fill_manual(values = barColor) +
+    labs(title = title, x = xTitle, y = yTitle, fill = legendTitle) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 0.8),
+          plot.title = element_text(color = titleColor),
+          legend.position = legend)
+  
+  return(p)
+}
+
+#' box.plot
+#'
+#' @param data 
+#' @param boxColor 
+#' @param titleColor 
+#' @param title 
+#' @param xTitle 
+#' @param yTitle 
+#' @param legendTitle 
+#' @param legend 
+#'
+#' @return
+#' @export
+#'
+box.plot <- function(data,
+                     boxColor = NULL,
+                     titleColor = NULL,
+                     title = NULL,
+                     xTitle = NULL,
+                     yTitle = NULL,
+                     legendTitle = NULL,
+                     legend = "bottom") {
+  if (ncol(data) == 2) colnames(data) <- c("Variable", "Value")
+  p <- ggplot(data = data, aes(x = Variable, y = Value)) +
+    geom_boxplot(aes(fill = Variable)) +
+    geom_jitter() +
+    stat_compare_means() +
+    theme_bw() +
+    scale_fill_manual(values = boxColor) +
+    labs(title = title, x = xTitle, y = yTitle, fill = legendTitle)  +
+    theme(plot.title = element_text(color = titleColor),
+          legend.position = legend)
+  
+  return(p)
+}
+
+#' @title Check, install and library packages
 #'
 #' @param packages Packages list
 #'
