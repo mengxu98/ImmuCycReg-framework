@@ -97,7 +97,7 @@ for (c in 1:length(conditions)) {
       
       correctionPlotListTest[[i]] <- scatter.plot(dataFrameTest,
                                                   title = paste("Gene:", targetGene),
-                                                  xTitle = paste0("True expression"),
+                                                  xTitle = "True expression",
                                                   yTitle = "Prediction expression")
       
       resultTrain <- data.frame(Gene = targetGene,
