@@ -63,8 +63,7 @@ for (c in 1:length(conditions)) {
                                       maxSuppSize = ncol(trainDataX))
       
       # Extract coefficient at middle lambda
-      L0ModelInfor <- as.data.frame(print(L0Model))
-      L0ModelInfor <- L0ModelInfor[order(L0ModelInfor$suppSize, decreasing = TRUE), ]
+      L0ModelInfor <- as.data.frame(print(L0Model)) %>% .[order(.$suppSize, decreasing = TRUE), ]
       
       trainDataYPre <- predict(L0Model,
                                newx = trainDataX,
