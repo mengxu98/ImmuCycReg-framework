@@ -55,9 +55,9 @@ JAVA v18.0.1.1
 GeneNetWeaver: http://gnw.sourceforge.net/
 ```
 
-## LICENSE
+## Acknowledge
 
-MIT License
+Note!!! If during the process of using these codes for reproduction, you find that the results are not exactly the same as described in the paper, which is a normal situation and may be caused by the machine, software version, and constantly revised code.
 
 ## Cite
 
