@@ -4,13 +4,24 @@ source("functions/Functions.R")
 pathRead <- "../data/"
 pathSave <- "../../Results/"
 # --------------------------------------------------
-tcga_luad <- read.table(paste0(pathRead, "luad-rsem-count-tcga-t.txt.gz"),
-                        header = TRUE,
-                        row.names = 1,
-                        sep = "\t",
-                        check.names = FALSE) %>% .[, -1]
-colnames(tcga_luad) <- substr(colnames(tcga_luad), 1, 15)
-save.file(tcga_luad, fileName = "TCGA-LUAD.Rdata", pathWay = pathSave)
+dataClass <- c("count-tcga-t", "fpkm-tcga-t", "fpkm-tcga-t_normlized")
+for (i in 1:length(dataClass)) {
+  tcga_luad <- read.table(paste0(pathRead, paste0("luad-rsem-", dataClass[i],".txt.gz")),
+                          header = TRUE,
+                          row.names = 1,
+                          sep = "\t",
+                          check.names = FALSE) %>% .[, -1]
+  colnames(tcga_luad) <- substr(colnames(tcga_luad), 1, 15)
+  
+  if (grepl("fpkm", dataClass[i])) {
+    save.file(tcga_luad, fileName = paste0("TCGA-LUAD-", dataClass[i], ".Rdata"), pathWay = pathSave)
+    
+    tcga_luad <- fpkmToTpm(tcga_luad)
+    save.file(tcga_luad, fileName = paste0("TCGA-LUAD-", "tpm", gsub("fpkm", "", dataClass[i]), ".Rdata"), pathWay = pathSave)
+  } else {
+    save.file(tcga_luad, fileName = "TCGA-LUAD.Rdata", pathWay = pathSave)
+  }
+}
 
 # --------------------------------------------------
 gtex_luad <- read.table(paste0(pathRead, "lung-rsem-count-gtex.txt.gz"),
