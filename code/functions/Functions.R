@@ -47,7 +47,7 @@ save.file <- function(..., fileName, pathWay = NULL) {
   }
 }
 
-# Transformation of COUNT, TPM, FPKM ---------------
+# Transformation of COUNT, TPM, FPKM
 countToTpm <- function(counts, effLen) {
   rate <- log(counts) - log(effLen)
   denom <- log(sum(exp(rate)))
@@ -70,7 +70,7 @@ countToEffCounts <- function(counts, len, effLen) {
 #' To obtain survival data of TCGA samples
 #'
 #' @param cancerType
-#' @param genes It is required to specify the single gene or genes list to obtain survival data
+#' @param genes It is required specify gene or genes list to obtain survival data
 #' @param pathWay
 #'
 #' @return
@@ -512,21 +512,30 @@ scatter.plot <- function(data,
   } else if (!(method %in% c("lm", "loess"))) {
     stop("Select method in 'lm' or 'loess'")
   }
-  if (ncol(data) == 2) colnames(data) <- c("Raw", "Pre")
-  if (is.null(lineColor)) lineColor = "#006699"
-  if (is.null(titleColor)) titleColor = lineColor
+  if (ncol(data) == 3) {
+    colnames(data) <- c("Raw", "Pre", "Group")
+    if (is.null(lineColor)) lineColor = c("#e1181f", "#253870", "#09474f", "gray", "white", "black")
+    p <- ggplot(data = data, mapping = aes(x = Raw, y = Pre, group = Group, col = Group)) +
+      geom_smooth(formula = 'y ~ x',
+                  method = method)
+  } else if (ncol(data) == 2) {
+    colnames(data) <- c("Raw", "Pre")
+    if (is.null(lineColor)) lineColor = "#09474f"
+    p <- ggplot(data = data, mapping = aes(x = Raw, y = Pre)) + 
+      geom_smooth(formula = 'y ~ x',
+                  color = lineColor,
+                  method = method)
+  }
+  if (is.null(titleColor)) titleColor = "#006699"
   
-  p <- ggplot(data = data,
-              mapping = aes(x = Raw, y = Pre)) +
+  p <- p +
     geom_point() +
     theme_bw() +
-    stat_cor(data = data) + # , method = "spearman"
-    geom_smooth(formula = 'y ~ x',
-                method = method,
-                color = lineColor) +
+    stat_cor(data = data, method = "pearson") +
     labs(title = title, x = xTitle, y = yTitle, fill = legendTitle) + 
     theme(plot.title = element_text(color = titleColor),
-          legend.position = legend)
+          legend.position = legend) +
+  scale_color_manual(values = lineColor)
   
   return(p)
 }
@@ -555,7 +564,7 @@ bar.plot <- function(data,
                      legendTitle = NULL,
                      legend = "bottom") {
   if (ncol(data) == 3) colnames(data) <- c("id", "Variable", "Value")
-  if (is.null(barColor)) barColor <- c("white", "black", "gray")
+  if (is.null(barColor)) barColor <- c("#09474f", "#99bac7", "gray", "white", "black")
   if (is.null(titleColor)) titleColor = "#006699"
   
   data$Variable <- factor(data$Variable,
@@ -567,9 +576,9 @@ bar.plot <- function(data,
   
   p <- ggplot() +
     geom_bar(data = data,
-             mapping = aes(x = id, y = Value, fill = Variable),
+             mapping = aes(x = id, y = Value, group = Variable, fill = Variable),
              stat = "identity",
-             position = "dodge",
+             position = "dodge", # "jitter"
              color = "black",
              width = 0.8) +
     theme_bw() +
@@ -605,6 +614,7 @@ box.plot <- function(data,
                      legendTitle = NULL,
                      legend = "bottom") {
   if (ncol(data) == 2) colnames(data) <- c("Variable", "Value")
+  if (is.null(boxColor)) boxColor <- c("#09474f", "#99bac7", "gray", "white", "black")
   p <- ggplot(data = data, aes(x = Variable, y = Value)) +
     geom_boxplot(aes(fill = Variable)) +
     geom_jitter() +
@@ -616,6 +626,100 @@ box.plot <- function(data,
           legend.position = legend)
   
   return(p)
+}
+
+#' network.plot
+#'
+#' @param network 
+#' @param title 
+#' @param legend 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+network.plot <- function(network,
+                         title = NULL,
+                         legend = TRUE,
+                         legendPosition = "bottomright") {
+  # Make a palette of 3 colors
+  color <- brewer.pal(5, "Set1")
+  color <- c("#e5244f", "#99bac7")
+  pointSize = 20
+  
+  # Prepare network data
+  colnames(network) <- c("TF", "Gene", "weight")
+  network$TF <- as.vector(network$TF)
+  network$Gene <- as.vector(network$Gene)
+  network$weight <- as.numeric(network$weight / sum(network$weight))
+  nodes <- data.frame(name = c(unique(network$Gene), network$TF),
+                        carac = c(rep("Gene", 1), rep("TF", nrow(network))))
+  
+  networkData <- graph_from_data_frame(d = network, vertices = nodes)
+  # Create a vector of color
+  plot(networkData,
+       vertex.color = color[as.numeric(as.factor(V(networkData)$carac))],
+       vertex.label.color = "black",
+       vertex.label.font = c(1),
+       vertex.size = c(pointSize),
+       edge.width = E(networkData)$weight * 20)
+  title(main = title)
+  if (legend) {
+    legend(legendPosition,
+           legend = levels(as.factor(V(networkData)$carac)),
+           col = color, text.col = color, 
+           bty = "n", pch = 20, pt.cex = 2,
+           cex = 1, horiz = TRUE)
+  }
+}
+
+#' compute.expression.vector
+#'
+#' @param weightDT 
+#' @param rawMatrix 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+compute.expression.vector <- function(weightDT,
+                                      rawMatrix) {
+  colnames(weightDT) <- c("regulatoryGene", "targetGene", "Weight")
+  weightDT$regulatoryGene <- as.vector(weightDT$regulatoryGene)
+  expressionVector <- 0
+  for (i in 1:nrow(weightDT)) {
+    gene <- weightDT$regulatoryGene[i]
+    expressionVector <- expressionVector + rawMatrix[, gene] * weightDT$Weight[i]
+  }
+  return(expressionVector)
+}
+
+#' evaluate.model
+#'
+#' @param rawData 
+#' @param preData 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+evaluate.model <- function(rawData,
+                           preData) {
+  evaluateResult <- list()
+  
+  R2 <- caret::postResample(rawData, preData)[2]
+  evaluateResult[[1]] <- as.numeric(R2)
+  
+  # RMSE <- Metrics::rmse(rawData, preData)
+  RMSE <- caret::postResample(rawData, preData)[1]
+  evaluateResult[[2]] <- as.numeric(RMSE)
+  
+  corResult <- psych::corr.test(rawData, preData)
+  evaluateResult[[3]] <- as.numeric(corResult$r)
+  evaluateResult[[4]] <- as.numeric(corResult$p)
+  
+  names(evaluateResult) <- c("R^2", "RMSE", "Cor_R", "Cor_P")
+  return(evaluateResult)
 }
 
 #' @title Check, install and library packages
@@ -631,13 +735,13 @@ package.check <- function(packages) {
         message("Now install package: '", package, "' from Github......")
         devtools::install_github(package)
       }
-      suppressPackageStartupMessages(library(strsplit(package, "/")[[1]][2], character.only = TRUE))
+      library(strsplit(package, "/")[[1]][2], character.only = TRUE)
     } else {
       if (!requireNamespace(package, quietly = TRUE)) {
         if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
-        suppressPackageStartupMessages(library("dplyr"))
+        library(dplyr)
         if (!requireNamespace("rvest", quietly = TRUE)) install.packages("rvest")
-        suppressPackageStartupMessages(library("rvest"))
+        library(rvest)
         CRANpackages <- available.packages() %>%
           as.data.frame() %>%
           # select(Package) %>%
@@ -652,18 +756,18 @@ package.check <- function(packages) {
         if (package %in% CRANpackages$Package) {
           message("Now install package: '", package, "' from CRAN......")
           install.packages(package)
-          suppressPackageStartupMessages(library(package, character.only = TRUE))
+          library(package, character.only = TRUE)
         } else if (package %in% biocPackages$Package) {
           message("Now install package: '", package, "' from BioConductor......")
           BiocManager::install(package)
-          suppressPackageStartupMessages(library(package, character.only = TRUE))
+          library(package, character.only = TRUE)
         }
       }  else {
-        suppressPackageStartupMessages(library(package, character.only = TRUE))
+        library(package, character.only = TRUE)
       }
     }
   }
 }
 
-packages <- read.table("required_packages.txt")
+packages <- read.table("requirements.txt")
 package.check(packages[, 1])
