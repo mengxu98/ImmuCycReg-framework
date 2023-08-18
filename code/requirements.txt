@@ -48,6 +48,7 @@ plotly
 plotmo
 processx
 psych
+Rcpp
 RColorBrewer
 reshape
 reshape2
