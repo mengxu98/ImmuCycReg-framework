@@ -3,7 +3,7 @@ source("functions/Functions.R")
 
 pathRead <- "../data/"
 pathSave <- "../../Results/"
-# --------------------------------------------------
+
 dataClass <- c("count-tcga-t", "fpkm-tcga-t", "fpkm-tcga-t_normlized")
 for (i in 1:length(dataClass)) {
   tcga_luad <- read.table(paste0(pathRead, paste0("luad-rsem-", dataClass[i],".txt.gz")),
@@ -16,7 +16,7 @@ for (i in 1:length(dataClass)) {
   if (grepl("fpkm", dataClass[i])) {
     save.file(tcga_luad, fileName = paste0("TCGA-LUAD-", dataClass[i], ".Rdata"), pathWay = pathSave)
     
-    tcga_luad <- fpkmToTpm(tcga_luad)
+    tcga_luad <- fpkm.to.tpm(tcga_luad)
     save.file(tcga_luad, fileName = paste0("TCGA-LUAD-", "tpm", gsub("fpkm", "", dataClass[i]), ".Rdata"), pathWay = pathSave)
   } else {
     save.file(tcga_luad, fileName = "TCGA-LUAD.Rdata", pathWay = pathSave)
