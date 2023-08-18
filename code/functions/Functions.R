@@ -1,7 +1,17 @@
-Sys.setenv(LANG = "en_US.UTF-8")
+# Sys.setenv(LANG = "en_US.UTF-8")
 
-library(rlang)
+# library(rlang)
 library(magrittr)
+
+# Transformation of COUNT, TPM, FPKM
+Rcpp::sourceCpp("functions/DataFormatConversion.cpp")
+fpkm.to.tpm <- function(fpkmData) {
+  fpkmMatrix <- as.matrix(fpkmData)
+  tpmMatrix <- fpkmMatrixToTpmMatrixCpp(fpkmMatrix)
+  rownames(tpmMatrix) <- rownames(fpkmData)
+  colnames(tpmMatrix) <- colnames(fpkmData)
+  return(as.data.frame(tpmMatrix))
+}
 
 #' Check dir exist
 #'
@@ -45,26 +55,6 @@ save.file <- function(..., fileName, pathWay = NULL) {
   } else {
     save(..., file = paste0(pathWay, fileName))
   }
-}
-
-# Transformation of COUNT, TPM, FPKM
-countToTpm <- function(counts, effLen) {
-  rate <- log(counts) - log(effLen)
-  denom <- log(sum(exp(rate)))
-  exp(rate - denom + log(1e6))
-}
-
-countToFpkm <- function(counts, effLen) {
-  n <- sum(counts)
-  exp(log(counts) + log(1e9) - log(effLen) - log(n))
-}
-
-fpkmToTpm <- function(fpkm) {
-  exp(log(fpkm) - log(sum(fpkm)) + log(1e6))
-}
-
-countToEffCounts <- function(counts, len, effLen) {
-  counts * (len / effLen)
 }
 
 #' To obtain survival data of TCGA samples
