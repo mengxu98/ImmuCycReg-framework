@@ -7,7 +7,6 @@ data/hg38.ncbiRefSeq.gtf_raw.gz
 data/TCGA_ATAC_peak.all.probeMap
 data/TCGA_ATAC_peak_Log2Counts_dedup_sample.gz
 data/hg38.ncbiRefSeq.gtf.gz
-*.gz
 .idea/ImmuCycReg-framework.iml
 *.xml
 *.iml
