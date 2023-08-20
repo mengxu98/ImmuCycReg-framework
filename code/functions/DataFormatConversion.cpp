@@ -137,6 +137,7 @@ NumericVector countToEffCountsCpp(NumericVector counts, NumericVector len, Numer
 }
 
 
+// Reference: https://haroldpimentel.wordpress.com/2014/05/08/what-the-fpkm-a-review-rna-seq-expression-units/
 // R code and examples
 // countToTpm <- function(counts,
 //                        effLen) {

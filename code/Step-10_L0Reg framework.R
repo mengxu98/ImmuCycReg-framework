@@ -14,7 +14,7 @@ geneList <- read.table(paste0(pathRead, "Genes_17.txt"), header = TRUE) %>% .[, 
 
 TRNClusterFilterAll <- c()
 for (j in 1:4) {
-  message(paste("Running for cluster", j, "......"))
+  message("Running for cluster ", j, " ......")
   check.dir(paste0(pathSave, "cluster", j))
   
   cluster <- rownames(samplesCluster %>% filter(., .[, 1] == j))

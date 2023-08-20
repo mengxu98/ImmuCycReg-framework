@@ -140,31 +140,32 @@ Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
 
 #' formatPositiveResult
 #'
-#' @param results_summary_input
+#' @param inputData
 #'
 #' @return
 #' @export
 #'
-formatPositiveResult <- function(results_summary_input) {
+formatPositiveResult <- function(inputData,
+                                 targetGene) {
   TFs <- c()
-  type_inter <- c()
-  target_gene_inter <- c()
-  sample_level <- c()
-  if (length(results_summary_input)) {
+  typeInter <- c()
+  targetGeneInter <- c()
+  sampleLevel <- c()
+  if (length(inputData)) {
     i <- 1
-    while (i <= length(results_summary_input)) {
+    while (i <= length(inputData)) {
       j <- 1
-      while (j <= length(results_summary_input[[i]])) {
-        TFs <- c(TFs, results_summary_input[[i]][j])
-        type_inter <- c(type_inter, "1") # type 1
-        sample_level <- c(sample_level, names(results_summary_input)[i])
-        target_gene_inter <- c(target_gene_inter, target_gene)
+      while (j <= length(inputData[[i]])) {
+        TFs <- c(TFs, inputData[[i]][j])
+        typeInter <- c(typeInter, "1") # type 1
+        sampleLevel <- c(sampleLevel, names(inputData)[i])
+        targetGeneInter <- c(targetGeneInter, targetGene)
         j <- j + 1
       }
       i <- i + 1
     }
-    format_result <- data.frame(cbind(TFs, type_inter, target_gene_inter, sample_level))
-    colnames(format_result) <- c("TF", "type", "target_gene", "sample")
+    format_result <- data.frame(cbind(TFs, typeInter, targetGeneInter, sampleLevel))
+    colnames(format_result) <- c("TF", "type", "targetGene", "sample")
     return(format_result)
   } else {
     print("NULL list")
@@ -173,31 +174,32 @@ formatPositiveResult <- function(results_summary_input) {
 
 #' formatNegativeResult
 #'
-#' @param results_summary_input
+#' @param inputData
 #'
 #' @return
 #' @export
 #'
-formatNegativeResult <- function(results_summary_input) {
+formatNegativeResult <- function(inputData,
+                                 targetGene) {
   TFs <- c()
-  type_inter <- c()
-  target_gene_inter <- c()
-  sample_level <- c()
-  if (length(results_summary_input)) {
+  typeInter <- c()
+  targetGeneInter <- c()
+  sampleLevel <- c()
+  if (length(inputData)) {
     i <- 1
-    while (i <= length(results_summary_input)) {
+    while (i <= length(inputData)) {
       j <- 1
-      while (j <= length(results_summary_input[[i]])) {
-        TFs <- c(TFs, results_summary_input[[i]][j])
-        type_inter <- c(type_inter, "2") # type 1
-        sample_level <- c(sample_level, names(results_summary_input)[i])
-        target_gene_inter <- c(target_gene_inter, target_gene)
+      while (j <= length(inputData[[i]])) {
+        TFs <- c(TFs, inputData[[i]][j])
+        typeInter <- c(typeInter, "2") # type 1
+        sampleLevel <- c(sampleLevel, names(inputData)[i])
+        targetGeneInter <- c(targetGeneInter, targetGene)
         j <- j + 1
       }
       i <- i + 1
     }
-    format_result <- data.frame(cbind(TFs, type_inter, target_gene_inter, sample_level))
-    colnames(format_result) <- c("TF", "type", "target_gene", "sample")
+    format_result <- data.frame(cbind(TFs, typeInter, targetGeneInter, sampleLevel))
+    colnames(format_result) <- c("TF", "type", "targetGene", "sample")
     return(format_result)
   } else {
     print("NULL list")
@@ -206,31 +208,31 @@ formatNegativeResult <- function(results_summary_input) {
 
 #' SampleHit
 #'
-#' @param results_summary_input
+#' @param inputData
 #' @param hit_tf
 #'
 #' @return
 #' @export
 #'
-SampleHit <- function(results_summary_input, hit_tf) {
+SampleHit <- function(inputData, hit_tf) {
   hit_count <- c()
-  sample_level <- c()
-  for (i in 1:length(results_summary_input)) {
+  sampleLevel <- c()
+  for (i in 1:length(inputData)) {
     j <- 1
     count_temp <- 0
-    while (j <= length(results_summary_input[[i]])) {
-      if (results_summary_input[[i]][j] %in% hit_tf & names(results_summary_input)[i] %in% colnames(raw_tcga_cnv)) {
-        if (raw_tcga_cnv[results_summary_input[[i]][j], names(results_summary_input)[i]] > 0) {
+    while (j <= length(inputData[[i]])) {
+      if (inputData[[i]][j] %in% hit_tf & names(inputData)[i] %in% colnames(raw_tcga_cnv)) {
+        if (raw_tcga_cnv[inputData[[i]][j], names(inputData)[i]] > 0) {
           count_temp <- count_temp + 1
         }
       }
       j <- j + 1
     }
-    sample_level <- c(sample_level, names(results_summary_input)[i])
+    sampleLevel <- c(sampleLevel, names(inputData)[i])
     hit_count <- c(hit_count, count_temp)
   }
-  format_result <- data.frame(cbind(sample_level, hit_count))
-  colnames(format_result) <- c("sample", paste("hitsby", target_gene, sep = ""))
+  format_result <- data.frame(cbind(sampleLevel, hit_count))
+  colnames(format_result) <- c("sample", paste("hitsby", targetGene, sep = ""))
   return(format_result)
 }
 
@@ -243,202 +245,50 @@ SampleHit <- function(results_summary_input, hit_tf) {
 #' @export
 #'
 SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
-  sample_level <- c()
+  sampleLevel <- c()
   # tem_ind=0
   for (i in high_exp_sample_input) {
     if (hit_tf %in% row.names(raw_tcga_cnv) & i %in% colnames(raw_tcga_cnv)) {
       # tem_ind=tem_ind+1
       # print(tem_ind)
       if (raw_tcga_cnv[hit_tf, i] > 0) {
-        sample_level <- c(sample_level, i)
+        sampleLevel <- c(sampleLevel, i)
       }
     }
   }
-  return(sample_level)
+  return(sampleLevel)
 }
 
 #' FrameRegulatoryTable
 #'
-#' @param res_frame_input
+#' @param regulatoryTable
 #'
 #' @return
 #' @export
 #'
-FrameRegulatoryTable <- function(res_frame_input) {
-  ASPAR_hit <- c()
-  encode_hit <- c()
-  CHEA_hit <- c()
-  MotifMap_hit <- c()
-  TRANSFAC_Curated_hit <- c()
-  TRANSFAC_Predicted_hit <- c()
-  for (i in res_frame_input$Var1) {
-    ASPAR_res <- ASPAR_Predicted[which(ASPAR_Predicted$source == target_gene & ASPAR_Predicted$target == i), ]
-    if (nrow(ASPAR_res)) {
-      ASPAR_hit <- c(ASPAR_hit, 1)
-    } else {
-      ASPAR_hit <- c(ASPAR_hit, 0)
+frame.regulatory.table <- function(regulatoryTable,
+                                   gene,
+                                   databasesLsit) {
+
+  for (database in names(databasesLsit)) {
+    weights <- c()
+    for (TF in regulatoryTable[, 1]) {
+      data <- databasesLsit[[database]]
+      result <- data %>% filter(., source == targetGene & target == TF)
+      if (nrow(result) > 0) {
+        weights <- c(weights, result$weight)
+      } else {
+        weights <- c(weights, 0)
+      }
     }
-    encode_tf_res <- encode_tf[which(encode_tf$source == target_gene & encode_tf$target == i), ]
-    if (nrow(encode_tf_res)) {
-      encode_hit <- c(encode_hit, 1)
-    } else {
-      encode_hit <- c(encode_hit, 0)
-    }
-    CHEA_tf_res <- CHEA_tf[which(CHEA_tf$source == target_gene & CHEA_tf$target == i), ]
-    if (nrow(CHEA_tf_res)) {
-      CHEA_hit <- c(CHEA_hit, 1)
-    } else {
-      CHEA_hit <- c(CHEA_hit, 0)
-    }
-    MotifMap_Predicted_res <- MotifMap_Predicted[which(MotifMap_Predicted$source == target_gene & MotifMap_Predicted$target == i), ]
-    if (nrow(MotifMap_Predicted_res)) {
-      MotifMap_hit <- c(MotifMap_hit, 1)
-    } else {
-      MotifMap_hit <- c(MotifMap_hit, 0)
-    }
-    TRANSFAC_Curated_res <- TRANSFAC_Curated[which(TRANSFAC_Curated$source == target_gene & TRANSFAC_Curated$target == i), ]
-    if (nrow(TRANSFAC_Curated_res)) {
-      TRANSFAC_Curated_hit <- c(TRANSFAC_Curated_hit, 1)
-    } else {
-      TRANSFAC_Curated_hit <- c(TRANSFAC_Curated_hit, 0)
-    }
-    TRANSFAC_Predicted_res <- TRANSFAC_Predicted[which(TRANSFAC_Predicted$source == target_gene & TRANSFAC_Predicted$target == i), ]
-    if (nrow(TRANSFAC_Predicted_res)) {
-      TRANSFAC_Predicted_hit <- c(TRANSFAC_Predicted_hit, 1)
-    } else {
-      TRANSFAC_Predicted_hit <- c(TRANSFAC_Predicted_hit, 0)
-    }
+    weights <- as.data.frame(weights)
+    names(weights) <- database
+    regulatoryTable <- cbind(regulatoryTable, weights)
   }
-  results_regulatory_table$ASPAR <- ASPAR_hit
-  results_regulatory_table$ENCODE <- encode_hit
-  results_regulatory_table$CHEA <- CHEA_hit
-  results_regulatory_table$MotifMap <- MotifMap_hit
-  results_regulatory_table$TRANSFAC_Curated <- TRANSFAC_Curated_hit
-  results_regulatory_table$TRANSFAC_Predicted <- TRANSFAC_Predicted_hit
-  return(results_regulatory_table)
+
+  return(regulatoryTable)
 }
 
-#' FramePositive
-#'
-#' @param res_frame_input
-#'
-#' @return
-#' @export
-#'
-FramePositive <- function(res_frame_input) {
-  ASPAR_hit <- c()
-  encode_hit <- c()
-  CHEA_hit <- c()
-  MotifMap_hit <- c()
-  TRANSFAC_Curated_hit <- c()
-  TRANSFAC_Predicted_hit <- c()
-  for (i in res_frame_input$Var1) {
-    ASPAR_res <- ASPAR_Predicted[which(ASPAR_Predicted$source == target_gene & ASPAR_Predicted$target == i), ]
-    if (nrow(ASPAR_res)) {
-      ASPAR_hit <- c(ASPAR_hit, 1)
-    } else {
-      ASPAR_hit <- c(ASPAR_hit, 0)
-    }
-    encode_tf_res <- encode_tf[which(encode_tf$source == target_gene & encode_tf$target == i), ]
-    if (nrow(encode_tf_res)) {
-      encode_hit <- c(encode_hit, 1)
-    } else {
-      encode_hit <- c(encode_hit, 0)
-    }
-    CHEA_tf_res <- CHEA_tf[which(CHEA_tf$source == target_gene & CHEA_tf$target == i), ]
-    if (nrow(CHEA_tf_res)) {
-      CHEA_hit <- c(CHEA_hit, 1)
-    } else {
-      CHEA_hit <- c(CHEA_hit, 0)
-    }
-    MotifMap_Predicted_res <- MotifMap_Predicted[which(MotifMap_Predicted$source == target_gene & MotifMap_Predicted$target == i), ]
-    if (nrow(MotifMap_Predicted_res)) {
-      MotifMap_hit <- c(MotifMap_hit, 1)
-    } else {
-      MotifMap_hit <- c(MotifMap_hit, 0)
-    }
-    TRANSFAC_Curated_res <- TRANSFAC_Curated[which(TRANSFAC_Curated$source == target_gene & TRANSFAC_Curated$target == i), ]
-    if (nrow(TRANSFAC_Curated_res)) {
-      TRANSFAC_Curated_hit <- c(TRANSFAC_Curated_hit, 1)
-    } else {
-      TRANSFAC_Curated_hit <- c(TRANSFAC_Curated_hit, 0)
-    }
-    TRANSFAC_Predicted_res <- TRANSFAC_Predicted[which(TRANSFAC_Predicted$source == target_gene & TRANSFAC_Predicted$target == i), ]
-    if (nrow(TRANSFAC_Predicted_res)) {
-      TRANSFAC_Predicted_hit <- c(TRANSFAC_Predicted_hit, 1)
-    } else {
-      TRANSFAC_Predicted_hit <- c(TRANSFAC_Predicted_hit, 0)
-    }
-  }
-  res_frame_positive$ASPAR <- ASPAR_hit
-  res_frame_positive$ENCODE <- encode_hit
-  res_frame_positive$CHEA <- CHEA_hit
-  res_frame_positive$MotifMap <- MotifMap_hit
-  res_frame_positive$TRANSFAC_Curated <- TRANSFAC_Curated_hit
-  res_frame_positive$TRANSFAC_Predicted <- TRANSFAC_Predicted_hit
-  return(res_frame_positive)
-}
-
-#' FrameNegative
-#'
-#' @param res_frame_input
-#'
-#' @return
-#' @export
-#'
-FrameNegative <- function(res_frame_input) {
-  ASPAR_hit <- c()
-  encode_hit <- c()
-  CHEA_hit <- c()
-  MotifMap_hit <- c()
-  TRANSFAC_Curated_hit <- c()
-  TRANSFAC_Predicted_hit <- c()
-  for (i in res_frame_input$Var1) {
-    ASPAR_res <- ASPAR_Predicted[which(ASPAR_Predicted$source == target_gene & ASPAR_Predicted$target == i), ]
-    if (nrow(ASPAR_res)) {
-      ASPAR_hit <- c(ASPAR_hit, 1)
-    } else {
-      ASPAR_hit <- c(ASPAR_hit, 0)
-    }
-    encode_tf_res <- encode_tf[which(encode_tf$source == target_gene & encode_tf$target == i), ]
-    if (nrow(encode_tf_res)) {
-      encode_hit <- c(encode_hit, 1)
-    } else {
-      encode_hit <- c(encode_hit, 0)
-    }
-    CHEA_tf_res <- CHEA_tf[which(CHEA_tf$source == target_gene & CHEA_tf$target == i), ]
-    if (nrow(CHEA_tf_res)) {
-      CHEA_hit <- c(CHEA_hit, 1)
-    } else {
-      CHEA_hit <- c(CHEA_hit, 0)
-    }
-    MotifMap_Predicted_res <- MotifMap_Predicted[which(MotifMap_Predicted$source == target_gene & MotifMap_Predicted$target == i), ]
-    if (nrow(MotifMap_Predicted_res)) {
-      MotifMap_hit <- c(MotifMap_hit, 1)
-    } else {
-      MotifMap_hit <- c(MotifMap_hit, 0)
-    }
-    TRANSFAC_Curated_res <- TRANSFAC_Curated[which(TRANSFAC_Curated$source == target_gene & TRANSFAC_Curated$target == i), ]
-    if (nrow(TRANSFAC_Curated_res)) {
-      TRANSFAC_Curated_hit <- c(TRANSFAC_Curated_hit, 1)
-    } else {
-      TRANSFAC_Curated_hit <- c(TRANSFAC_Curated_hit, 0)
-    }
-    TRANSFAC_Predicted_res <- TRANSFAC_Predicted[which(TRANSFAC_Predicted$source == target_gene & TRANSFAC_Predicted$target == i), ]
-    if (nrow(TRANSFAC_Predicted_res)) {
-      TRANSFAC_Predicted_hit <- c(TRANSFAC_Predicted_hit, 1)
-    } else {
-      TRANSFAC_Predicted_hit <- c(TRANSFAC_Predicted_hit, 0)
-    }
-  }
-  res_frame_negative$ASPAR <- ASPAR_hit
-  res_frame_negative$ENCODE <- encode_hit
-  res_frame_negative$CHEA <- CHEA_hit
-  res_frame_negative$MotifMap <- MotifMap_hit
-  res_frame_negative$TRANSFAC_Curated <- TRANSFAC_Curated_hit
-  res_frame_negative$TRANSFAC_Predicted <- TRANSFAC_Predicted_hit
-  return(res_frame_negative)
-}
 
 #' combine.multiple.plot
 #'

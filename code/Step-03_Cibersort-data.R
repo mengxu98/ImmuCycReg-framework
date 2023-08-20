@@ -3,19 +3,18 @@ rm(list = ls())
 pathRead <- "../data/"
 pathSave <- "../../Results/"
 
-load(paste0(pathSave, "TCGA-LUAD.Rdata"))
-load(paste0(pathSave, "GTEx-LUAD.Rdata"))
+load(paste0(pathSave, "TCGA-LUAD-tpm-tcga-t_unnormlized.Rdata"))
+load(paste0(pathSave, "GTEx-LUAD-tpm-gtex_unnormlized.Rdata"))
+
 LM22Genes <- read.table("../data/LM22_2.0.txt",
                         header = TRUE,
-                        sep = "\t"
-) %>% .[, 1]
+                        sep = "\t") %>% .[, 1]
 
 sampleLabel <- read.table("../data/sample_cluster_4.csv",
                           header = FALSE,
                           sep = ",",
                           check.names = FALSE,
-                          col.names = c("sample", "cluster")
-)
+                          col.names = c("sample", "cluster"))
 
 rawTCGA <- tcga_luad[LM22Genes, ] %>% na.omit()
 rawGTEx <- gtex_luad[LM22Genes, ] %>% na.omit()
