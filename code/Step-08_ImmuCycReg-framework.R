@@ -153,8 +153,9 @@ for (k in seq_along(targetGenesList)) {
                                         "Number" = num_high))
     }
     
-    resultsRegulatoryFrame <- rbind(formatPositiveResult(resultsTFsUp, targetGene),
-                                    formatNegativeResult(resultsRPsdown, targetGene))
+    resultsRegulatoryFrame <- rbind(format.regulation(resultsTFsUp, targetGene, 1),
+                                    format.regulation(resultsRPsdown, targetGene, "-1"))
+    
   } else {
     
     tTestResInfor <- c()
@@ -223,8 +224,8 @@ for (k in seq_along(targetGenesList)) {
       }
     }
     
-    resultsRegulatoryFrame <- rbind(formatPositiveResult(resultsTFdown, targetGene),
-                                    formatNegativeResult(resultsRPup, targetGene))
+    resultsRegulatoryFrame <- rbind(format.regulation(resultsTFsUp, targetGene, 1),
+                                    format.regulation(resultsRPsdown, targetGene, "-1"))
   }
   
   #----------------------------------------------------------------------------#
