@@ -1,6 +1,3 @@
-# Sys.setenv(LANG = "en_US.UTF-8")
-
-# library(rlang)
 if (!requireNamespace("magrittr", quietly = TRUE)) install.packages("magrittr")
 library(magrittr)
 
@@ -275,7 +272,6 @@ frame.regulatory.table <- function(regulatoryTable,
 #' @return
 #' @export
 #'
-#' @examples
 combine.multiple.plot <- function(ggplotObject,
                                   ncol = 4,
                                   legend = "none") {
@@ -372,7 +368,6 @@ scatter.plot <- function(data,
 #' @return
 #' @export
 #'
-#' @examples
 bar.plot <- function(data,
                      barColor = NULL,
                      titleColor = NULL,
@@ -455,7 +450,6 @@ box.plot <- function(data,
 #' @return
 #' @export
 #'
-#' @examples
 network.plot <- function(network,
                          title = NULL,
                          legend = TRUE,
@@ -491,26 +485,7 @@ network.plot <- function(network,
   }
 }
 
-#' compute.expression.vector
-#'
-#' @param weightDT 
-#' @param rawMatrix 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-compute.expression.vector <- function(weightDT,
-                                      rawMatrix) {
-  colnames(weightDT) <- c("regulatoryGene", "targetGene", "Weight")
-  weightDT$regulatoryGene <- as.vector(weightDT$regulatoryGene)
-  expressionVector <- 0
-  for (i in 1:nrow(weightDT)) {
-    gene <- weightDT$regulatoryGene[i]
-    expressionVector <- expressionVector + rawMatrix[, gene] * weightDT$Weight[i]
-  }
-  return(expressionVector)
-}
+Rcpp::sourceCpp("functions/compute_expression_vector.cpp")
 
 #' evaluate.model
 #'
@@ -520,7 +495,6 @@ compute.expression.vector <- function(weightDT,
 #' @return
 #' @export
 #'
-#' @examples
 evaluate.model <- function(rawData,
                            preData) {
   evaluateResult <- list()

@@ -224,8 +224,8 @@ for (k in seq_along(targetGenesList)) {
       }
     }
     
-    resultsRegulatoryFrame <- rbind(format.regulation(resultsTFsUp, targetGene, 1),
-                                    format.regulation(resultsRPsdown, targetGene, "-1"))
+    resultsRegulatoryFrame <- rbind(format.regulation(resultsTFdown, targetGene, 1),
+                                    format.regulation(resultsRPup, targetGene, "-1"))
   }
   
   #----------------------------------------------------------------------------#
