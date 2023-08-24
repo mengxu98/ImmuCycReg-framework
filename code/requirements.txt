@@ -1,15 +1,12 @@
 backports
 pbkrtest
-car
 tmvnsim
 bgsmtr
 BiocManager
-BiocVersion
 broom
 bslib
 caret
 cBioPortal/cgdsr
-clusterProfiler
 ComplexHeatmap
 ConsensusClusterPlus
 corrgram
@@ -61,5 +58,6 @@ svglite
 tidymodels
 tidyr
 tidyverse
+DO.db
 tinyarray
 usethis
