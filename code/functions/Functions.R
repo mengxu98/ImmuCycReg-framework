@@ -1,7 +1,83 @@
 # Sys.setenv(LANG = "en_US.UTF-8")
 
 # library(rlang)
+if (!requireNamespace("magrittr", quietly = TRUE)) install.packages("magrittr")
 library(magrittr)
+
+#' @title Check, install and library packages
+#'
+#' @param packages Packages list
+#'
+package.check <- function(packages) {
+  for (i in 1:length(packages)) {
+    package <- packages[i]
+    message("Checking: '", package, "' in R environment......")
+    if (grepl("/", package)) {
+      if (!requireNamespace(strsplit(package, "/")[[1]][2], quietly = TRUE)) {
+        if (!requireNamespace("devtools")) install.packages("devtools")
+        message("Now install package: '", package, "' from Github......")
+        tryCatch({
+          devtools::install_github(package)
+        }, error = function(e) {
+          message("Unsuccessful installation package: '", package, "'......")
+        })
+        
+        insRes <- try(library(strsplit(package, "/")[[1]][2], character.only = TRUE))
+        
+        if (class(insRes) == "try-error") {
+          message("Unsuccessful install package: '", package, "'......")
+          next
+        }
+      }
+    } else {
+      if (!requireNamespace(package)) {
+        if (!requireNamespace("dplyr")) install.packages("dplyr")
+        library(dplyr)
+        if (!requireNamespace("rvest")) install.packages("rvest")
+        library(rvest)
+        CRANpackages <- available.packages() %>%
+          as.data.frame() %>%
+          # mutate(source = "CRAN") %>%
+          # select(Package) %>%
+          .[, 1]
+        url <- "https://www.bioconductor.org/packages/release/bioc/"
+        biocPackages <- url %>%
+          read_html() %>%
+          html_table() %>%
+          .[[1]]  %>%
+          as.data.frame() %>%
+          # mutate(source = "BioConductor")  %>%
+          # select(Package) %>% 
+          .[, 1]
+        
+        tryCatch({
+          if (package %in% CRANpackages) {
+            message("Now install package: '", package, "' from CRAN......")
+            install.packages(package)
+          } else if (package %in% biocPackages) {
+            message("Now install package: '", package, "' from BioConductor......")
+            BiocManager::install(package)
+          }
+        }, error = function(e) {
+          message("Unsuccessful installation package: '", package, "'......")
+        })
+
+        insRes <- try(library(package, character.only = TRUE))
+        
+        if (class(insRes) == "try-error") {
+          message("Unsuccessful install package: '", package, "'......")
+          next
+        }
+
+      }  else {
+        library(package, character.only = TRUE)
+      }
+    }
+  }
+}
+
+packages <- read.table("requirements.txt")
+package.check(packages[, 1])
 
 # Transformation of COUNT, TPM, FPKM
 Rcpp::sourceCpp("functions/DataFormatConversion.cpp")
@@ -70,11 +146,11 @@ survival.data <- function(cancerType = NULL,
                           genes = NULL,
                           pathWay = NULL) {
   if (is.null(cancerType)) stop("Pleasure ensure the cancer type......")
-  message(paste0("Choose '", cancerType, "' and preparing data......"))
+  if (is.null(genes)) stop("Pleasure input a single gene or gene list......")
+  message("Choose '", cancerType, "' and preparing data......")
   package.check("cgdsr")
   package.check("DT")
   cgdsLoc <- cgdsr::CGDS("http://www.cbioportal.org/")
-  if (is.null(genes)) stop("Pleasure input a single gene or gene list......")
   
   # Get expression data
   expr <- getProfileData(cgdsLoc,
@@ -121,23 +197,6 @@ survival.data <- function(cancerType = NULL,
   message("Successed make survuval data......")
 }
 
-#' Peak_is_open
-#'
-#' @param candidate_peak_id_input
-#' @param target_sample_input
-#'
-#' @return
-#' @export
-#'
-Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
-  up_thres <- quantile(peak_luad[, target_sample_input])[3]
-  if (peak_luad[candidate_peak_id_input, target_sample_input] > up_thres) {
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
-}
-
 #' formatPositiveResult
 #'
 #' @param inputData
@@ -145,8 +204,12 @@ Peak_is_open <- function(candidate_peak_id_input, target_sample_input) {
 #' @return
 #' @export
 #'
-formatPositiveResult <- function(inputData,
-                                 targetGene) {
+format.regulation <- function(inputData,
+                              targetGene,
+                              regulation) {
+  if (!(regulation %in% c(1, "positive", "-1", "negative"))) {
+    stop("Please set 'regulation' as 1 / 'positive', or '-1' / 'negative'......")
+  }
   TFs <- c()
   typeInter <- c()
   targetGeneInter <- c()
@@ -157,106 +220,19 @@ formatPositiveResult <- function(inputData,
       j <- 1
       while (j <= length(inputData[[i]])) {
         TFs <- c(TFs, inputData[[i]][j])
-        typeInter <- c(typeInter, "1") # type 1
+        typeInter <- c(typeInter, regulation)
         sampleLevel <- c(sampleLevel, names(inputData)[i])
         targetGeneInter <- c(targetGeneInter, targetGene)
         j <- j + 1
       }
       i <- i + 1
     }
-    format_result <- data.frame(cbind(TFs, typeInter, targetGeneInter, sampleLevel))
-    colnames(format_result) <- c("TF", "type", "targetGene", "sample")
-    return(format_result)
+    formatResult <- cbind.data.frame(TFs, typeInter, targetGeneInter, sampleLevel)
+    colnames(formatResult) <- c("TF", "Gene", "Sample", "Type")
+    return(formatResult)
   } else {
     print("NULL list")
   }
-}
-
-#' formatNegativeResult
-#'
-#' @param inputData
-#'
-#' @return
-#' @export
-#'
-formatNegativeResult <- function(inputData,
-                                 targetGene) {
-  TFs <- c()
-  typeInter <- c()
-  targetGeneInter <- c()
-  sampleLevel <- c()
-  if (length(inputData)) {
-    i <- 1
-    while (i <= length(inputData)) {
-      j <- 1
-      while (j <= length(inputData[[i]])) {
-        TFs <- c(TFs, inputData[[i]][j])
-        typeInter <- c(typeInter, "2") # type 1
-        sampleLevel <- c(sampleLevel, names(inputData)[i])
-        targetGeneInter <- c(targetGeneInter, targetGene)
-        j <- j + 1
-      }
-      i <- i + 1
-    }
-    format_result <- data.frame(cbind(TFs, typeInter, targetGeneInter, sampleLevel))
-    colnames(format_result) <- c("TF", "type", "targetGene", "sample")
-    return(format_result)
-  } else {
-    print("NULL list")
-  }
-}
-
-#' SampleHit
-#'
-#' @param inputData
-#' @param hit_tf
-#'
-#' @return
-#' @export
-#'
-SampleHit <- function(inputData, hit_tf) {
-  hit_count <- c()
-  sampleLevel <- c()
-  for (i in 1:length(inputData)) {
-    j <- 1
-    count_temp <- 0
-    while (j <= length(inputData[[i]])) {
-      if (inputData[[i]][j] %in% hit_tf & names(inputData)[i] %in% colnames(raw_tcga_cnv)) {
-        if (raw_tcga_cnv[inputData[[i]][j], names(inputData)[i]] > 0) {
-          count_temp <- count_temp + 1
-        }
-      }
-      j <- j + 1
-    }
-    sampleLevel <- c(sampleLevel, names(inputData)[i])
-    hit_count <- c(hit_count, count_temp)
-  }
-  format_result <- data.frame(cbind(sampleLevel, hit_count))
-  colnames(format_result) <- c("sample", paste("hitsby", targetGene, sep = ""))
-  return(format_result)
-}
-
-#' SampleHitOnlyCNV
-#'
-#' @param high_exp_sample_input
-#' @param hit_tf
-#'
-#' @return
-#' @export
-#'
-SampleHitOnlyCNV <- function(high_exp_sample_input, hit_tf) {
-  sampleLevel <- c()
-  # tem_ind=0
-  for (i in high_exp_sample_input) {
-    if (hit_tf %in% row.names(raw_tcga_cnv) & i %in% colnames(raw_tcga_cnv)) {
-      # tem_ind=tem_ind+1
-      # print(tem_ind)
-      if (raw_tcga_cnv[hit_tf, i] > 0) {
-        sampleLevel <- c(sampleLevel, i)
-      }
-    }
-  }
-  return(sampleLevel)
 }
 
 #' FrameRegulatoryTable
@@ -304,10 +280,12 @@ combine.multiple.plot <- function(ggplotObject,
                                   ncol = 4,
                                   legend = "none") {
   if (!is.list(ggplotObject)) stop("Please provide a list of ggplot objects......")
+  g <- 0
   for (i in 1:length(ggplotObject)) {
     x <- ggplotObject[[i]]
     if (is.ggplot(x)) {
-      if (i == 1) {
+      g = g + 1
+      if (g == 1) {
         p <- x
       } else {
         p <- p + x
@@ -483,7 +461,7 @@ network.plot <- function(network,
                          legend = TRUE,
                          legendPosition = "bottomright") {
   # Make a palette of 3 colors
-  color <- brewer.pal(5, "Set1")
+  # color <- brewer.pal(5, "Set1")
   color <- c("#e5244f", "#99bac7")
   pointSize = 20
   
@@ -561,53 +539,3 @@ evaluate.model <- function(rawData,
   names(evaluateResult) <- c("R^2", "RMSE", "Cor_R", "Cor_P")
   return(evaluateResult)
 }
-
-#' @title Check, install and library packages
-#'
-#' @param packages Packages list
-#'
-package.check <- function(packages) {
-  for (package in packages) {
-    message("Checking: '", package, "' in R environment......")
-    if (grepl("/", package)) {
-      if (!requireNamespace(strsplit(package, "/")[[1]][2], quietly = TRUE)) {
-        if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
-        message("Now install package: '", package, "' from Github......")
-        devtools::install_github(package)
-      }
-      library(strsplit(package, "/")[[1]][2], character.only = TRUE)
-    } else {
-      if (!requireNamespace(package, quietly = TRUE)) {
-        if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
-        library(dplyr)
-        if (!requireNamespace("rvest", quietly = TRUE)) install.packages("rvest")
-        library(rvest)
-        CRANpackages <- available.packages() %>%
-          as.data.frame() %>%
-          # select(Package) %>%
-          mutate(source = "CRAN")
-        url <- "https://www.bioconductor.org/packages/release/bioc/"
-        biocPackages <- url %>%
-          read_html() %>%
-          html_table() %>%
-          .[[1]] %>%
-          # select(Package) %>%
-          mutate(source = "BioConductor")
-        if (package %in% CRANpackages$Package) {
-          message("Now install package: '", package, "' from CRAN......")
-          install.packages(package)
-          library(package, character.only = TRUE)
-        } else if (package %in% biocPackages$Package) {
-          message("Now install package: '", package, "' from BioConductor......")
-          BiocManager::install(package)
-          library(package, character.only = TRUE)
-        }
-      }  else {
-        library(package, character.only = TRUE)
-      }
-    }
-  }
-}
-
-packages <- read.table("requirements.txt")
-package.check(packages[, 1])
