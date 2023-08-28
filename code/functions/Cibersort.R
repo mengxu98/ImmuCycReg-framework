@@ -39,7 +39,8 @@ CIBERSORT <- function(sig_matrix,
                       mixture_file,
                       perm = 0,
                       QN = FALSE,
-                      pathSave = NULL){
+                      pathSave = NULL,
+                      fileName = NULL){
   
   # Number of permutations
   P <- perm
@@ -110,12 +111,16 @@ CIBERSORT <- function(sig_matrix,
     mix_rmse <- result$mix_rmse
     
     #calculate p-value
-    if(P > 0) {pval <- 1 - (which.min(abs(nulldist - mix_r)) / length(nulldist))}
+    if(P > 0) pval <- 1 - (which.min(abs(nulldist - mix_r)) / length(nulldist))
     
     #print output
     out <- c(colnames(Y)[itor],w,pval,mix_r,mix_rmse)
-    if(itor == 1) {output <- out}
-    else {output <- rbind(output, out)}
+    
+    if (itor == 1) {
+      output <- out
+    } else {
+      output <- rbind(output, out)
+    }
     itor <- itor + 1
   }
   
@@ -125,19 +130,22 @@ CIBERSORT <- function(sig_matrix,
   } else {
     check.dir(pathSave)
   }
+
+  if (is.null(fileName)) pathSave <- "CIBERSORT_Results.txt"
+  
   write.table(rbind(header, output),
-              file = paste0(pathSave, "CIBERSORT_Results.txt"),
+              file = paste0(pathSave, fileName),
               sep = "\t",
               row.names = F,
               col.names = F,
               quote = F)
-  #return matrix object containing all results
-  obj <- rbind(header,output)
+  # Return matrix object containing all results
+  obj <- rbind(header, output)
   obj <- obj[,-1]
   obj <- obj[-1,]
   obj <- matrix(as.numeric(unlist(obj)),nrow=nrow(obj))
   rownames(obj) <- colnames(Y)
-  colnames(obj) <- c(colnames(X),"P-value","Correlation","RMSE")
+  colnames(obj) <- c(colnames(X), "P-value", "Correlation", "RMSE")
   obj
 }
 

@@ -93,11 +93,12 @@ fpkm.to.tpm <- function(fpkmData) {
 #' @return
 #' @export
 #'
-check.dir <- function(dirPath) {
+check.dir <- function(dirPath,
+                      verbose = FALSE) {
   if (dir.exists(dirPath)) {
-    message("'", dirPath, "'", " existed......")
+    if (verbose) message("'", dirPath, "'", " existed......")
   } else {
-    message("'", dirPath, "' not exist, creat it......")
+    if (verbose) message("'", dirPath, "' not exist, creat it......")
     dir.create(dirPath, recursive = TRUE)
   }
   return(dirPath)

@@ -13,6 +13,7 @@ samplesCluster <- read.csv(paste0(pathRead, "sample_cluster_4.csv"), header = FA
 geneList <- read.table(paste0(pathRead, "Genes_17.txt"), header = TRUE) %>% .[, 1]
 
 TRNClusterFilterAll <- c()
+eveluateR2All <- c()
 for (j in 1:4) {
   message("Running for cluster ", j, " ......")
   check.dir(paste0(pathSave, "cluster", j))
@@ -21,10 +22,11 @@ for (j in 1:4) {
   
   selectedTFs <- c()
   TRNClusterFilter <- c()
+  eveluateR2 <- c()
   for (i in 1:length(geneList)) {
     targetGene <- geneList[i]
     if (file.exists(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"))) {
-      message(paste0("Running for cluster: ", j, ", ", "NO.", i, " gene: ", targetGene, "......"))
+      message("Running for cluster: ", j, ", ", "NO.", i, " gene: ", targetGene, "......")
       TFsList <- read.table(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"),
                             header = T) %>% .[, 1]
       
@@ -72,22 +74,31 @@ for (j in 1:4) {
         
         TRNClusterFilter <- rbind(TRNClusterFilter, singleGeneTRNFilter)
         selectedTFs <- c(selectedTFs, rownames(lmFitSummFilter))
+        
+        eveluateR2 <- rbind(eveluateR2,
+                            data.frame(Gene = targetGene,
+                                       Cluster = paste0("Cluster", j),
+                                       L0_Rsquare = evaluateResultL0[[1]]))
+        
       }
       
     } else {
-      print(paste0("No ", targetGene, " TF file......"))
+      message("No ", targetGene, " TF file......")
       next
     }
   }
-  
   TRNClusterFilterAll <- rbind(TRNClusterFilterAll, TRNClusterFilter)
+  eveluateR2All <- rbind(eveluateR2All, eveluateR2)
   
-  selectedTFs <- as.data.frame(unique(selectedTFs))
-  write.csv(selectedTFs, paste0(pathSave, "cluster", j, "/TFs_list.csv"))
+  write.csv(as.data.frame(unique(selectedTFs)),
+            paste0(pathSave, "cluster", j, "/TFs_list.csv"))
   
-  message(paste("Cluster", j, "done......"))
+  message("Cluster ", j, " done......")
 }
 
 write.csv(TRNClusterFilterAll,
           paste0(pathSave, "TRN_cluster_filter_all.csv"))
 
+write.csv(eveluateR2All,
+          paste0(pathSave, "TF_regulatory_value.csv"),
+          row.names = F)

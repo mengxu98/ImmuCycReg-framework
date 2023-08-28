@@ -1,155 +1,85 @@
 rm(list = ls())
 source("functions/Functions.R")
 
-# Load --------------------------------------------------------------------
+pathRead <- "../data/"
+pathSave <- "../../Results/"
+
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 load(paste0(pathSave, "GTEx-LUAD.Rdata"))
 
-samples_20 <- read.csv("../data/Samples_20.csv")
-genes_list <- read.table("../data/Genes_17.txt", header = T)
-TCGA <- tcga_luad[genes_list$gene, ]
-GTEX <- gtex_luad[genes_list$gene, ]
+samples20 <- read.csv("../data/Samples_20.csv") %>% .[, 1]
+geneList <- read.table("../data/Genes_17.txt", header = T) %>% .[, 1]
+
+sampleLabel <- read.csv("../data/sample_cluster_4.csv",
+                        header = FALSE,
+                        col.names = c("sample", "cluster"))
+
+TCGA <- tcga_luad[geneList, ]
+GTEx <- gtex_luad[geneList, ]
 
 TCGA <- t(scale(t(TCGA)))
 TCGA[TCGA >= 2] <- 2
 TCGA[TCGA <= -2] <- -2
 
-Heatmap(TCGA,
-  name = "expr",
-  show_column_names = F,
-  col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
-  width = unit(10, "cm")
-)
+Heatmap(TCGA[, samples20],
+        name = "Z-score",
+        show_column_names = FALSE,
+        cluster_rows = FALSE,
+        col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
+        width = unit(10, "cm"))
 
-GTEX <- t(scale(t(GTEX)))
-GTEX[GTEX >= 2] <- 2
-GTEX[GTEX <= -2] <- -2
-Heatmap(GTEX,
-  name = "expr",
-  show_column_names = F,
-  col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
-  width = unit(10, "cm")
-)
+GTEx <- t(scale(t(GTEx)))
+GTEx[GTEx >= 2] <- 2
+GTEx[GTEx <= -2] <- -2
 
-sample_label <- read.table("../data/sample_cluster_4.csv",
-                           header = F,
-                           sep = ",",
-                           check.names = FALSE
-)
+expMatList <- list()
+for (i in 1:4) {
+  expMatList[[i]] <- TCGA[, sampleLabel %>% dplyr::filter(cluster == i) %>% .[, 1]]
+}
+expMatList[[5]] <- GTEx
 
-cluster1 <- sample_label[which(sample_label$V2 == 1), 1]
-cluster1 <- intersect(cluster1, colnames(TCGA))
+htList <- list()
+sampleColors <- c("#2874c5", "#008a00", "#c6524a", "#eabf00", "#696969")
+for (i in 1:length(expMatList)) {
+  if (i < 5) {
+    label <- paste0("TCGA-Cluster", i)
+  } else {
+    label <- "GTEx"
+  }
+  sampleColor <- sampleColors[i]
+  width <- 30 * ncol(expMatList[[i]]) / (ncol(TCGA) + ncol(GTEx))
+  annotation <- HeatmapAnnotation(foo = anno_block(gp = gpar(fill = sampleColor),
+                                                   labels = label,
+                                                   labels_gp = gpar(col = "white",
+                                                                    fontsize = 10)))
+  
+  htList[[i]] <- Heatmap(expMatList[[i]],
+                         name = "Z-score",
+                         show_column_names = FALSE,
+                         cluster_rows = FALSE,
+                         col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
+                         # width = unit(5, "cm"),
+                         width = unit(width, "cm"),
+                         border = TRUE,
+                         top_annotation = annotation)
+}
 
-cluster2 <- sample_label[which(sample_label$V2 == 2), 1]
-cluster2 <- intersect(cluster2, colnames(TCGA))
-
-cluster3 <- sample_label[which(sample_label$V2 == 3), 1]
-cluster3 <- intersect(cluster3, colnames(TCGA))
-
-cluster4 <- sample_label[which(sample_label$V2 == 4), 1]
-cluster4 <- intersect(cluster4, colnames(TCGA))
-
-expmat1 <- TCGA[, cluster1]
-expmat2 <- TCGA[, cluster2]
-expmat3 <- TCGA[, cluster3]
-expmat4 <- TCGA[, cluster4]
-expmat5 <- GTEX
-
-ht_list <- Heatmap(expmat1,
-                   name = "Z-score",
-                   show_column_names = F,
-                   # clustering_distance_rows = "spearman",
-                   col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
-                   width = unit(5, "cm"),
-                   border = T,
-                   top_annotation = HeatmapAnnotation(foo = anno_block(
-                     gp = gpar(fill = "#2874c5"),
-                     labels = c("TCGA-Cluster1"),
-                     labels_gp = gpar(
-                       col = "white",
-                       fontsize = 10
-                     )
-                   ))
-) + Heatmap(expmat2,
-            name = "Z-score",
-            show_column_names = F,
-            col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
-            width = unit(5, "cm"),
-            border = T,
-            top_annotation = HeatmapAnnotation(foo = anno_block(
-              gp = gpar(fill = "#008a00"),
-              labels = c("TCGA-Cluster2"),
-              labels_gp = gpar(
-                col = "white",
-                fontsize = 10
-              )
-            ))
-) + Heatmap(expmat3,
-            name = "Z-score",
-            show_column_names = F,
-            col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
-            width = unit(5, "cm"),
-            border = T,
-            top_annotation = HeatmapAnnotation(foo = anno_block(
-              gp = gpar(fill = "#c6524a"),
-              labels = c("TCGA-Cluster3"),
-              labels_gp = gpar(
-                col = "white",
-                fontsize = 10
-              )
-            ))
-) + Heatmap(expmat4,
-            name = "Z-score",
-            show_column_names = F,
-            col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
-            width = unit(5, "cm"),
-            border = T,
-            top_annotation = HeatmapAnnotation(foo = anno_block(
-              gp = gpar(fill = "#eabf00"),
-              labels = c("TCGA-Cluster4"),
-              labels_gp = gpar(
-                col = "white",
-                fontsize = 10
-              )
-            ))
-) + Heatmap(expmat5,
-            name = "Z-score",
-            show_column_names = F,
-            col = circlize::colorRamp2(c(-2, 0, 2), c("#2c58af", "white", "#d43a35")),
-            width = unit(5, "cm"),
-            border = T,
-            top_annotation = HeatmapAnnotation(foo = anno_block(
-              gp = gpar(fill = "#696969"),
-              labels = c("GTEx"),
-              labels_gp = gpar(
-                col = "white",
-                fontsize = 10
-              )
-            ))
-)
-
-pdf("../../Results/figures/SuppFig5.pdf", width = 12, height = 4.5)
-draw(ht_list, n = 2)
-dev.off()
-
-png("../../Results/figures/SuppFig5.png", width = 7300, height = 3000, res = 600)
-draw(ht_list, n = 2)
+pdf(paste0(pathSave, "SuppFig5.pdf"), width = 14, height = 4.5)
+draw(htList[[1]]+htList[[2]]+htList[[3]]+htList[[4]]+htList[[5]])
 dev.off()
 
 # Single gene
-for (i in 1:nrow(genes_list)) {
-  target_gene <- genes_list$gene[i]
-  data_tcga <- cbind.data.frame(t(TCGA[target_gene, ]), rep("TCGA", ncol(TCGA[target_gene, ])))
-  names(data_tcga) <- c("Expression", "Group")
-  data_gtex <- cbind.data.frame(t(GTEX[target_gene, ]), rep("GTEx", ncol(GTEX[target_gene, ])))
-  names(data_gtex) <- c("Expression", "Group")
-  data_plot <- rbind.data.frame(data_tcga, data_gtex)
-  data_plot$Sample <- rownames(data_plot)
-  ggplot(data = data_plot, aes(x = Group, y = Expression)) +
-    geom_boxplot(aes(fill = Group)) +
-    ylab(paste0(target_gene, " Expression")) +
-    stat_compare_means() +
-    theme_bw()
-  geom_jitter()
-  ggsave(paste0("../../Results/figures/boxplot/", target_gene, ".pdf"), width = 3.5, height = 3.5)
+for (i in 1:length(geneList)) {
+  targetGene <- geneList[i]
+  data_tcga <- cbind.data.frame(Group = rep("TCGA", length(TCGA[targetGene, ])),
+                                Expression = TCGA[targetGene, ])
+
+  data_GTEx <- cbind.data.frame(Group = rep("GTEx", length(GTEx[targetGene, ])),
+                                Expression = GTEx[targetGene, ])
+  
+  data_plot <- rbind.data.frame(data_tcga, data_GTEx)
+  box.plot(data_plot, boxColor = c("#e1181f", "#253870"))
+  ggsave(paste0(check.dir("../../Results/Figures/boxplot/"), targetGene, ".pdf"),
+         width = 2.5,
+         height = 4)
 }

@@ -9,7 +9,6 @@ load(paste0(pathSave, "CNV-LUAD.Rdata"))
 
 sampleCluster <- read.csv(paste0(pathRead, "sample_cluster_4.csv"), header = FALSE)
 geneList <- read.table(paste0(pathRead, "Genes_17.txt"), header = TRUE) %>% .[, 1]
-ligandNums <- length(geneList)
 
 correctionResultsAll <- c()
 for (k in 1:4) {
@@ -21,7 +20,7 @@ for (k in 1:4) {
   
   corResults <- c()
   corResultsPval <- c()
-  for (i in 1:ligandNums) {
+  for (i in 1:length(geneList)) {
     corLigands <- corr.test(cnvData[, i],
                             mrnaData[, i],
                             method = "spearman",
@@ -31,14 +30,13 @@ for (k in 1:4) {
   }
   
   interCorMatrix <- c()
-  for (i in 1:ligandNums) {
+  for (i in 1:length(geneList)) {
     interCorResults <- c()
-    for (j in 1:ligandNums) {
-      corLigands <- cor(cnvData[, i],
-                        mrnaData[, j],
-                        method = "spearman",
-                        use = "pairwise.complete.obs")
-      interCorResults <- c(interCorResults, corLigands)
+    for (j in 1:length(geneList)) {
+      interCorResults <- c(interCorResults, cor(cnvData[, i],
+                                                mrnaData[, j],
+                                                method = "spearman",
+                                                use = "pairwise.complete.obs"))
     }
     interCorMatrix <- rbind(interCorMatrix, interCorResults)
   }
@@ -49,19 +47,15 @@ for (k in 1:4) {
   for (i in 1:length(geneList)) {
     selectGene <- geneList[i]
     correctionValue <- interCorMatrix[selectGene, selectGene]
-    message(paste0("The correlation coefficient of ", selectGene, ": ", correctionValue))
+    message("The correlation coefficient of ", selectGene, ": ", correctionValue)
     correctionResults <- rbind(correctionResults,
                                c(selectGene, correctionValue)) %>% as.data.frame()
   }
-  # write.table(correctionResults,
-  #             paste0(pathSave, "Correction_results_cluster_", k, ".txt"),
-  #             sep = "\t",
-  #             quote = FALSE,
-  #             row.names = FALSE
-  # )
   
   correctionResults$Clsuer <- paste0("Cluster", k)
   correctionResultsAll <- rbind.data.frame(correctionResultsAll, correctionResults)
 }
-names(correctionResultsAll) <- c("Gene", "CNV", "Cluster")
-write.csv(correctionResultsAll, paste0(pathSave, "CNV_values.csv"), row.names = FALSE)
+names(correctionResultsAll) <- c("Gene", "CNVs", "Cluster")
+write.csv(correctionResultsAll,
+          paste0(pathSave, "CNV_correlation_value.csv"),
+          row.names = FALSE)
