@@ -46,7 +46,6 @@ for (n in 1:2) {
                                     paste0(pathWay, goldWay))
     AUROC_L0 <- calcAUROC(evaluationObject)
     AUPRC_L0 <- calcAUPR(evaluationObject)
-    AUROC_L0
     
     weightMat <- GENIE3::GENIE3(matrixData,
                                 nCores = 3,
@@ -58,14 +57,14 @@ for (n in 1:2) {
                                     paste0(pathWay, goldWay))
     AUROC_GENIE3 <- calcAUROC(evaluationObject)
     AUPRC_GENIE3 <- calcAUPR(evaluationObject)
-    AUROC_GENIE3
     
-    evaluationGNW <- data.frame(Dataset = paste0("Net", i),
-                                L0Reg_framework = AUROC_L0,
-                                GENIE3 = AUROC_GENIE3)
-    evaluationGNWs <- rbind(evaluationGNWs, evaluationGNW)
+    evaluationGNWs <- rbind(evaluationGNWs,
+                            data.frame(Dataset = paste0("Net", i),
+                                       L0Reg_framework = AUROC_L0,
+                                       GENIE3 = AUROC_GENIE3))
   }
-  write.csv(evaluationGNWs, paste0(pathRead, "AUROC_Net", datasetNum, ".csv"))
+  write.csv(evaluationGNWs,
+            paste0(pathRead, "AUROC_Net", datasetNum, ".csv"))
   evaluationGNWsList[[n]] <- evaluationGNWs
 }
 
