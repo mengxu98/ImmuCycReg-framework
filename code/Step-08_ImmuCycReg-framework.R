@@ -225,7 +225,7 @@ for (k in seq_along(targetGenesList)) {
     }
     
     resultsRegulatoryFrame <- rbind(format.regulation(resultsTFdown, targetGene, 1),
-                                    format.regulation(resultsRPup, targetGene, "-1"))
+                                    format.regulation(resultsRPup, targetGene, -1))
   }
   
   #----------------------------------------------------------------------------#
@@ -260,8 +260,8 @@ for (k in seq_along(targetGenesList)) {
     
     edgeNumAll <- rbind(edgeNumAll,
                         data.frame("Gene" = targetGene,
-                                   "Positive" = table(resultsRegulatoryFrame$type)[1],
-                                   "Negative" = table(resultsRegulatoryFrame$type)[2],
+                                   "Positive" = table(resultsRegulatoryFrame$Type)[1],
+                                   "Negative" = table(resultsRegulatoryFrame$Type)[2],
                                    "ImmuCycReg_framework" = nrow(resultsRegulatoryFrame),
                                    "Database" = dataset_num))
     
@@ -308,3 +308,20 @@ write.csv(geneTFsNodeNumAll,
           paste0(pathSave, "Gene_TFs_node_num.csv"),
           row.names = FALSE)
 
+# Plot
+netEdgeInfor <- melt(edgeNumAll[, c("Gene", "ImmuCycReg_framework", "Database")], id = "Gene")
+p1 <- bar.plot(netEdgeInfor, barColor = c("white", "gray"))
+
+netRegInfor <- melt(edgeNumAll[, c("Gene", "Negative", "Positive")], id = "Gene")
+p2 <- bar.plot(netRegInfor, barColor = c("#6666ff", "#ff9933"))
+
+p3 <- p1 + p2 +
+  plot_layout(ncol = 2) +
+  plot_annotation(tag_levels = "a") +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+
+ggsave(paste0(pathSave, "Figure/Supplementary Figure 4_bc.pdf"),
+       p3,
+       width = 7.5,
+       height = 3)

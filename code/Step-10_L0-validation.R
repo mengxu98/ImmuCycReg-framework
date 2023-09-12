@@ -25,96 +25,98 @@ for (c in 1:length(conditions)) {
   correctionPlotListTrain <- list()
   for (i in 1:length(geneList)) {
     targetGene <- geneList[i]
-    if (file.exists(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt")) == T) {
-      TFsList <- read.table(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"),
-                            header = T) %>% .[, 1]
-      
-      X <- t(tcgaScale[TFsList, samplesCluster])
-      Y <- t(tcgaScale[targetGene, samplesCluster])
-      
-      # Condition set
-      if (condition == "TCGA_LUAD") {
-        message("Using '", condition, "' data......")
-      } else if (condition == "Randomize") {
-        message("Using '", condition, "' data......")
-        X <- NMF::randomize(X)
-        Y <- NMF::randomize(Y) %>% as.numeric()
-      } else if (condition == "Random") {
-        message("Using '", condition, "' data......")
-        Y <- rnorm(nrow(X), 0, 1)
-        for (r in 1:ncol(X)) {
-          x <- rnorm(nrow(X), 0, 1)
-          X[, r] <- x
-        }
-      }
-      
-      set.seed(2022)
-      
-      # Split train and test datasets
-      trainIdx <- sample(nrow(X), 0.7 * nrow(X))
-      trainDataX <- X[trainIdx, ]
-      trainDataY <- Y[trainIdx]
-      testDataX <- X[-trainIdx, ]
-      testDataY <- Y[-trainIdx]
-      
-      L0Model <- L0Learn::L0Learn.fit(trainDataX,
-                                      trainDataY,
-                                      penalty = "L0",
-                                      maxSuppSize = ncol(trainDataX))
-      
-      # Extract coefficient at middle lambda
-      L0ModelInfor <- as.data.frame(print(L0Model)) %>% .[order(.$suppSize, decreasing = TRUE), ]
-      
-      trainDataYPre <- predict(L0Model,
-                               newx = trainDataX,
-                               lambda = L0ModelInfor$lambda[1],
-                               gamma = L0ModelInfor$gamma[1]) %>% as.vector()
-      
-      RMSE_L0Train <- RMSE(trainDataY, trainDataYPre)
-      dataFrameTrain <- cbind(trainDataY, trainDataYPre) %>% as.data.frame()
-      colnames(dataFrameTrain) <- c("Raw", "Pre")
-      
-      corDataTrain <- psych::corr.test(dataFrameTrain$Raw,
-                                       dataFrameTrain$Pre)
-      
-      correctionPlotListTrain[[i]] <- scatter.plot(dataFrameTrain,
-                                                   title = paste("Gene:", targetGene),
-                                                   xTitle = paste0("True expression"),
-                                                   yTitle = "Prediction expression")
-      
-      testDataYPre <- predict(L0Model,
-                              newx = testDataX,
-                              lambda = L0ModelInfor$lambda[1],
-                              gamma = L0ModelInfor$gamma[1]) %>% as.vector()
-      
-      RMSE_L0Test <- RMSE(testDataY, testDataYPre)
-      dataFrameTest <- cbind(testDataY, testDataYPre) %>% as.data.frame()
-      colnames(dataFrameTest) <- c("Raw", "Pre")
-      
-      corDataTest <- psych::corr.test(dataFrameTest$Raw,
-                                      dataFrameTest$Pre)
-      
-      correctionPlotListTest[[i]] <- scatter.plot(dataFrameTest,
-                                                  title = paste("Gene:", targetGene),
-                                                  xTitle = "True expression",
-                                                  yTitle = "Prediction expression")
-      
-      resultTrain <- data.frame(Gene = targetGene,
-                                Corr = corDataTrain$r,
-                                RMSD = RMSE_L0Train,
-                                pval = corDataTrain$p)
-      
-      resultTrainCluster <- rbind(resultTrainCluster, resultTrain)
-      
-      resultTest <- data.frame(Gene = targetGene,
-                               Corr = corDataTest$r,
-                               RMSD = RMSE_L0Test,
-                               pval = corDataTest$p)
-      
-      resultTestCluster <- rbind(resultTestCluster, resultTest)
-    } else {
+    if (!file.exists(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt")) == T) {
       message("The TFs file of ", targetGene, " not found......")
+      next
     }
+    
+    TFsList <- read.table(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"),
+                          header = T) %>% .[, 1]
+    
+    X <- t(tcgaScale[TFsList, samplesCluster])
+    Y <- t(tcgaScale[targetGene, samplesCluster])
+    
+    # Condition set
+    if (condition == "TCGA_LUAD") {
+      message("Using '", condition, "' data......")
+    } else if (condition == "Randomize") {
+      message("Using '", condition, "' data......")
+      X <- NMF::randomize(X)
+      Y <- NMF::randomize(Y) %>% as.numeric()
+    } else if (condition == "Random") {
+      message("Using '", condition, "' data......")
+      Y <- rnorm(nrow(X), 0, 1)
+      for (r in 1:ncol(X)) {
+        x <- rnorm(nrow(X), 0, 1)
+        X[, r] <- x
+      }
+    }
+    
+    set.seed(2022)
+    
+    # Split train and test datasets
+    trainIdx <- sample(nrow(X), 0.7 * nrow(X))
+    trainDataX <- X[trainIdx, ]
+    trainDataY <- Y[trainIdx]
+    testDataX <- X[-trainIdx, ]
+    testDataY <- Y[-trainIdx]
+    
+    L0Model <- L0Learn::L0Learn.fit(trainDataX,
+                                    trainDataY,
+                                    penalty = "L0",
+                                    maxSuppSize = ncol(trainDataX))
+    
+    # Extract coefficient at middle lambda
+    L0ModelInfor <- as.data.frame(print(L0Model)) %>% .[order(.$suppSize, decreasing = TRUE), ]
+    
+    trainDataYPre <- predict(L0Model,
+                             newx = trainDataX,
+                             lambda = L0ModelInfor$lambda[1],
+                             gamma = L0ModelInfor$gamma[1]) %>% as.vector()
+    
+    RMSE_L0Train <- RMSE(trainDataY, trainDataYPre)
+    dataFrameTrain <- cbind(trainDataY, trainDataYPre) %>% as.data.frame()
+    colnames(dataFrameTrain) <- c("Raw", "Pre")
+    
+    corDataTrain <- psych::corr.test(dataFrameTrain$Raw,
+                                     dataFrameTrain$Pre)
+    
+    correctionPlotListTrain[[i]] <- scatter.plot(dataFrameTrain,
+                                                 title = paste("Gene:", targetGene),
+                                                 xTitle = paste0("True expression"),
+                                                 yTitle = "Prediction expression")
+    
+    testDataYPre <- predict(L0Model,
+                            newx = testDataX,
+                            lambda = L0ModelInfor$lambda[1],
+                            gamma = L0ModelInfor$gamma[1]) %>% as.vector()
+    
+    RMSE_L0Test <- RMSE(testDataY, testDataYPre)
+    dataFrameTest <- cbind(testDataY, testDataYPre) %>% as.data.frame()
+    colnames(dataFrameTest) <- c("Raw", "Pre")
+    
+    corDataTest <- psych::corr.test(dataFrameTest$Raw,
+                                    dataFrameTest$Pre)
+    
+    correctionPlotListTest[[i]] <- scatter.plot(dataFrameTest,
+                                                title = paste("Gene:", targetGene),
+                                                xTitle = "True expression",
+                                                yTitle = "Prediction expression")
+    
+    resultTrain <- data.frame(Gene = targetGene,
+                              Corr = corDataTrain$r,
+                              RMSD = RMSE_L0Train,
+                              pval = corDataTrain$p)
+    
+    resultTrainCluster <- rbind(resultTrainCluster, resultTrain)
+    
+    resultTest <- data.frame(Gene = targetGene,
+                             Corr = corDataTest$r,
+                             RMSD = RMSE_L0Test,
+                             pval = corDataTest$p)
+    
+    resultTestCluster <- rbind(resultTestCluster, resultTest)
+    
   }
   
   p1 <- combine.multiple.plot(correctionPlotListTest)

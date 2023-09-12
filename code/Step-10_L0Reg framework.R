@@ -25,66 +25,65 @@ for (j in 1:4) {
   eveluateR2 <- c()
   for (i in 1:length(geneList)) {
     targetGene <- geneList[i]
-    if (file.exists(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"))) {
-      message("Running for cluster: ", j, ", ", "NO.", i, " gene: ", targetGene, "......")
-      TFsList <- read.table(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"),
-                            header = T) %>% .[, 1]
-      
-      testDataX <- t(tcgaScale[TFsList, cluster])
-      testDataY <- t(tcgaScale[targetGene, cluster])
-      
-      ModelL0 <- L0Learn::L0Learn.fit(testDataX,
-                                      testDataY,
-                                      penalty = penalty,
-                                      maxSuppSize = ncol(testDataX))
-      
-      ModelL0Infor <- as.data.frame(print(ModelL0)) %>%
-        .[order(.$suppSize, decreasing = TRUE), ]
-      lambdaL0 <- ModelL0Infor$lambda[1]
-      gammaL0 <- ModelL0Infor$gamma[1]
-      
-      dataYPreL0 <- predict(ModelL0,
-                            newx = testDataX,
-                            lambda = lambdaL0,
-                            gamma = gammaL0) %>% as.vector()
-      
-      lmFit <- lm(testDataY ~ ., data = data.frame(testDataX))
-      lmFitSumm <- as.data.frame(summary(lmFit)$coefficient)
-      if (rownames(lmFitSumm)[1] == "(Intercept)") lmFitSumm <- lmFitSumm[-1, ]
-      lmFitSumm$Estimate <- coef(ModelL0,
-                                 lambda = lambdaL0,
-                                 gamma = gammaL0) %>% as.vector() %>% .[-1]
-      lmFitSumm$Weight <- abs(lmFitSumm$Estimate)
-      lmFitSumm$Weight <- as.numeric(lmFitSumm$Weight / sum(lmFitSumm$Weight))
-      lmFitSumm$Regulation <- 1
-      lmFitSumm$Regulation[lmFitSumm$Estimate < 0] <- "-1"
-      
-      lmFitSummFilter <- lmFitSumm[which(lmFitSumm$`Pr(>|t|)` < 0.05), ]
-      
-      evaluateResultL0 <- evaluate.model(testDataY, dataYPreL0)
-      
-      if (evaluateResultL0[[4]] < 0.05 & 
-          evaluateResultL0[[3]] > 0 &
-          nrow(lmFitSummFilter) > 0) {
-        singleGeneTRNFilter <- cbind.data.frame("TF" = rownames(lmFitSummFilter),
-                                                "Gene" = targetGene,
-                                                "Weight" = lmFitSummFilter$Weight,
-                                                "Regulation" = lmFitSummFilter$Regulation,
-                                                "Cluster" = paste0("Cluster", j))
-        
-        TRNClusterFilter <- rbind(TRNClusterFilter, singleGeneTRNFilter)
-        selectedTFs <- c(selectedTFs, rownames(lmFitSummFilter))
-        
-        eveluateR2 <- rbind(eveluateR2,
-                            data.frame(Gene = targetGene,
-                                       Cluster = paste0("Cluster", j),
-                                       L0_Rsquare = evaluateResultL0[[1]]))
-        
-      }
-      
-    } else {
+    if (!file.exists(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"))) {
       message("No ", targetGene, " TF file......")
       next
+    }
+    
+    message("Running for cluster: ", j, ", ", "NO.", i, " gene: ", targetGene, "......")
+    TFsList <- read.table(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"),
+                          header = T) %>% .[, 1]
+    
+    testDataX <- t(tcgaScale[TFsList, cluster])
+    testDataY <- t(tcgaScale[targetGene, cluster])
+    
+    ModelL0 <- L0Learn::L0Learn.fit(testDataX,
+                                    testDataY,
+                                    penalty = penalty,
+                                    maxSuppSize = ncol(testDataX))
+    
+    ModelL0Infor <- as.data.frame(print(ModelL0)) %>%
+      .[order(.$suppSize, decreasing = TRUE), ]
+    lambdaL0 <- ModelL0Infor$lambda[1]
+    gammaL0 <- ModelL0Infor$gamma[1]
+    
+    dataYPreL0 <- predict(ModelL0,
+                          newx = testDataX,
+                          lambda = lambdaL0,
+                          gamma = gammaL0) %>% as.vector()
+    
+    lmFit <- lm(testDataY ~ ., data = data.frame(testDataX))
+    lmFitSumm <- as.data.frame(summary(lmFit)$coefficient)
+    if (rownames(lmFitSumm)[1] == "(Intercept)") lmFitSumm <- lmFitSumm[-1, ]
+    lmFitSumm$Estimate <- coef(ModelL0,
+                               lambda = lambdaL0,
+                               gamma = gammaL0) %>% as.vector() %>% .[-1]
+    lmFitSumm$Weight <- abs(lmFitSumm$Estimate)
+    lmFitSumm$Weight <- as.numeric(lmFitSumm$Weight / sum(lmFitSumm$Weight))
+    lmFitSumm$Regulation <- 1
+    lmFitSumm$Regulation[lmFitSumm$Estimate < 0] <- "-1"
+    
+    lmFitSummFilter <- lmFitSumm[which(lmFitSumm$`Pr(>|t|)` < 0.05), ]
+    
+    evaluateResultL0 <- evaluate.model(testDataY, dataYPreL0)
+    
+    if (evaluateResultL0[[4]] < 0.05 & 
+        evaluateResultL0[[3]] > 0 &
+        nrow(lmFitSummFilter) > 0) {
+      singleGeneTRNFilter <- cbind.data.frame("TF" = rownames(lmFitSummFilter),
+                                              "Gene" = targetGene,
+                                              "Weight" = lmFitSummFilter$Weight,
+                                              "Regulation" = lmFitSummFilter$Regulation,
+                                              "Cluster" = paste0("Cluster", j))
+      
+      TRNClusterFilter <- rbind(TRNClusterFilter, singleGeneTRNFilter)
+      selectedTFs <- c(selectedTFs, rownames(lmFitSummFilter))
+      
+      eveluateR2 <- rbind(eveluateR2,
+                          data.frame(Gene = targetGene,
+                                     Cluster = paste0("Cluster", j),
+                                     L0_Rsquare = evaluateResultL0[[1]]))
+      
     }
   }
   TRNClusterFilterAll <- rbind(TRNClusterFilterAll, TRNClusterFilter)

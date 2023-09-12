@@ -34,8 +34,6 @@ package.check <- function(packages) {
         library(rvest)
         CRANpackages <- available.packages() %>%
           as.data.frame() %>%
-          # mutate(source = "CRAN") %>%
-          # select(Package) %>%
           .[, 1]
         url <- "https://www.bioconductor.org/packages/release/bioc/"
         biocPackages <- url %>%
@@ -43,8 +41,6 @@ package.check <- function(packages) {
           html_table() %>%
           .[[1]]  %>%
           as.data.frame() %>%
-          # mutate(source = "BioConductor")  %>%
-          # select(Package) %>% 
           .[, 1]
         
         tryCatch({
@@ -209,24 +205,26 @@ format.regulation <- function(inputData,
     stop("Please set 'regulation' as 1 / 'positive', or '-1' / 'negative'......")
   }
   TFs <- c()
-  typeInter <- c()
-  targetGeneInter <- c()
-  sampleLevel <- c()
+  type <- c()
+  targetGene <- c()
+  sample <- c()
   if (length(inputData)) {
     i <- 1
     while (i <= length(inputData)) {
       j <- 1
       while (j <= length(inputData[[i]])) {
         TFs <- c(TFs, inputData[[i]][j])
-        typeInter <- c(typeInter, regulation)
-        sampleLevel <- c(sampleLevel, names(inputData)[i])
-        targetGeneInter <- c(targetGeneInter, targetGene)
+        type <- c(type, regulation)
+        sample <- c(sample, names(inputData)[i])
+        targetGene <- c(targetGene, targetGene)
         j <- j + 1
       }
       i <- i + 1
     }
-    formatResult <- cbind.data.frame(TFs, typeInter, targetGeneInter, sampleLevel)
-    colnames(formatResult) <- c("TF", "Gene", "Sample", "Type")
+    formatResult <- cbind.data.frame(TF = TFs,
+                                     Type = type,
+                                     Gene = targetGene,
+                                     Sample = sample)
     return(formatResult)
   } else {
     print("NULL list")

@@ -14,9 +14,8 @@ foldChange <- 1
 padjThreshold <- 0.05
 
 VolcanoPlotList <- list()
-
-for (j in 1:length(table(samplesCluster[, 2]))) {
-  message(paste0("Cluster ", j, " DESeq2 start......"))
+for (j in 1:4) {
+  message("Cluster ", j, " DESeq2 start......")
   check.dir(paste0(pathSave, "/DESeq2/cluster", j))
 
   samples <- samplesCluster[which(samplesCluster$V2 == j), 1]
@@ -24,52 +23,32 @@ for (j in 1:length(table(samplesCluster[, 2]))) {
   gtexCluster <- gtex_luad[Genes249, ] %>% na.omit()
   
   tcga_gtex <- cbind(tcgaCluster, gtexCluster)
-  group1Nums <- dim(tcgaCluster)[2]
-  group2Nums <- dim(gtexCluster)[2]
-  group1 <- rep(c("C1"), each = group1Nums)
-  group2 <- rep(c("C2"), each = group2Nums)
+  group1 <- rep(c("C1"), each = ncol(tcgaCluster))
+  group2 <- rep(c("C2"), each = ncol(gtexCluster))
   group <- c(group1, group2)
   
   groupFile <- data.frame(groupInfo = group)
-  row.names(groupFile) <- colnames(tcga_gtex)
-  dds <- DESeqDataSetFromMatrix(countData = round(as.matrix(tcga_gtex), 0),
+  rownames(groupFile) <- colnames(tcga_gtex)
+  dds <- DESeq2::DESeqDataSetFromMatrix(countData = round(as.matrix(tcga_gtex), 0),
                                 colData = groupFile,
                                 design = ~groupInfo)
-  dds <- DESeq(dds)
-  res <- results(dds, contrast = c("groupInfo", "C1", "C2"))
+  dds <- DESeq2::DESeq(dds)
+  res <- DESeq2::results(dds, contrast = c("groupInfo", "C1", "C2"))
   
   diffDenes <- subset(res, padj < padjThreshold & abs(log2FoldChange) > foldChange)
-  # write.csv(diffDenes, file = "DESeq2_sig.csv")
   
   DESeq2Res <- as.data.frame(res[order(res$padj), ])
   DESeq2Res$gene <- rownames(DESeq2Res)
   DESeq2Res <- DESeq2Res[Genes249, c(7, 1:6)]
   
-  for (i in 1:nrow(DESeq2Res)) {
-    if (DESeq2Res[i, "padj"] > padjThreshold) {
-      DESeq2Res[i, "reg"] <- "not DE"
-    }
-    if (DESeq2Res[i, "log2FoldChange"] < 0) {
-      DESeq2Res[i, "reg"] <- "not DE"
-    }
-    if (DESeq2Res[i, "log2FoldChange"] >= 0) {
-      DESeq2Res[i, "reg"] <- "not DE"
-    }
-    if (DESeq2Res[i, "log2FoldChange"] >= 0.5 & DESeq2Res[i, "padj"] <= padjThreshold) {
-      DESeq2Res[i, "reg"] <- "min-up-regulated"
-    }
-    # else{ DESeq2Res[i,'reg'] <- 'not DE'}
-    if (DESeq2Res[i, "log2FoldChange"] <= -0.5 & DESeq2Res[i, "padj"] <= padjThreshold) {
-      DESeq2Res[i, "reg"] <- "min-down-regulated"
-    }
-    if (DESeq2Res[i, "log2FoldChange"] >= foldChange & DESeq2Res[i, "padj"] <= padjThreshold) {
-      DESeq2Res[i, "reg"] <- "up-regulated"
-    }
-    # else{ DESeq2Res[i,'reg'] <- 'not DE'}
-    if (DESeq2Res[i, "log2FoldChange"] <= -foldChange & DESeq2Res[i, "padj"] <= padjThreshold) {
-      DESeq2Res[i, "reg"] <- "down-regulated"
-    }
-  }
+  DESeq2Res$reg <- "not DE"
+  DESeq2Res$reg[which(DESeq2Res$log2FoldChange >= 0.5)] <- "min-up-regulated"
+  DESeq2Res$reg[which(DESeq2Res$log2FoldChange <= -0.5)] <- "min-down-regulated"
+  DESeq2Res$reg[which(DESeq2Res$log2FoldChange >= foldChange & DESeq2Res$padj <= padjThreshold)] <- "up-regulated"
+  DESeq2Res$reg[which(DESeq2Res$log2FoldChange <= -foldChange & DESeq2Res$padj <= padjThreshold)] <- "down-regulated"
+  write.csv(DESeq2Res,
+            file = paste0(pathSave, "DESeq2_results_cluster", j, ".csv"),
+            row.names = FALSE)
   
   dataPlot <- as.data.frame(res)
   dataPlot$change <- ifelse(dataPlot$pvalue < padjThreshold & abs(dataPlot$log2FoldChange) >= foldChange,
@@ -99,31 +78,10 @@ for (j in 1:length(table(samplesCluster[, 2]))) {
                     point.padding = unit(0.8, "lines"),
                     segment.color = "black",
                     show.legend = FALSE)
-  # ggsave(paste0(pathSave, "/DESeq2/cluster", j, "/DESeq2_volcano.png"),
-  #   DESeq2_volcano,
-  #   width = 6,
-  #   height = 3.5
-  # )
   
   VolcanoPlotList[[j]] <- DESeq2_volcano
   
-  new_DESeq2 <- data.frame(
-    geneID = dataPlot$gene,
-    log2FC = dataPlot$log2FoldChange,
-    p_val = dataPlot$pvalue,
-    p_val_adj = dataPlot$padj,
-    cluster = j
-  )
-  
-  new_DESeq2$label <- ifelse(new_DESeq2$p_val_adj < 0.01, "adjust P-val<0.01", "adjust P-val>=0.01")
-  # write.table(new_DESeq2,
-  #   paste0(pathSave, "/DESeq2/cluster", j, "/DESeq2Res_sort.csv"),
-  #   row.names = FALSE,
-  #   sep = ",",
-  #   quote = FALSE
-  # )
-  
-  message(paste0("Cluster ", j, " DESeq2 done......"))
+  message("Cluster ", j, " DESeq2 done......")
 }
 
 VolcanoPlotList <- VolcanoPlotList[[1]] +
@@ -133,8 +91,10 @@ VolcanoPlotList <- VolcanoPlotList[[1]] +
   plot_layout(ncol = 2) +
   plot_annotation(tag_levels = "a") +
   plot_layout(guides = "collect") &
-  theme(legend.position = "bottom") +
-  theme(text = element_text(size = 13))
+  theme(legend.position = "bottom")
 VolcanoPlotList
 
-ggsave(paste0(pathSave, "Figure/Figure 3.pdf"), VolcanoPlotList, width = 8, height = 8, dpi = 600)
+ggsave(paste0(check.dir(paste0(pathSave, "Figures")), "/Figure 3.pdf"),
+       VolcanoPlotList,
+       width = 8,
+       height = 8)

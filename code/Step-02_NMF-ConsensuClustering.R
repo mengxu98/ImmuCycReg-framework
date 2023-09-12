@@ -18,7 +18,7 @@ dataNMF <- dataNMF[rev(order(mads)), ]
 dataset <- dataNMF[1:genesNums, ]
 
 maxClusterNums <- 6
-title <- paste0(pathSave, "NMF/")
+title <- check.dir(paste0(pathSave, "NMF/"))
 results <- ConsensusClusterPlus(dataset,
                                 maxK = maxClusterNums,
                                 reps = 50,
@@ -57,14 +57,15 @@ for (i in Kvec) {
 
 # The optimal K
 optK <- Kvec[which.min(PAC)]
-optK
 
 table(results[[4]]$consensusClass)
 
 Cluster <- results[[4]]$consensusClass %>% as.data.frame()
 Cluster$sample <- rownames(Cluster)
 
-survival.data(cancerType = "luad_tcga", genes = "IL2", pathWay = pathSave)
+survival.data(cancerType = "luad_tcga",
+              genes = "IL2",
+              pathWay = pathSave)
 load(paste0(pathSave, "survival_input.Rdata"))
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
 samples <- intersect(rownames(Cluster), rownames(clinicalData))
