@@ -8,21 +8,20 @@ library(magrittr)
 package.check <- function(packages) {
   for (i in 1:length(packages)) {
     package <- packages[i]
-    message("Checking: '", package, "' in R environment......")
+    message(crayon::cyan("Checking: '", package, "' in R environment......"))
     if (grepl("/", package)) {
       if (!requireNamespace(strsplit(package, "/")[[1]][2], quietly = TRUE)) {
         if (!requireNamespace("devtools")) install.packages("devtools")
-        message("Now install package: '", package, "' from Github......")
+        message(crayon::cyan("Now install package: '", package, "' from Github......"))
         tryCatch({
           devtools::install_github(package)
         }, error = function(e) {
-          message("Unsuccessful installation package: '", package, "'......")
+          message(crayon::red("Unsuccessful install package: '", package, "'......"))
         })
         
         insRes <- try(library(strsplit(package, "/")[[1]][2], character.only = TRUE))
-        
         if (class(insRes) == "try-error") {
-          message("Unsuccessful install package: '", package, "'......")
+          message(crayon::red("Unsuccessful install package: '", package, "'......"))
           next
         }
       }
@@ -45,20 +44,20 @@ package.check <- function(packages) {
         
         tryCatch({
           if (package %in% CRANpackages) {
-            message("Now install package: '", package, "' from CRAN......")
+            message(crayon::cyan("Now install package: '", package, "' from CRAN......"))
             install.packages(package)
           } else if (package %in% biocPackages) {
-            message("Now install package: '", package, "' from BioConductor......")
+            message(crayon::cyan("Now install package: '", package, "' from BioConductor......"))
             BiocManager::install(package)
           }
         }, error = function(e) {
-          message("Unsuccessful installation package: '", package, "'......")
+          message(crayon::red("Unsuccessful install package: '", package, "'......"))
         })
 
         insRes <- try(library(package, character.only = TRUE))
         
         if (class(insRes) == "try-error") {
-          message("Unsuccessful install package: '", package, "'......")
+          message(crayon::red("Unsuccessful install package: '", package, "'......"))
           next
         }
 
@@ -84,7 +83,7 @@ fpkm.to.tpm <- function(fpkmData) {
 
 #' Check dir exist
 #'
-#' @param dirPath 
+#' @param dirPath
 #'
 #' @return
 #' @export
@@ -92,9 +91,9 @@ fpkm.to.tpm <- function(fpkmData) {
 check.dir <- function(dirPath,
                       verbose = FALSE) {
   if (dir.exists(dirPath)) {
-    if (verbose) message("'", dirPath, "'", " existed......")
+    if (verbose) message(crayon::cyan("'", dirPath, "'", " existed......"))
   } else {
-    if (verbose) message("'", dirPath, "' not exist, creat it......")
+    if (verbose) message(crayon::cyan("'", dirPath, "' not exist, creat it......"))
     dir.create(dirPath, recursive = TRUE)
   }
   return(dirPath)
