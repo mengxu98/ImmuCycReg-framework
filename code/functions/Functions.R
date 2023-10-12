@@ -68,8 +68,12 @@ package.check <- function(packages) {
   }
 }
 
-packages <- read.table("requirements.txt")
-package.check(packages[, 1])
+if (Sys.info()[1] == "Linux") {
+  system("sh /functions/requirements.sh")
+} else {
+  packages <- read.table("requirements.txt")
+  package.check(packages[, 1])
+}
 
 # Transformation of COUNT, TPM, FPKM
 Rcpp::sourceCpp("functions/DataFormatConversion.cpp")
