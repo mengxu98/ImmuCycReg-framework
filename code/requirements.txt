@@ -50,6 +50,7 @@ RColorBrewer
 reshape
 reshape2
 rmarkdown
+rngtools
 rtracklayer
 Rtsne
 survival
