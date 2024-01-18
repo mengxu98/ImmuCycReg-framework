@@ -6,64 +6,14 @@ library(magrittr)
 #' @param packages Packages list
 #'
 package.check <- function(packages) {
-  for (i in 1:length(packages)) {
-    package <- packages[i]
-    message(crayon::cyan("Checking: '", package, "' in R environment......"))
-    if (grepl("/", package)) {
-      if (!requireNamespace(strsplit(package, "/")[[1]][2], quietly = TRUE)) {
-        if (!requireNamespace("devtools")) install.packages("devtools")
-        message(crayon::cyan("Now install package: '", package, "' from Github......"))
-        tryCatch({
-          devtools::install_github(package)
-        }, error = function(e) {
-          message(crayon::red("Unsuccessful install package: '", package, "'......"))
-        })
-        
-        insRes <- try(library(strsplit(package, "/")[[1]][2], character.only = TRUE))
-        if (class(insRes) == "try-error") {
-          message(crayon::red("Unsuccessful install package: '", package, "'......"))
-          next
-        }
+  for (package in packages) {
+    if (!requireNamespace(package, quietly = TRUE)) {
+      if (!requireNamespace("pak", quietly = TRUE)) {
+        install.packages("pak")
       }
+      pak::pak(package)
     } else {
-      if (!requireNamespace(package)) {
-        if (!requireNamespace("dplyr")) install.packages("dplyr")
-        library(dplyr)
-        if (!requireNamespace("rvest")) install.packages("rvest")
-        library(rvest)
-        CRANpackages <- available.packages() %>%
-          as.data.frame() %>%
-          .[, 1]
-        url <- "https://www.bioconductor.org/packages/release/bioc/"
-        biocPackages <- url %>%
-          read_html() %>%
-          html_table() %>%
-          .[[1]]  %>%
-          as.data.frame() %>%
-          .[, 1]
-        
-        tryCatch({
-          if (package %in% CRANpackages) {
-            message(crayon::cyan("Now install package: '", package, "' from CRAN......"))
-            install.packages(package)
-          } else if (package %in% biocPackages) {
-            message(crayon::cyan("Now install package: '", package, "' from BioConductor......"))
-            BiocManager::install(package)
-          }
-        }, error = function(e) {
-          message(crayon::red("Unsuccessful install package: '", package, "'......"))
-        })
-
-        insRes <- try(library(package, character.only = TRUE))
-        
-        if (class(insRes) == "try-error") {
-          message(crayon::red("Unsuccessful install package: '", package, "'......"))
-          next
-        }
-
-      }  else {
-        library(package, character.only = TRUE)
-      }
+      library(package, character.only = TRUE)
     }
   }
 }
