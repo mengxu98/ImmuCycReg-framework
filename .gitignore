@@ -12,3 +12,4 @@ data/hg38.ncbiRefSeq.gtf.gz
 *.iml
 data/.DS_Store
 .DS_Store
+results/
