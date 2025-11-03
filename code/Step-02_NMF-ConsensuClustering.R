@@ -1,9 +1,9 @@
 rm(list = ls())
 
-source("functions/Functions.R")
+source("code/functions/Functions.R")
 
-pathRead <- "../data/"
-pathSave <- "../../Results/"
+pathRead <- "data/"
+pathSave <- "results/"
 
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
 genes2230 <- read.csv(paste0(pathRead, "genes2230.csv"))
@@ -18,28 +18,28 @@ dataNMF <- dataNMF[rev(order(mads)), ]
 dataset <- dataNMF[1:genesNums, ]
 
 maxClusterNums <- 6
-title <- check.dir(paste0(pathSave, "NMF/"))
+title <- check_dir(paste0(pathSave, "NMF/"))
 results <- ConsensusClusterPlus(dataset,
-                                maxK = maxClusterNums,
-                                reps = 50,
-                                pItem = 0.8,
-                                pFeature = 0.8,
-                                clusterAlg = "pam",
-                                distance = "euclidean",
-                                seed = seed,
-                                title = title,
-                                corUse = "complete.obs",
-                                plot = "pdf"
+  maxK = maxClusterNums,
+  reps = 50,
+  pItem = 0.8,
+  pFeature = 0.8,
+  clusterAlg = "pam",
+  distance = "euclidean",
+  seed = seed,
+  title = title,
+  corUse = "complete.obs",
+  plot = "pdf"
 )
 icl <- calcICL(results, title = title, plot = "pdf")
 icl[["itemConsensus"]][1:6, ]
 
 for (i in 2:maxClusterNums) {
   write.table(results[[i]][["consensusClass"]],
-              file = paste0(title, "sample_cluster_", i, ".csv"),
-              na = "",
-              col.names = FALSE,
-              sep = ","
+    file = paste0(title, "sample_cluster_", i, ".csv"),
+    na = "",
+    col.names = FALSE,
+    sep = ","
   )
 }
 
@@ -63,25 +63,29 @@ table(results[[4]]$consensusClass)
 Cluster <- results[[4]]$consensusClass %>% as.data.frame()
 Cluster$sample <- rownames(Cluster)
 
-survival.data(cancerType = "luad_tcga",
-              genes = "IL2",
-              pathWay = pathSave)
+survival_data(
+  cancerType = "luad_tcga",
+  genes = "IL2",
+  pathWay = pathSave
+)
 load(paste0(pathSave, "survival_input.Rdata"))
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
 samples <- intersect(rownames(Cluster), rownames(clinicalData))
 Cluster <- Cluster[samples, ] %>% as.data.frame()
 clinicalData <- clinicalData[samples, ]
 identical(rownames(Cluster), rownames(clinicalData))
-chooseColumns <- c("AJCC_METASTASIS_PATHOLOGIC_PM",
-                   "AJCC_NODES_PATHOLOGIC_PN",
-                   "AJCC_PATHOLOGIC_TUMOR_STAGE",
-                   "AJCC_TUMOR_PATHOLOGIC_PT",
-                   "AGE",
-                   "SEX",
-                   "OS_STATUS",
-                   "OS_MONTHS",
-                   "DFS_MONTHS",
-                   "DFS_STATUS")
+chooseColumns <- c(
+  "AJCC_METASTASIS_PATHOLOGIC_PM",
+  "AJCC_NODES_PATHOLOGIC_PN",
+  "AJCC_PATHOLOGIC_TUMOR_STAGE",
+  "AJCC_TUMOR_PATHOLOGIC_PT",
+  "AGE",
+  "SEX",
+  "OS_STATUS",
+  "OS_MONTHS",
+  "DFS_MONTHS",
+  "DFS_STATUS"
+)
 clinicalData <- clinicalData[, chooseColumns]
 meta <- clinicalData
 meta$OS_STATUS <- gsub("1:DECEASED", "1", meta$OS_STATUS)
@@ -90,10 +94,12 @@ meta$OS_STATUS <- gsub("0:LIVING", "0", meta$OS_STATUS)
 meta$Cluster <- as.character(Cluster$.)
 
 sfit <- survfit(Surv(OS_MONTHS, OS_STATUS == "1") ~ Cluster,
-                data = meta)
+  data = meta
+)
 ggsurvplot(sfit,
-           pval = TRUE,
-           palette = c("#0050ef", "#008a00", "#fa6800", "#ffff88"))
+  pval = TRUE,
+  palette = c("#0050ef", "#008a00", "#fa6800", "#ffff88")
+)
 
 ###
 exp <- dataset %>% as.data.frame()
@@ -110,9 +116,10 @@ colnames(pdat) <- c("Y1", "Y2", "group")
 ggplot(pdat, aes(Y1, Y2)) +
   geom_point(aes(Y1, Y2, fill = group), shape = 21, color = "black") +
   stat_ellipse(aes(color = group, fill = group),
-               geom = "polygon",
-               alpha = 0.3,
-               linetype = 2) +
+    geom = "polygon",
+    alpha = 0.3,
+    linetype = 2
+  ) +
   scale_color_paletteer_d("RColorBrewer::Set3") +
   scale_fill_paletteer_d("RColorBrewer::Set3") +
   theme_bw() +

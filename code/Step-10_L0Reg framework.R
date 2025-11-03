@@ -1,12 +1,12 @@
 rm(list = ls())
-source("functions/Functions.R")
+source("code/functions/Functions.R")
 
-pathRead <- "../data/"
-pathSave <- "../../Results/L0Reg-framework/"
+pathRead <- "data/"
+pathSave <- "../Results/L0Reg-framework/"
 penalty <- "L0"
 
 # Load data
-load("../../Results/TCGA-LUAD-tpm-tcga-t.Rdata")
+load("../Results/TCGA-LUAD-tpm-tcga-t.Rdata")
 tcgaScale <- as.data.frame(scale(tcga_luad))
 
 samplesCluster <- read.csv(paste0(pathRead, "sample_cluster_4.csv"), header = FALSE, row.names = 1)
@@ -16,10 +16,10 @@ TRNClusterFilterAll <- c()
 eveluateR2All <- c()
 for (j in 1:4) {
   message("Running for cluster ", j, " ......")
-  check.dir(paste0(pathSave, "cluster", j))
-  
+  check_dir(paste0(pathSave, "cluster", j))
+
   cluster <- rownames(samplesCluster %>% filter(., .[, 1] == j))
-  
+
   selectedTFs <- c()
   TRNClusterFilter <- c()
   eveluateR2 <- c()
@@ -29,75 +29,91 @@ for (j in 1:4) {
       message("No ", targetGene, " TF file......")
       next
     }
-    
+
     message("Running for cluster: ", j, ", ", "NO.", i, " gene: ", targetGene, "......")
     TFsList <- read.table(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"),
-                          header = T) %>% .[, 1]
-    
+      header = T
+    ) %>% .[, 1]
+
     testDataX <- t(tcgaScale[TFsList, cluster])
     testDataY <- t(tcgaScale[targetGene, cluster])
-    
+
     ModelL0 <- L0Learn::L0Learn.fit(testDataX,
-                                    testDataY,
-                                    penalty = penalty,
-                                    maxSuppSize = ncol(testDataX))
-    
+      testDataY,
+      penalty = penalty,
+      maxSuppSize = ncol(testDataX)
+    )
+
     ModelL0Infor <- as.data.frame(print(ModelL0)) %>%
       .[order(.$suppSize, decreasing = TRUE), ]
     lambdaL0 <- ModelL0Infor$lambda[1]
     gammaL0 <- ModelL0Infor$gamma[1]
-    
+
     dataYPreL0 <- predict(ModelL0,
-                          newx = testDataX,
-                          lambda = lambdaL0,
-                          gamma = gammaL0) %>% as.vector()
-    
+      newx = testDataX,
+      lambda = lambdaL0,
+      gamma = gammaL0
+    ) %>% as.vector()
+
     lmFit <- lm(testDataY ~ ., data = data.frame(testDataX))
     lmFitSumm <- as.data.frame(summary(lmFit)$coefficient)
     if (rownames(lmFitSumm)[1] == "(Intercept)") lmFitSumm <- lmFitSumm[-1, ]
     lmFitSumm$Estimate <- coef(ModelL0,
-                               lambda = lambdaL0,
-                               gamma = gammaL0) %>% as.vector() %>% .[-1]
+      lambda = lambdaL0,
+      gamma = gammaL0
+    ) %>%
+      as.vector() %>%
+      .[-1]
     lmFitSumm$Weight <- abs(lmFitSumm$Estimate)
     lmFitSumm$Weight <- as.numeric(lmFitSumm$Weight / sum(lmFitSumm$Weight))
     lmFitSumm$Regulation <- 1
     lmFitSumm$Regulation[lmFitSumm$Estimate < 0] <- "-1"
-    
+
     lmFitSummFilter <- lmFitSumm[which(lmFitSumm$`Pr(>|t|)` < 0.05), ]
-    
-    evaluateResultL0 <- evaluate.model(testDataY, dataYPreL0)
-    
-    if (evaluateResultL0[[4]] < 0.05 & 
-        evaluateResultL0[[3]] > 0 &
-        nrow(lmFitSummFilter) > 0) {
-      singleGeneTRNFilter <- cbind.data.frame("TF" = rownames(lmFitSummFilter),
-                                              "Gene" = targetGene,
-                                              "Weight" = lmFitSummFilter$Weight,
-                                              "Regulation" = lmFitSummFilter$Regulation,
-                                              "Cluster" = paste0("Cluster", j))
-      
+
+    evaluateResultL0 <- evaluate_model(testDataY, dataYPreL0)
+
+    if (evaluateResultL0[[4]] < 0.05 &
+      evaluateResultL0[[3]] > 0 &
+      nrow(lmFitSummFilter) > 0) {
+      singleGeneTRNFilter <- cbind.data.frame(
+        "TF" = rownames(lmFitSummFilter),
+        "Gene" = targetGene,
+        "Weight" = lmFitSummFilter$Weight,
+        "Regulation" = lmFitSummFilter$Regulation,
+        "Cluster" = paste0("Cluster", j)
+      )
+
       TRNClusterFilter <- rbind(TRNClusterFilter, singleGeneTRNFilter)
       selectedTFs <- c(selectedTFs, rownames(lmFitSummFilter))
-      
-      eveluateR2 <- rbind(eveluateR2,
-                          data.frame(Gene = targetGene,
-                                     Cluster = paste0("Cluster", j),
-                                     L0_Rsquare = evaluateResultL0[[1]]))
-      
+
+      eveluateR2 <- rbind(
+        eveluateR2,
+        data.frame(
+          Gene = targetGene,
+          Cluster = paste0("Cluster", j),
+          L0_Rsquare = evaluateResultL0[[1]]
+        )
+      )
     }
   }
   TRNClusterFilterAll <- rbind(TRNClusterFilterAll, TRNClusterFilter)
   eveluateR2All <- rbind(eveluateR2All, eveluateR2)
-  
-  write.csv(as.data.frame(unique(selectedTFs)),
-            paste0(pathSave, "cluster", j, "/TFs_list.csv"))
-  
+
+  write.csv(
+    as.data.frame(unique(selectedTFs)),
+    paste0(pathSave, "cluster", j, "/TFs_list.csv")
+  )
+
   message("Cluster ", j, " done......")
 }
 
-write.csv(TRNClusterFilterAll,
-          paste0(pathSave, "TRN_cluster_filter_all.csv"))
+write.csv(
+  TRNClusterFilterAll,
+  paste0(pathSave, "TRN_cluster_filter_all.csv")
+)
 
 write.csv(eveluateR2All,
-          paste0(pathSave, "TF_regulatory_value.csv"),
-          row.names = F)
+  paste0(pathSave, "TF_regulatory_value.csv"),
+  row.names = F
+)

@@ -65,16 +65,16 @@ L0REG <- function(expressionMatrix,
   # Check arguments
   # The following arguments should be specified as percentages
   if (!(isPercentage(SVMPredSampleMin) && isPercentage(SVMPredSampleMax) &&
-        isPercentage(SVMExpSampleMax) && isPercentage(SVMExpSampleMin) && isPercentage(SVMRankThreshold) &&
-        isPercentage(L0PredSampleMin) && isPercentage(L0PredSampleMax) &&
-        isPercentage(L0ExpSampleMin) && isPercentage(L0ExpSampleMax) && isPercentage(L0RankThreshold))) {
+    isPercentage(SVMExpSampleMax) && isPercentage(SVMExpSampleMin) && isPercentage(SVMRankThreshold) &&
+    isPercentage(L0PredSampleMin) && isPercentage(L0PredSampleMax) &&
+    isPercentage(L0ExpSampleMin) && isPercentage(L0ExpSampleMax) && isPercentage(L0RankThreshold))) {
     stop("Sample sizes and rank thresholds should be specified as percentages.")
   }
   # Ensemble size should be positive and non zero
   if (!(isWholeNumber(L0EnsembleSize) && isWholeNumber(SVMEnsembleSize) && L0EnsembleSize > 0 && SVMEnsembleSize > 0)) {
     stop("Ensemble sizes should be specified as non-zero integers.")
   }
-  
+
   # Set the predictorIndices to all if they are not set
   if (is.null(predictorIndices)) {
     predictorIndices <- getIndicesOfGenesInMatrix(expressionMatrix)
@@ -83,82 +83,85 @@ L0REG <- function(expressionMatrix,
   if (is.null(targetIndices)) {
     targetIndices <- getIndicesOfGenesInMatrix(expressionMatrix)
   }
-  
+
   # Convert the percentages to the numbers
   lenPredictors <- dim(expressionMatrix)[2]
   lenSamples <- dim(expressionMatrix)[1]
-  
+
   SVMPredSampleMin <- round((SVMPredSampleMin * lenPredictors) / 100)
   SVMPredSampleMax <- round((SVMPredSampleMax * lenPredictors) / 100)
   SVMExpSampleMin <- round((SVMExpSampleMin * lenSamples) / 100)
   SVMExpSampleMax <- round((SVMExpSampleMax * lenSamples) / 100)
   SVMRankThreshold <- round((SVMRankThreshold * lenPredictors) / 100)
-  
+
   L0PredSampleMin <- round((L0PredSampleMin * lenPredictors) / 100)
   L0PredSampleMax <- round((L0PredSampleMax * lenPredictors) / 100)
   L0ExpSampleMin <- round((L0ExpSampleMin * lenSamples) / 100)
   L0ExpSampleMax <- round((L0ExpSampleMax * lenSamples) / 100)
   L0RankThreshold <- round((L0RankThreshold * lenPredictors) / 100)
-  
+
   # Call the algorithms
   L0Result <- NULL
   svmResult <- NULL
-  
+
   # Preallocate the return matrix
   resultMatrix <- matrix(0.0, length(predictorIndices), length(targetIndices))
   rownames(resultMatrix) <- colnames(expressionMatrix)[predictorIndices]
   colnames(resultMatrix) <- colnames(expressionMatrix)[targetIndices]
   resultMatrix <- sortMatrix(resultMatrix)
-  
+
   if (SVM) {
     message("Starting E-SVM network inference......")
     svmResult <- SVMVariableEnsembleSolve(expressionMatrix,
-                                          predictorIndices,
-                                          targetIndices,
-                                          trace = SVMTrace,
-                                          ensembleSize = SVMEnsembleSize,
-                                          rankThreshold = SVMRankThreshold,
-                                          predictorSampleSizeMin = SVMPredSampleMin,
-                                          predictorSampleSizeMax = SVMPredSampleMax,
-                                          minSampleSize = SVMExpSampleMin,
-                                          maxSampleSize = SVMExpSampleMax,
-                                          ...)
+      predictorIndices,
+      targetIndices,
+      trace = SVMTrace,
+      ensembleSize = SVMEnsembleSize,
+      rankThreshold = SVMRankThreshold,
+      predictorSampleSizeMin = SVMPredSampleMin,
+      predictorSampleSizeMax = SVMPredSampleMax,
+      minSampleSize = SVMExpSampleMin,
+      maxSampleSize = SVMExpSampleMax,
+      ...
+    )
     svmResult <- convertAdjMatrixToSortedRankTSV(inputFile = svmResult)
     svmResult[, 3] <- 1:(dim(svmResult)[1])
     svmResult <- convertSortedRankTSVToAdjMatrix(input = svmResult)
     svmResult <- sortMatrix(svmResult)
     resultMatrix <- resultMatrix + svmResult
   }
-  
+
   if (L0) {
     message("Starting L0 inference......")
     L0Result <- L0VariableEnsembleSolve(expressionMatrix,
-                                        predictorIndices,
-                                        targetIndices,
-                                        trace = L0Trace,
-                                        ensembleSize = L0EnsembleSize,
-                                        rankThreshold = L0RankThreshold,
-                                        predictorSampleSizeMin = L0PredSampleMin,
-                                        predictorSampleSizeMax = L0PredSampleMax,
-                                        minSampleSize = L0ExpSampleMin,
-                                        maxSampleSize = L0ExpSampleMax, ...)
+      predictorIndices,
+      targetIndices,
+      trace = L0Trace,
+      ensembleSize = L0EnsembleSize,
+      rankThreshold = L0RankThreshold,
+      predictorSampleSizeMin = L0PredSampleMin,
+      predictorSampleSizeMax = L0PredSampleMax,
+      minSampleSize = L0ExpSampleMin,
+      maxSampleSize = L0ExpSampleMax, ...
+    )
     L0Result <- convertAdjMatrixToSortedRankTSV(inputFile = L0Result)
     L0Result[, 3] <- 1:(dim(L0Result)[1])
     L0Result <- convertSortedRankTSVToAdjMatrix(input = L0Result)
     L0Result <- sortMatrix(L0Result)
     resultMatrix <- resultMatrix + L0Result
   }
-  
+
   resultMatrix <- convertAdjMatrixToSortedRankTSV(inputFile = resultMatrix, desc = FALSE)
-  
+
   if (is.null(outputFileName)) {
     return(resultMatrix)
   } else {
     write.table(resultMatrix,
-                outputFileName,
-                row.names = FALSE,
-                col.names = FALSE,
-                sep = "\t",
-                quote = FALSE)
+      outputFileName,
+      row.names = FALSE,
+      col.names = FALSE,
+      sep = "\t",
+      quote = FALSE
+    )
   }
 }

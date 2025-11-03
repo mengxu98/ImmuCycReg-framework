@@ -1,8 +1,8 @@
 rm(list = ls())
-source("functions/Functions.R")
+source("code/functions/Functions.R")
 
-pathRead <- "../data/"
-pathSave <- "../../Results/"
+pathRead <- "data/"
+pathSave <- "results/"
 
 stringData <- read.table(paste0(pathRead, "Databases/STRING_9606.protein.v11.5.txt.gz"))
 
@@ -10,9 +10,10 @@ databases <- c("ASPAR", "ENCODE", "CHEA", "MotifMap", "TRANSFAC_Curated", "TRANS
 databasesList <- list()
 for (database in databases) {
   databasesList[[database]] <- read.table(paste0(pathRead, "Databases/", database, ".txt.gz"),
-                                          header = TRUE,
-                                          sep = "\t",
-                                          check.names = FALSE)
+    header = TRUE,
+    sep = "\t",
+    check.names = FALSE
+  )
 }
 
 load(paste0(pathSave, "TCGA-LUAD.Rdata"))
@@ -24,16 +25,20 @@ load(paste0(pathSave, "geneinfo_df.Rdata"))
 
 candidatePeaks <- read.csv(paste0(pathSave, "all_peaks.csv"))
 negativeGenes <- read.table(paste0(pathRead, "Genes_immune_cycle.txt"),
-                            header = TRUE,
-                            sep = "\t") %>% filter(., Direction == "negative") %>% .[, 1]
+  header = TRUE,
+  sep = "\t"
+) %>%
+  filter(., Direction == "negative") %>%
+  .[, 1]
 targetGenesList <- read.table(paste0(pathRead, "Genes_17.txt"),
-                              header = TRUE) %>% .[, 1]
+  header = TRUE
+) %>% .[, 1]
 
 cnvTest <- FALSE
 
-check.dir(paste0(pathSave, "Regulatory_table"))
-check.dir(paste0(pathSave, "TFs_list_selected"))
-check.dir(paste0(pathSave, "T-test"))
+check_dir(paste0(pathSave, "Regulatory_table"))
+check_dir(paste0(pathSave, "TFs_list_selected"))
+check_dir(paste0(pathSave, "T-test"))
 
 formatResult_all <- c()
 tTestResInforAll <- c()
@@ -44,16 +49,20 @@ genesSamplesStatistic <- c()
 for (k in seq_along(targetGenesList)) {
   targetGene <- targetGenesList[k]
   message("Running for gene: ", targetGene, " ......")
-  candidatePeakID <- candidatePeaks %>% filter(., gene == targetGene) %>% .[, "peak"]
-  
+  candidatePeakID <- candidatePeaks %>%
+    filter(., gene == targetGene) %>%
+    .[, "peak"]
+
   TFsList <- read.table(paste0(pathRead, "TFs/", targetGene, "_TFs_list.txt"),
-                        header = T) %>% .[, 1]
+    header = T
+  ) %>% .[, 1]
   sampleList <- read.table(paste0(pathRead, "peak_luad_sample.csv"),
-                            header = T) %>% .[, 1]
-  
+    header = T
+  ) %>% .[, 1]
+
   gtex_temp <- gtex_luad[TFsList, ]
   tcga_temp <- tcga_luad[TFsList, sampleList]
-  
+
   highExpSamples <- c()
   downExpSamples <- c()
   geneSampleStatistic <- c()
@@ -61,106 +70,125 @@ for (k in seq_along(targetGenesList)) {
     targetSample <- sampleList[sample_i]
     tRes <- t.test(gtex_luad[targetGene, ], mu = tcga_luad[targetGene, targetSample])
     if (tRes$statistic < 0 & tRes$p.value < 0.001) {
-      message("The expression of ", targetGene, " in sample: '", targetSample,
-              "' is higher expression than GTEx samples......")
+      message(
+        "The expression of ", targetGene, " in sample: '", targetSample,
+        "' is higher expression than GTEx samples......"
+      )
       highExpSamples <- c(highExpSamples, targetSample)
     }
-    
+
     if (tRes$statistic > 0 & tRes$p.value < 0.001) {
-      message("The expression of ", targetGene, " in sample: '", targetSample,
-              "' is lower expression than GTEx samples......")
+      message(
+        "The expression of ", targetGene, " in sample: '", targetSample,
+        "' is lower expression than GTEx samples......"
+      )
       downExpSamples <- c(downExpSamples, targetSample)
     }
-    
-    geneSampleStatistic <- rbind(geneSampleStatistic,
-                                 data.frame(Gene = targetGene,
-                                            Sample = targetSample,
-                                            `T` = tRes$statistic,
-                                            `P-value` = tRes$p.value))
+
+    geneSampleStatistic <- rbind(
+      geneSampleStatistic,
+      data.frame(
+        Gene = targetGene,
+        Sample = targetSample,
+        `T` = tRes$statistic,
+        `P-value` = tRes$p.value
+      )
+    )
   }
-  genesSamplesStatistic <- rbind(genesSamplesStatistic,
-                                 geneSampleStatistic)
+  genesSamplesStatistic <- rbind(
+    genesSamplesStatistic,
+    geneSampleStatistic
+  )
 
   if (targetGene %in% negativeGenes) {
     if (length(highExpSamples) <= 0) next
-    
+
     tTestResInfor <- c()
     numRegSamples <- c()
-    
-    # Positive regulation: 
+
+    # Positive regulation:
     #   TF CNV amplified -> Peak score high + TF mRNA high -> target gene high expression
     resultsTFsUp <- list()
     resultsRPsdown <- list()
-    
+
     for (sample_i in seq_along(highExpSamples)) {
       targetSample <- highExpSamples[sample_i]
-      
+
       # Condition 1: PEAK SCORE IN QUANTILE
       upThres <- quantile(peak_luad[, targetSample])[3]
-      
+
       # Condition 2: TF MRNA UP
       upRegTFs <- c()
       downRegTFs <- c()
       tTestResSamples <- c()
-      
+
       peakValue <- peak_luad[candidatePeakID, targetSample]
       message(peakValue, " <------> ", upThres)
       if (peakValue > upThres) {
         for (i in seq_along(TFsList)) {
           tRes_temp <- t.test(gtex_temp[TFsList[i], ],
-                              mu = tcga_temp[TFsList[i], targetSample])
-          
+            mu = tcga_temp[TFsList[i], targetSample]
+          )
+
           if (tRes_temp$statistic < 0 & tRes_temp$p.value < 0.001) {
             upRegTFs <- c(upRegTFs, TFsList[i])
           }
           if (tRes_temp$statistic > 0 & tRes_temp$p.value < 0.001) {
             downRegTFs <- c(downRegTFs, TFsList[i])
           }
-          
+
           if (tRes_temp$p.value < 0.001 & targetGene %in% stringData[, 2]) {
-            score <- stringData %>% filter(., .[, 2] == targetGene & .[, 1] == TFsList[i]) %>% .[, 3]
+            score <- stringData %>%
+              filter(., .[, 2] == targetGene & .[, 1] == TFsList[i]) %>%
+              .[, 3]
             if (is_empty(score)) score <- 0
           } else {
             score <- 0
           }
-          
-          tTestResSamples <- rbind(tTestResSamples,
-                                   data.frame(TF = rownames(tcga_temp[TFsList[i], ]),
-                                              Gene = targetGene,
-                                              Sample = targetSample,
-                                              `T-statistic` = tRes_temp$statistic,
-                                              `P-value` = tRes_temp$p.value,
-                                              Score = score))
-          
+
+          tTestResSamples <- rbind(
+            tTestResSamples,
+            data.frame(
+              TF = rownames(tcga_temp[TFsList[i], ]),
+              Gene = targetGene,
+              Sample = targetSample,
+              `T-statistic` = tRes_temp$statistic,
+              `P-value` = tRes_temp$p.value,
+              Score = score
+            )
+          )
         }
-        
       }
-      
+
       if (cnvTest) {
         upRegTFs <- upRegTFs[which(tcga_cnv[upRegTFs, targetSample] != 0)]
         downRegTFs <- downRegTFs[which(tcga_cnv[downRegTFs, targetSample] != 0)]
       }
-      
+
       resultsTFsUp[[targetSample]] <- upRegTFs
       resultsRPsdown[[targetSample]] <- downRegTFs
-      
+
       if (length(tTestResSamples) != 0) tTestResInfor <- rbind(tTestResInfor, tTestResSamples)
-      
+
       num_high <- length(resultsTFsUp[[targetSample]]) + length(resultsRPsdown[[targetSample]])
-      numRegSamples <- rbind(numRegSamples,
-                             data.frame("Gene" = targetGene,
-                                        "Sample" = targetSample,
-                                        "Number" = num_high))
+      numRegSamples <- rbind(
+        numRegSamples,
+        data.frame(
+          "Gene" = targetGene,
+          "Sample" = targetSample,
+          "Number" = num_high
+        )
+      )
     }
-    
-    resultsRegulatoryFrame <- rbind(format.regulation(resultsTFsUp, targetGene, 1),
-                                    format.regulation(resultsRPsdown, targetGene, "-1"))
-    
+
+    resultsRegulatoryFrame <- rbind(
+      format_regulation(resultsTFsUp, targetGene, 1),
+      format_regulation(resultsRPsdown, targetGene, "-1")
+    )
   } else {
-    
     tTestResInfor <- c()
     numRegSamples <- c()
-    
+
     # Negative regulatory: RP CNV amplified -> peak score high + RP mRNA high -> target gene low expression
     resultsTFdown <- list()
     resultsRPup <- list()
@@ -170,7 +198,7 @@ for (k in seq_along(targetGenesList)) {
         upRegTFs <- c()
         downRegTFs <- c()
         tTestResSamples <- c()
-        
+
         # CONDITION 1: PEAK SCORE IN QUANTILE
         upThres <- quantile(peak_luad[, targetSample])[3]
         peakValue <- peak_luad[candidatePeakID, targetSample]
@@ -179,141 +207,176 @@ for (k in seq_along(targetGenesList)) {
         if (peakValue < upThres) {
           for (i in seq_along(TFsList)) {
             tRes_temp <- t.test(gtex_temp[TFsList[i], ],
-                                mu = tcga_temp[TFsList[i], targetSample])
-            
+              mu = tcga_temp[TFsList[i], targetSample]
+            )
+
             if (tRes_temp$statistic < 0 & tRes_temp$p.value < 0.001) {
               upRegTFs <- c(upRegTFs, TFsList[i])
             }
             if (tRes_temp$statistic > 0 & tRes_temp$p.value < 0.001) {
               downRegTFs <- c(downRegTFs, TFsList[i])
             }
-            
+
             if (tRes_temp$p.value < 0.001 & targetGene %in% stringData[, 2]) {
-              score <- stringData %>% filter(., .[, 2] == targetGene & .[, 1] == TFsList[i]) %>% .[, 3]
+              score <- stringData %>%
+                filter(., .[, 2] == targetGene & .[, 1] == TFsList[i]) %>%
+                .[, 3]
               if (is_empty(score)) score <- 0
             } else {
               score <- 0
             }
-            
-            tTestResSamples <- rbind(tTestResSamples,
-                                     data.frame(TF = rownames(tcga_temp[TFsList[i], ]),
-                                                Gene = targetGene,
-                                                Sample = targetSample,
-                                                `T-statistic` = tRes_temp$statistic,
-                                                `P-value` = tRes_temp$p.value,
-                                                Score = score))
-            
+
+            tTestResSamples <- rbind(
+              tTestResSamples,
+              data.frame(
+                TF = rownames(tcga_temp[TFsList[i], ]),
+                Gene = targetGene,
+                Sample = targetSample,
+                `T-statistic` = tRes_temp$statistic,
+                `P-value` = tRes_temp$p.value,
+                Score = score
+              )
+            )
           }
         }
-        
+
         if (cnvTest) {
           upRegTFs <- upRegTFs[which(tcga_cnv[upRegTFs, targetSample] != 0)]
           downRegTFs <- downRegTFs[which(tcga_cnv[downRegTFs, targetSample] != 0)]
         }
-        
+
         resultsRPup[[targetSample]] <- upRegTFs
         resultsTFdown[[targetSample]] <- downRegTFs
-        
+
         if (length(tTestResSamples) > 0) tTestResInfor <- rbind(tTestResInfor, tTestResSamples)
-        
+
         num_down <- length(resultsTFdown[[targetSample]]) + length(resultsRPup[[targetSample]])
-        numRegSamples <- rbind(numRegSamples,
-                               data.frame(Gene = targetGene,
-                                          Sample = targetSample,
-                                          Number = num_down))
+        numRegSamples <- rbind(
+          numRegSamples,
+          data.frame(
+            Gene = targetGene,
+            Sample = targetSample,
+            Number = num_down
+          )
+        )
       }
     }
-    
-    resultsRegulatoryFrame <- rbind(format.regulation(resultsTFdown, targetGene, 1),
-                                    format.regulation(resultsRPup, targetGene, -1))
+
+    resultsRegulatoryFrame <- rbind(
+      format_regulation(resultsTFdown, targetGene, 1),
+      format_regulation(resultsRPup, targetGene, -1)
+    )
   }
-  
+
   #----------------------------------------------------------------------------#
-  
+
   if (ncol(resultsRegulatoryFrame) == 4) {
     freq_threshold <- 0
-    
+
     resultsRegulatoryFreq <- data.frame(table(resultsRegulatoryFrame$TF))
     resultsRegulatoryFreq$Freq <- resultsRegulatoryFreq$Freq / length(downExpSamples) # length(highExpSamples)
     resultsRegulatoryFreq <- resultsRegulatoryFreq[which(resultsRegulatoryFreq$Freq >= freq_threshold), ]
     #
     resultsRegulatoryTable <- data.frame(TF = resultsRegulatoryFreq$Var1)
-    resultsRegulatoryTable <- frame.regulatory.table(resultsRegulatoryTable,
-                                                     targetGene,
-                                                     databasesList)
-    
+    resultsRegulatoryTable <- frame_regulatory_table(
+      resultsRegulatoryTable,
+      targetGene,
+      databasesList
+    )
+
     write.csv(resultsRegulatoryTable,
-              file = paste0(pathSave, "Regulatory_table/", targetGene, "_regulatory_table.csv"))
-    
-    hitTFs <- resultsRegulatoryTable[which(apply(subset(resultsRegulatoryTable,
-                                                        select = names(databasesList)),
-                                                 1,
-                                                 function (x) {
-                                                   sum(as.numeric(x))
-                                                 }) != 0),
-                                     1] %>% as.vector()
-    
+      file = paste0(pathSave, "Regulatory_table/", targetGene, "_regulatory_table.csv")
+    )
+
+    hitTFs <- resultsRegulatoryTable[
+      which(apply(
+        subset(resultsRegulatoryTable,
+          select = names(databasesList)
+        ),
+        1,
+        function(x) {
+          sum(as.numeric(x))
+        }
+      ) != 0),
+      1
+    ] %>% as.vector()
+
     dataset_num <- 0
     for (t in 1:length(hitTFs)) {
       dataset_num <- dataset_num + nrow(resultsRegulatoryFrame[which(resultsRegulatoryFrame$TF == hitTFs[t]), ])
     }
-    
-    edgeNumAll <- rbind(edgeNumAll,
-                        data.frame("Gene" = targetGene,
-                                   "Positive" = table(resultsRegulatoryFrame$Type)[1],
-                                   "Negative" = table(resultsRegulatoryFrame$Type)[2],
-                                   "ImmuCycReg_framework" = nrow(resultsRegulatoryFrame),
-                                   "Database" = dataset_num))
-    
+
+    edgeNumAll <- rbind(
+      edgeNumAll,
+      data.frame(
+        "Gene" = targetGene,
+        "Positive" = table(resultsRegulatoryFrame$Type)[1],
+        "Negative" = table(resultsRegulatoryFrame$Type)[2],
+        "ImmuCycReg_framework" = nrow(resultsRegulatoryFrame),
+        "Database" = dataset_num
+      )
+    )
+
     # Update TFs list for L0
     write.table(hitTFs,
-                paste0(pathSave, "TFs_list_selected/", targetGene, "_TFs_list.txt"),
-                quote = F,
-                row.names = F,
-                col.names = T,
-                sep = "\t")
-    
-    geneTFsNodeNumAll <- rbind(geneTFsNodeNumAll,
-                               data.frame("Gene" = targetGene,
-                                          "ImmuCyc_framework" = nrow(resultsRegulatoryFreq),
-                                          "Database" = length(hitTFs)))
-    
+      paste0(pathSave, "TFs_list_selected/", targetGene, "_TFs_list.txt"),
+      quote = F,
+      row.names = F,
+      col.names = T,
+      sep = "\t"
+    )
+
+    geneTFsNodeNumAll <- rbind(
+      geneTFsNodeNumAll,
+      data.frame(
+        "Gene" = targetGene,
+        "ImmuCyc_framework" = nrow(resultsRegulatoryFreq),
+        "Database" = length(hitTFs)
+      )
+    )
+
     if (length(tTestResInfor) != 0) {
       tTestResInforAll <- rbind(tTestResInforAll, tTestResInfor)
     }
     numRegSamplesAll <- rbind(numRegSamplesAll, numRegSamples)
-    
+
     formatResult <- c()
     for (i in seq_along(hitTFs)) {
-      formatResult <- rbind(formatResult,
-                            resultsRegulatoryFrame[which(resultsRegulatoryFrame$TF == hitTFs[i]), ])
+      formatResult <- rbind(
+        formatResult,
+        resultsRegulatoryFrame[which(resultsRegulatoryFrame$TF == hitTFs[i]), ]
+      )
     }
     formatResult_all <- rbind(formatResult_all, formatResult)
   }
 }
 
 write.csv(genesSamplesStatistic,
-          paste0(pathSave, "ImmuCycRegFramework_Gene-Sample.csv"),
-          row.names = FALSE)
+  paste0(pathSave, "ImmuCycRegFramework_Gene-Sample.csv"),
+  row.names = FALSE
+)
 
 write.csv(tTestResInforAll,
-          paste0(pathSave, "T-test/T-test_results_information.csv"),
-          row.names = FALSE)
+  paste0(pathSave, "T-test/T-test_results_information.csv"),
+  row.names = FALSE
+)
 
 write.csv(edgeNumAll,
-          paste0(pathSave, "Gene_TFs_edge_num.csv"),
-          row.names = FALSE)
+  paste0(pathSave, "Gene_TFs_edge_num.csv"),
+  row.names = FALSE
+)
 
 write.csv(geneTFsNodeNumAll,
-          paste0(pathSave, "Gene_TFs_node_num.csv"),
-          row.names = FALSE)
+  paste0(pathSave, "Gene_TFs_node_num.csv"),
+  row.names = FALSE
+)
 
 # Plot
 netEdgeInfor <- melt(edgeNumAll[, c("Gene", "ImmuCycReg_framework", "Database")], id = "Gene")
-p1 <- bar.plot(netEdgeInfor, barColor = c("white", "gray"))
+p1 <- bar_plot(netEdgeInfor, bar_color = c("white", "gray"))
 
 netRegInfor <- melt(edgeNumAll[, c("Gene", "Negative", "Positive")], id = "Gene")
-p2 <- bar.plot(netRegInfor, barColor = c("#6666ff", "#ff9933"))
+p2 <- bar_plot(netRegInfor, bar_color = c("#6666ff", "#ff9933"))
 
 p3 <- p1 + p2 +
   plot_layout(ncol = 2) +
@@ -322,6 +385,7 @@ p3 <- p1 + p2 +
   theme(legend.position = "bottom")
 
 ggsave(paste0(pathSave, "Figure/Supplementary Figure 4_bc.pdf"),
-       p3,
-       width = 7.5,
-       height = 3)
+  p3,
+  width = 7.5,
+  height = 3
+)
