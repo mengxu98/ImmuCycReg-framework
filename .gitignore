@@ -13,3 +13,4 @@ data/hg38.ncbiRefSeq.gtf.gz
 data/.DS_Store
 .DS_Store
 results/
+*.pyc
