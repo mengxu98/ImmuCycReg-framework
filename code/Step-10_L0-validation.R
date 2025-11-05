@@ -1,8 +1,8 @@
 rm(list = ls())
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
 load("../Results/TCGA-LUAD.Rdata")
 tcgaScale <- scale(tcga_luad)
@@ -17,7 +17,7 @@ resultTrainClusterList <- list()
 resultTestClusterList <- list()
 for (c in 1:length(conditions)) {
   condition <- conditions[c]
-  check_dir(paste0(pathSave, "Vaildation/", condition))
+  check_dir(paste0(path_save, "Vaildation/", condition))
 
   resultTestCluster <- c()
   resultTrainCluster <- c()
@@ -133,7 +133,7 @@ for (c in 1:length(conditions)) {
   }
 
   p1 <- combine_multiple_plot(correctionPlotListTest)
-  ggsave(paste0(pathSave, "Vaildation/", condition, "/Cor_", condition, "_test.pdf"),
+  ggsave(paste0(path_save, "Vaildation/", condition, "/Cor_", condition, "_test.pdf"),
     p1,
     width = 11,
     height = 13,
@@ -141,7 +141,7 @@ for (c in 1:length(conditions)) {
   )
 
   p2 <- combine_multiple_plot(correctionPlotListTrain)
-  ggsave(paste0(pathSave, "Vaildation/", condition, "/Cor_", condition, "_train.pdf"),
+  ggsave(paste0(path_save, "Vaildation/", condition, "/Cor_", condition, "_train.pdf"),
     p2,
     width = 11,
     height = 13,
@@ -161,8 +161,8 @@ for (c in 1:length(conditions)) {
       resultTestClusterFilter <- rbind(resultTestClusterFilter, resultTestCluster[i, ])
     }
   }
-  write.csv(resultTestCluster, paste0(pathSave, "Vaildation/", condition, "/", condition, "_Cor-RMSD.csv"))
-  write.csv(resultTestClusterFilter, paste0(pathSave, "Vaildation/", condition, "/", condition, "_Cor-RMSD_filter.csv"))
+  write.csv(resultTestCluster, paste0(path_save, "Vaildation/", condition, "/", condition, "_Cor-RMSD.csv"))
+  write.csv(resultTestClusterFilter, paste0(path_save, "Vaildation/", condition, "/", condition, "_Cor-RMSD_filter.csv"))
 
   evaluateResult <- data.frame(
     "Condition" = condition,
@@ -180,7 +180,7 @@ for (c in 1:length(conditions)) {
   resultTrainClusterList[[c]] <- resultTrainCluster
   resultTestClusterList[[c]] <- resultTestCluster
 }
-write.csv(evaluateResultAll, paste0(pathSave, "Vaildation/Cor-RMSD.csv"))
+write.csv(evaluateResultAll, paste0(path_save, "Vaildation/Cor-RMSD.csv"))
 
 corPlotDataTrain <- data.frame(
   Gene = resultTrainClusterList[[1]]$Gene,
@@ -225,7 +225,7 @@ p5 <- p3 + p4 +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 p5
-ggsave(paste0(pathSave, "Vaildation/Contrast_correlation.pdf"),
+ggsave(paste0(path_save, "Vaildation/Contrast_correlation.pdf"),
   p5,
   width = 7,
   height = 3.5,
@@ -238,7 +238,7 @@ p8 <- p6 + p7 +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 p8
-ggsave(paste0(pathSave, "Vaildation/Contrast_RMSD.pdf"),
+ggsave(paste0(path_save, "Vaildation/Contrast_RMSD.pdf"),
   p8,
   width = 7,
   height = 3.5,
@@ -251,7 +251,7 @@ p9 <- p3 + p4 + p6 + p7 +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 p9
-ggsave(paste0(pathSave, "Vaildation/Contrast_correlation&RMSD.pdf"),
+ggsave(paste0(path_save, "Vaildation/Contrast_correlation&RMSD.pdf"),
   p9,
   width = 7,
   height = 6,

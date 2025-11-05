@@ -1,0 +1,11 @@
+pandas>=1.5.0
+numpy>=1.20.0
+scipy>=1.9.0
+matplotlib>=3.5.0
+seaborn>=0.12.0
+scikit-learn>=1.0.0
+pydeseq2>=0.5.0
+l0learn>=0.1.0
+gffutils>=0.10.0
+pyfaidx>=0.6.0
+

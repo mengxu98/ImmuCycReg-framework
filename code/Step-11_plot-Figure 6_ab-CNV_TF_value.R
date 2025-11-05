@@ -1,13 +1,13 @@
 rm(list = ls())
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
-eveluateR2 <- read.csv(paste0(pathSave, "TF_regulatory_value.csv"))
+eveluateR2 <- read.csv(paste0(path_save, "TF_regulatory_value.csv"))
 eveluateR2 <- eveluateR2[, c("Gene", "Cluster", "L0_Rsquare")]
 
-eveluateCNVs <- read.csv(paste0(pathSave, "CNV_correlation_value.csv"))
+eveluateCNVs <- read.csv(paste0(path_save, "CNV_correlation_value.csv"))
 eveluateCNVs <- eveluateCNVs[, c("Gene", "Cluster", "CNVs")]
 
 clusterColor <- c("#2874c5", "#008a00", "#c6524a", "#eabf00")
@@ -31,7 +31,7 @@ p1 + p2 +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 
-ggsave(paste0(pathSave, "Figures/Figure 6_ab-CNV_TF_value.pdf"),
+ggsave(paste0(path_save, "Figures/Figure 6_ab-CNV_TF_value.pdf"),
   width = 5.5,
   height = 5
 )

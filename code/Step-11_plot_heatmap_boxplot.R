@@ -1,11 +1,11 @@
 rm(list = ls())
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
-load(paste0(pathSave, "TCGA-LUAD.Rdata"))
-load(paste0(pathSave, "GTEx-LUAD.Rdata"))
+load(paste0(path_save, "TCGA-LUAD.Rdata"))
+load(paste0(path_save, "GTEx-LUAD.Rdata"))
 
 samples20 <- read.csv("../data/Samples_20.csv") %>% .[, 1]
 geneList <- read.table("../data/Genes_17.txt", header = T) %>% .[, 1]
@@ -71,7 +71,7 @@ for (i in 1:length(expMatList)) {
   )
 }
 
-pdf(paste0(pathSave, "SuppFig5.pdf"), width = 14, height = 4.5)
+pdf(paste0(path_save, "SuppFig5.pdf"), width = 14, height = 4.5)
 draw(htList[[1]] + htList[[2]] + htList[[3]] + htList[[4]] + htList[[5]])
 dev.off()
 

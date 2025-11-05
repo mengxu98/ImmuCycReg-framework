@@ -228,7 +228,7 @@ NumericVector countToEffCountsCpp(NumericVector counts, NumericVector len, Numer
 // 
 // # Testing for tcga matrix
 // pathRead <- "data/"
-// pathSave <- "results/"
+// path_save <- "results/"
 // 
 // tcga_luad <- read.table(paste0(pathRead, paste0("luad-rsem-fpkm-tcga-t.txt.gz")),
 //                         header = TRUE,

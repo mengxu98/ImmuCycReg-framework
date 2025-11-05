@@ -6,8 +6,11 @@ from scipy.stats import spearmanr
 
 
 def main():
-    path_read = os.path.abspath(os.path.join(os.path.dirname(__file__), "data/"))
-    path_save = os.path.abspath(os.path.join(os.path.dirname(__file__), "results/"))
+    # Get the parent directory (project root)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(script_dir)
+    path_read = os.path.join(base_dir, "data")
+    path_save = os.path.join(base_dir, "results")
     
     sample_cluster = pd.read_csv(os.path.join(path_read, "sample_cluster_4.csv"), header=None)
     
@@ -18,8 +21,22 @@ def main():
         print("Warning: Genes_17.txt not found")
         return 1
     
-    tcga_cnv = pd.read_csv(os.path.join(path_save, "CNV-LUAD.csv"), index_col=0)
-    tcga_luad = pd.read_csv(os.path.join(path_save, "TCGA-LUAD.csv"), index_col=0)
+    # Check if required files exist
+    cnv_file = os.path.join(path_save, "CNV-LUAD.csv")
+    luad_file = os.path.join(path_save, "TCGA-LUAD.csv")
+    
+    if not os.path.exists(cnv_file):
+        print(f"Error: CNV-LUAD.csv not found at {cnv_file}")
+        print("Please run Step-01_Processdata.py first to generate this file.")
+        return 1
+    
+    if not os.path.exists(luad_file):
+        print(f"Error: TCGA-LUAD.csv not found at {luad_file}")
+        print("Please run Step-01_Processdata.py first to generate this file.")
+        return 1
+    
+    tcga_cnv = pd.read_csv(cnv_file, index_col=0)
+    tcga_luad = pd.read_csv(luad_file, index_col=0)
     
     records = []
     for k in range(1, 5):

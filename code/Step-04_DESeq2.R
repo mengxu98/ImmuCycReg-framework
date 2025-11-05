@@ -1,11 +1,11 @@
 rm(list = ls())
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
-load(paste0(pathSave, "TCGA-LUAD.Rdata"))
-load(paste0(pathSave, "GTEx-LUAD.Rdata"))
+load(paste0(path_save, "TCGA-LUAD.Rdata"))
+load(paste0(path_save, "GTEx-LUAD.Rdata"))
 
 Genes249 <- read.table(paste0(pathRead, "Genes_249.txt"), header = TRUE) %>% .[, 1]
 samplesCluster <- read.csv(paste0(pathRead, "sample_cluster_4.csv"), header = F)
@@ -16,7 +16,7 @@ padjThreshold <- 0.05
 VolcanoPlotList <- list()
 for (j in 1:4) {
   message("Cluster ", j, " DESeq2 start......")
-  check_dir(paste0(pathSave, "/DESeq2/cluster", j))
+  check_dir(paste0(path_save, "/DESeq2/cluster", j))
 
   samples <- samplesCluster[which(samplesCluster$V2 == j), 1]
   tcgaCluster <- tcga_luad[Genes249, samples] %>% na.omit()
@@ -49,7 +49,7 @@ for (j in 1:4) {
   DESeq2Res$reg[which(DESeq2Res$log2FoldChange >= foldChange & DESeq2Res$padj <= padjThreshold)] <- "up-regulated"
   DESeq2Res$reg[which(DESeq2Res$log2FoldChange <= -foldChange & DESeq2Res$padj <= padjThreshold)] <- "down-regulated"
   write.csv(DESeq2Res,
-    file = paste0(pathSave, "DESeq2_results_cluster", j, ".csv"),
+    file = paste0(path_save, "DESeq2_results_cluster", j, ".csv"),
     row.names = FALSE
   )
 
@@ -104,7 +104,7 @@ VolcanoPlotList <- VolcanoPlotList[[1]] +
   theme(legend.position = "bottom")
 VolcanoPlotList
 
-ggsave(paste0(check_dir(paste0(pathSave, "Figures")), "/Figure 3.pdf"),
+ggsave(paste0(check_dir(paste0(path_save, "Figures")), "/Figure 3.pdf"),
   VolcanoPlotList,
   width = 8,
   height = 8

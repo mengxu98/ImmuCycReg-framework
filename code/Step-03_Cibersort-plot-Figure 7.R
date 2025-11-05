@@ -1,29 +1,29 @@
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 source("functions/Cibersort.R")
 
 pathRead <- "data/"
-pathSave <- "../Results/Cibersort/"
+path_save <- "../Results/Cibersort/"
 
 CIBERSORT(paste0(pathRead, "LM22_2.0.txt"),
   "../Results/Cibersort_data_ALL.txt",
-  pathSave = check_dir(pathSave),
+  path_save = check_dir(path_save),
   fileName = "CIBERSORT_Results_LM22.txt",
   perm = 1000
 )
 CIBERSORT(paste0(pathRead, "LM14_2.0.txt"),
   "../Results/Cibersort_data_ALL.txt",
-  pathSave = check_dir(pathSave),
+  path_save = check_dir(path_save),
   fileName = "CIBERSORT_Results_LM14.txt",
   perm = 1000
 )
 
-CibersortLM22 <- read.table(paste0(pathSave, "CIBERSORT_Results_LM22.txt"),
+CibersortLM22 <- read.table(paste0(path_save, "CIBERSORT_Results_LM22.txt"),
   sep = "\t",
   header = T,
   row.names = 1
 )
 
-CibersortLM14 <- read.table(paste0(pathSave, "CIBERSORT_Results_LM14.txt"),
+CibersortLM14 <- read.table(paste0(path_save, "CIBERSORT_Results_LM14.txt"),
   sep = "\t",
   header = T,
   row.names = 1
@@ -36,8 +36,8 @@ sampleGroup <- read.table("../Results/Data_ALL_group.txt",
   row.names = 1,
   header = T,
   check.names = F
-) %>%
-  t() %>%
+) |>
+  t() |>
   as.data.frame()
 
 sampleGroup <- sampleGroup[rownames(CibersortResults), ]
@@ -65,8 +65,8 @@ ylims <- c(0.75, 0.75, 0.25)
 pList <- list()
 for (i in 1:length(cells)) {
   CibersortResultsSelect <- CibersortResults[, c(cells[i], "group")]
-  CibersortBarplot <- CibersortResultsSelect %>%
-    as.data.frame() %>%
+  CibersortBarplot <- CibersortResultsSelect |>
+    as.data.frame() |>
     pivot_longer(
       cols = 1:c(ncol(CibersortResultsSelect) - 1),
       names_to = "CellType",
@@ -122,7 +122,7 @@ pList[[1]] +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 
-ggsave(paste0(pathSave, "Figures/Figure 7.pdf"),
+ggsave(paste0(path_save, "Figures/Figure 7.pdf"),
   width = 9,
   height = 4
 )

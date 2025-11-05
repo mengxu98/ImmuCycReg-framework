@@ -1,11 +1,11 @@
 rm(list = ls())
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
-load(paste0(pathSave, "TCGA-LUAD.Rdata"))
-load(paste0(pathSave, "CNV-LUAD.Rdata"))
+load(paste0(path_save, "TCGA-LUAD.Rdata"))
+load(paste0(path_save, "CNV-LUAD.Rdata"))
 
 sampleCluster <- read.csv(paste0(pathRead, "sample_cluster_4.csv"), header = FALSE)
 geneList <- read.table(paste0(pathRead, "Genes_17.txt"), header = TRUE) %>% .[, 1]
@@ -63,6 +63,6 @@ for (k in 1:4) {
 }
 names(correctionResultsAll) <- c("Gene", "CNVs", "Cluster")
 write.csv(correctionResultsAll,
-  paste0(pathSave, "CNV_correlation_value.csv"),
+  paste0(path_save, "CNV_correlation_value.csv"),
   row.names = FALSE
 )

@@ -2,15 +2,15 @@
 # 2: make bed file
 
 rm(list = ls())
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
-load(paste0(pathSave, "TCGA-LUAD.Rdata"))
-load(paste0(pathSave, "Peak-LUAD.Rdata"))
-load(paste0(pathSave, "ATAC-LUAD.Rdata"))
-load(paste0(pathSave, "Geneinfo_df.Rdata"))
+load(paste0(path_save, "TCGA-LUAD.Rdata"))
+load(paste0(path_save, "Peak-LUAD.Rdata"))
+load(paste0(path_save, "ATAC-LUAD.Rdata"))
+load(paste0(path_save, "Geneinfo_df.Rdata"))
 peakName <- rownames(genes_adj_peak)
 peakGeneList <- strsplit(as.vector(genes_adj_peak[, 1]), ",")
 sampleATAC <- intersect(colnames(tcga_luad), colnames(peak_luad))
@@ -18,7 +18,7 @@ sampleATAC <- intersect(colnames(tcga_luad), colnames(peak_luad))
 geneList <- read.table(paste0(pathRead, "Genes_17.txt"), header = TRUE) %>% .[, 1]
 
 # Run ---------------------------------------------------------------------
-check_dir(paste0(pathSave, "BED"))
+check_dir(paste0(path_save, "BED"))
 
 peakSeqPosAll <- c()
 volcanoPlotList <- list()
@@ -35,7 +35,7 @@ for (j in 1:length(geneList)) {
   # Select peaks according to distance or correlation (population level)
 
   # Choice 1: correlation ---------------------------------------------------
-  check_dir(paste0(pathSave, "corrgram/", targetGene))
+  check_dir(paste0(path_save, "corrgram/", targetGene))
 
   mrna <- t(tcga_luad[targetGene, sampleATAC]) %>% as.data.frame()
   atac <- t(peak_luad[peaksAroundGene, sampleATAC]) %>% as.data.frame()
@@ -54,7 +54,7 @@ for (j in 1:length(geneList)) {
     print(p)
     ggsave(
       paste0(
-        pathSave, "corrgram/", targetGene, "/",
+        path_save, "corrgram/", targetGene, "/",
         targetGene, "_", peakNameSelected[i],
         "_corrgram.png"
       ),
@@ -96,7 +96,7 @@ for (j in 1:length(geneList)) {
   degData$Label[match(labelPeaks, degData$Symbol)] <- labelPeaks
 
   write.csv(degData,
-    file = paste(pathSave, "corrgram/", targetGene, "/", targetGene, "_peakGeneCor.csv", sep = ""),
+    file = paste(path_save, "corrgram/", targetGene, "/", targetGene, "_peakGeneCor.csv", sep = ""),
     row.names = F
   )
 
@@ -186,11 +186,11 @@ for (j in 1:length(geneList)) {
   }
 }
 
-check_dir(paste0(pathSave, "Figure/"))
+check_dir(paste0(path_save, "Figure/"))
 
 p <- combine_multiple_plot(volcanoPlotList, legend = "bottom")
 ggsave(
-  paste0(pathSave, "Figure/Supplementary Figure 1-peaks.pdf"),
+  paste0(path_save, "Figure/Supplementary Figure 1-peaks.pdf"),
   p,
   width = 11,
   height = 13,
@@ -200,7 +200,7 @@ ggsave(
 peakSeqPosAll$peak <- rownames(peakSeqPosAll)
 write.table(
   peakSeqPosAll[, 1:3],
-  paste0(pathSave, "all_BED.bed"),
+  paste0(path_save, "all_BED.bed"),
   sep = "\t",
   row.names = FALSE,
   col.names = FALSE,
@@ -209,7 +209,7 @@ write.table(
 
 write.table(
   peakSeqPosAll[c(5:6, 1:4)],
-  paste0(pathSave, "all_peaks.csv"),
+  paste0(path_save, "all_peaks.csv"),
   sep = ",",
   quote = FALSE,
   row.names = FALSE

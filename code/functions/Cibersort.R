@@ -32,14 +32,14 @@
 #' @param mixture_file Heterogenous mixed expression
 #' @param perm Number of permutations
 #' @param QN Perform quantile normalization or not (TRUE/FALSE)
-#' @param pathSave
+#' @param path_save
 #'
 #' @export
 CIBERSORT <- function(sig_matrix,
                       mixture_file,
                       perm = 0,
                       QN = FALSE,
-                      pathSave = NULL,
+                      path_save = NULL,
                       fileName = NULL) {
   # Number of permutations
   P <- perm
@@ -125,16 +125,16 @@ CIBERSORT <- function(sig_matrix,
   }
 
   # save results
-  if (is.null(pathSave)) {
-    pathSave <- ""
+  if (is.null(path_save)) {
+    path_save <- ""
   } else {
-    check_dir(pathSave)
+    check_dir(path_save)
   }
 
-  if (is.null(fileName)) pathSave <- "CIBERSORT_Results.txt"
+  if (is.null(fileName)) path_save <- "CIBERSORT_Results.txt"
 
   write.table(rbind(header, output),
-    file = paste0(pathSave, fileName),
+    file = paste0(path_save, fileName),
     sep = "\t",
     row.names = F,
     col.names = F,

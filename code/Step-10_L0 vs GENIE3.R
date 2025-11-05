@@ -1,11 +1,11 @@
 rm(list = ls())
 
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 source("functions/Functions-L0REG.R")
 
 pathRead <- "data/"
-pathSave <- "../Results/GRN/"
-check_dir(pathSave)
+path_save <- "../Results/GRN/"
+check_dir(path_save)
 
 evaluationGNWsList <- list()
 for (n in 1:2) {
@@ -43,11 +43,11 @@ for (n in 1:2) {
       SVMPredSampleMin = 20, SVMPredSampleMax = 80,
       SVMExpSampleMin = 20, SVMExpSampleMax = 80,
       SVMRankThreshold = 5, SVMEnsembleSize = 100,
-      outputFileName = paste0(pathSave, "GNW", datasetNum, "_L0_Net", i, ".txt")
+      outputFileName = paste0(path_save, "GNW", datasetNum, "_L0_Net", i, ".txt")
     )
 
     evaluationObject <- prepareEval(
-      paste0(pathSave, "GNW", datasetNum, "_L0_Net", i, ".txt"),
+      paste0(path_save, "GNW", datasetNum, "_L0_Net", i, ".txt"),
       paste0(pathWay, goldWay)
     )
     AUROC_L0 <- calcAUROC(evaluationObject)
@@ -59,9 +59,9 @@ for (n in 1:2) {
     )
 
     weight <- GENIE3::getLinkList(weightMat)
-    write.table(weight, file = paste0(pathSave, "GNW", datasetNum, "_GENIE3_Net", i, ".txt"))
+    write.table(weight, file = paste0(path_save, "GNW", datasetNum, "_GENIE3_Net", i, ".txt"))
     evaluationObject <- prepareEval(
-      paste0(pathSave, "GNW", datasetNum, "_GENIE3_Net", i, ".txt"),
+      paste0(path_save, "GNW", datasetNum, "_GENIE3_Net", i, ".txt"),
       paste0(pathWay, goldWay)
     )
     AUROC_GENIE3 <- calcAUROC(evaluationObject)
@@ -98,7 +98,7 @@ p4 <- p1 + p2 + p3 +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 
-ggsave(paste0(pathSave, "../Figure/Supplementary Figure 7.pdf"),
+ggsave(paste0(path_save, "../Figure/Supplementary Figure 7.pdf"),
   p4,
   width = 9,
   height = 4,

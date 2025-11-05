@@ -1,8 +1,8 @@
 rm(list = ls())
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "../Results/L0Reg-framework/"
+path_save <- "../Results/L0Reg-framework/"
 penalty <- "L0"
 
 # Load data
@@ -16,7 +16,7 @@ TRNClusterFilterAll <- c()
 eveluateR2All <- c()
 for (j in 1:4) {
   message("Running for cluster ", j, " ......")
-  check_dir(paste0(pathSave, "cluster", j))
+  check_dir(paste0(path_save, "cluster", j))
 
   cluster <- rownames(samplesCluster %>% filter(., .[, 1] == j))
 
@@ -102,7 +102,7 @@ for (j in 1:4) {
 
   write.csv(
     as.data.frame(unique(selectedTFs)),
-    paste0(pathSave, "cluster", j, "/TFs_list.csv")
+    paste0(path_save, "cluster", j, "/TFs_list.csv")
   )
 
   message("Cluster ", j, " done......")
@@ -110,10 +110,10 @@ for (j in 1:4) {
 
 write.csv(
   TRNClusterFilterAll,
-  paste0(pathSave, "TRN_cluster_filter_all.csv")
+  paste0(path_save, "TRN_cluster_filter_all.csv")
 )
 
 write.csv(eveluateR2All,
-  paste0(pathSave, "TF_regulatory_value.csv"),
+  paste0(path_save, "TF_regulatory_value.csv"),
   row.names = F
 )

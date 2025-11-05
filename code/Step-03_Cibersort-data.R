@@ -1,10 +1,10 @@
 rm(list = ls())
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
-load(paste0(pathSave, "TCGA-LUAD-tpm-tcga-t_unnormlized.Rdata"))
-load(paste0(pathSave, "GTEx-LUAD-tpm-gtex_unnormlized.Rdata"))
+load(paste0(path_save, "TCGA-LUAD-tpm-tcga-t_unnormlized.Rdata"))
+load(paste0(path_save, "GTEx-LUAD-tpm-gtex_unnormlized.Rdata"))
 
 sampleLabel <- read.table("../data/sample_cluster_4.csv",
   header = FALSE,
@@ -24,7 +24,7 @@ CibersortData <- purrr::map_dfc(1:5, function(x) {
 })
 
 write.table(CibersortData,
-  paste0(pathSave, "Cibersort_data_ALL.txt"),
+  paste0(path_save, "Cibersort_data_ALL.txt"),
   sep = "\t",
   quote = FALSE,
   row.names = TRUE
@@ -42,7 +42,7 @@ CibersortDataLable <- purrr::map_dfc(1:5, function(x) {
 })
 
 write.table(CibersortDataLable,
-  paste0(pathSave, "Data_ALL_group.txt"),
+  paste0(path_save, "Data_ALL_group.txt"),
   sep = "\t",
   quote = FALSE,
   row.names = TRUE

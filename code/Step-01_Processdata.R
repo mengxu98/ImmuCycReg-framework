@@ -2,7 +2,7 @@ rm(list = ls())
 source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
 dataClass <- c(
   "count-tcga-t", "fpkm-tcga-t",
@@ -21,7 +21,7 @@ for (i in 1:length(dataClass)) {
   if (grepl("fpkm", dataClass[i])) {
     save_data(tcga_luad,
       fileName = paste0("TCGA-LUAD-", dataClass[i], ".Rdata"),
-      pathWay = pathSave
+      pathWay = path_save
     )
 
     tcga_luad <- fpkm_to_tpm(tcga_luad)
@@ -29,12 +29,12 @@ for (i in 1:length(dataClass)) {
       fileName = paste0(
         "TCGA-LUAD-", gsub("fpkm", "tpm", dataClass[i]), ".Rdata"
       ),
-      pathWay = pathSave
+      pathWay = path_save
     )
   } else {
     save_data(tcga_luad,
       fileName = "TCGA-LUAD.Rdata",
-      pathWay = pathSave
+      pathWay = path_save
     )
   }
 }
@@ -55,7 +55,7 @@ for (i in 1:length(dataClass)) {
   if (grepl("fpkm", dataClass[i])) {
     save_data(gtex_luad,
       fileName = paste0("GTEx-LUAD-", dataClass[i], ".Rdata"),
-      pathWay = pathSave
+      pathWay = path_save
     )
 
     gtex_luad <- fpkm_to_tpm(gtex_luad)
@@ -63,24 +63,24 @@ for (i in 1:length(dataClass)) {
       fileName = paste0(
         "GTEx-LUAD-", gsub("fpkm", "tpm", dataClass[i]), ".Rdata"
       ),
-      pathWay = pathSave
+      pathWay = path_save
     )
   } else {
     save_data(gtex_luad,
       fileName = "GTEx-LUAD.Rdata",
-      pathWay = pathSave
+      pathWay = path_save
     )
   }
 }
 
-if (!file.exists(paste0(pathSave, "all_thresholded.by_genes_whitelisted.tsv"))) {
+if (!file.exists(paste0(path_save, "all_thresholded.by_genes_whitelisted.tsv"))) {
   download.file(
     "https://api.gdc.cancer.gov/data/7d64377f-2cea-4ee3-917f-8fcfbcd999e7",
-    paste0(pathSave, "all_thresholded.by_genes_whitelisted.tsv")
+    paste0(path_save, "all_thresholded.by_genes_whitelisted.tsv")
   )
 }
 tcga_cnv <- read.table(
-  paste0(pathSave, "all_thresholded.by_genes_whitelisted.tsv"),
+  paste0(path_save, "all_thresholded.by_genes_whitelisted.tsv"),
   header = TRUE,
   row.names = 1,
   sep = "\t",
@@ -94,17 +94,26 @@ tcga_cnv <- tcga_cnv[
 ]
 save_data(tcga_cnv,
   fileName = "CNV-LUAD.Rdata",
-  pathWay = pathSave
+  pathWay = path_save
 )
 
 # --------------------------------------------------
-if (!file.exists(paste0(pathSave, "TCGA_ATAC_peak_Log2Counts_dedup_sample.gz"))) {
-  download.file(
-    "https://tcgaatacseq.s3.us-east-1.amazonaws.com/download/TCGA_ATAC_peak_Log2Counts_dedup_sample.gz",
-    paste0(pathSave, "TCGA_ATAC_peak_Log2Counts_dedup_sample.gz")
-  )
+if (!file.exists(paste0(path_save, "TCGA_ATAC_peak_Log2Counts_dedup_sample.gz"))) {
+  # Increase timeout and use method that supports resume
+  options(timeout = 600)  # 10 minutes timeout
+  tryCatch({
+    download.file(
+      "https://tcgaatacseq.s3.us-east-1.amazonaws.com/download/TCGA_ATAC_peak_Log2Counts_dedup_sample.gz",
+      paste0(path_save, "TCGA_ATAC_peak_Log2Counts_dedup_sample.gz"),
+      method = "auto",
+      mode = "wb"
+    )
+  }, error = function(e) {
+    warning("Download failed or timed out. You may need to download manually or use Python version.")
+    warning(paste("Error:", e$message))
+  })
 }
-peak_all <- read.table(paste0(pathSave, "TCGA_ATAC_peak_Log2Counts_dedup_sample.gz"),
+peak_all <- read.table(paste0(path_save, "TCGA_ATAC_peak_Log2Counts_dedup_sample.gz"),
   header = TRUE,
   row.names = 1,
   check.names = FALSE
@@ -118,17 +127,25 @@ peak_luad <- peak_all[
 tcga_luad_peak_samples <- tcga_luad[, which(colnames(tcga_luad) %in% colnames(peak_luad))]
 save_data(tcga_luad_peak_samples,
   fileName = "Peak-LUAD.Rdata",
-  pathWay = pathSave
+  pathWay = path_save
 )
 
 # --------------------------------------------------
-if (!file.exists(paste0(pathSave, "TCGA_ATAC_peak.all.probeMap"))) {
-  download.file(
-    "https://tcgaatacseq.s3.us-east-1.amazonaws.com/download/TCGA_ATAC_peak.all.probeMap",
-    paste0(pathSave, "TCGA_ATAC_peak.all.probeMap")
-  )
+if (!file.exists(paste0(path_save, "TCGA_ATAC_peak.all.probeMap"))) {
+  options(timeout = 300)  # 5 minutes timeout
+  tryCatch({
+    download.file(
+      "https://tcgaatacseq.s3.us-east-1.amazonaws.com/download/TCGA_ATAC_peak.all.probeMap",
+      paste0(path_save, "TCGA_ATAC_peak.all.probeMap"),
+      method = "auto",
+      mode = "wb"
+    )
+  }, error = function(e) {
+    warning("Download failed. You may need to download manually.")
+    warning(paste("Error:", e$message))
+  })
 }
-genes_adj_peak <- read.table(paste0(pathSave, "TCGA_ATAC_peak.all.probeMap"),
+genes_adj_peak <- read.table(paste0(path_save, "TCGA_ATAC_peak.all.probeMap"),
   header = TRUE,
   row.names = 1,
   check.names = FALSE,
@@ -137,18 +154,26 @@ genes_adj_peak <- read.table(paste0(pathSave, "TCGA_ATAC_peak.all.probeMap"),
 genes_adj_peak <- genes_adj_peak[grep(pattern = "LUAD", rownames(genes_adj_peak)), ]
 save_data(genes_adj_peak,
   fileName = "ATAC-LUAD.Rdata",
-  pathWay = pathSave
+  pathWay = path_save
 )
 
 # --------------------------------------------------
-if (!file.exists(paste0(pathSave, "hg38.ncbiRefSeq.gtf.gz"))) {
-  download.file(
-    "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz",
-    paste0(pathSave, "hg38.ncbiRefSeq.gtf.gz")
-  )
+if (!file.exists(paste0(path_save, "hg38.ncbiRefSeq.gtf.gz"))) {
+  options(timeout = 300)  # 5 minutes timeout
+  tryCatch({
+    download.file(
+      "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz",
+      paste0(path_save, "hg38.ncbiRefSeq.gtf.gz"),
+      method = "auto",
+      mode = "wb"
+    )
+  }, error = function(e) {
+    warning("Download failed. You may need to download manually.")
+    warning(paste("Error:", e$message))
+  })
 }
 gtf_df <- rtracklayer::import(
-  paste0(pathSave, "hg38.ncbiRefSeq.gtf.gz")
+  paste0(path_save, "hg38.ncbiRefSeq.gtf.gz")
 ) %>% as.data.frame()
 geneinfo_df <- dplyr::select(
   gtf_df,
@@ -167,5 +192,5 @@ geneinfo_df <- dplyr::select(
 save_data(
   geneinfo_df,
   fileName = "Geneinfo_df.Rdata",
-  pathWay = pathSave
+  pathWay = path_save
 )

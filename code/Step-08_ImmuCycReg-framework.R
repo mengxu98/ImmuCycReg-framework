@@ -1,8 +1,8 @@
 rm(list = ls())
-source("code/functions/Functions.R")
+# source("code/functions/Functions.R")
 
 pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
 stringData <- read.table(paste0(pathRead, "Databases/STRING_9606.protein.v11.5.txt.gz"))
 
@@ -16,14 +16,14 @@ for (database in databases) {
   )
 }
 
-load(paste0(pathSave, "TCGA-LUAD.Rdata"))
-load(paste0(pathSave, "GTEx-LUAD.Rdata"))
-load(paste0(pathSave, "CNV-LUAD.Rdata"))
-load(paste0(pathSave, "Peak-LUAD.Rdata"))
-load(paste0(pathSave, "genes_adj_peak.Rdata"))
-load(paste0(pathSave, "geneinfo_df.Rdata"))
+load(paste0(path_save, "TCGA-LUAD.Rdata"))
+load(paste0(path_save, "GTEx-LUAD.Rdata"))
+load(paste0(path_save, "CNV-LUAD.Rdata"))
+load(paste0(path_save, "Peak-LUAD.Rdata"))
+load(paste0(path_save, "genes_adj_peak.Rdata"))
+load(paste0(path_save, "geneinfo_df.Rdata"))
 
-candidatePeaks <- read.csv(paste0(pathSave, "all_peaks.csv"))
+candidatePeaks <- read.csv(paste0(path_save, "all_peaks.csv"))
 negativeGenes <- read.table(paste0(pathRead, "Genes_immune_cycle.txt"),
   header = TRUE,
   sep = "\t"
@@ -36,9 +36,9 @@ targetGenesList <- read.table(paste0(pathRead, "Genes_17.txt"),
 
 cnvTest <- FALSE
 
-check_dir(paste0(pathSave, "Regulatory_table"))
-check_dir(paste0(pathSave, "TFs_list_selected"))
-check_dir(paste0(pathSave, "T-test"))
+check_dir(paste0(path_save, "Regulatory_table"))
+check_dir(paste0(path_save, "TFs_list_selected"))
+check_dir(paste0(path_save, "T-test"))
 
 formatResult_all <- c()
 tTestResInforAll <- c()
@@ -285,7 +285,7 @@ for (k in seq_along(targetGenesList)) {
     )
 
     write.csv(resultsRegulatoryTable,
-      file = paste0(pathSave, "Regulatory_table/", targetGene, "_regulatory_table.csv")
+      file = paste0(path_save, "Regulatory_table/", targetGene, "_regulatory_table.csv")
     )
 
     hitTFs <- resultsRegulatoryTable[
@@ -319,7 +319,7 @@ for (k in seq_along(targetGenesList)) {
 
     # Update TFs list for L0
     write.table(hitTFs,
-      paste0(pathSave, "TFs_list_selected/", targetGene, "_TFs_list.txt"),
+      paste0(path_save, "TFs_list_selected/", targetGene, "_TFs_list.txt"),
       quote = F,
       row.names = F,
       col.names = T,
@@ -352,22 +352,22 @@ for (k in seq_along(targetGenesList)) {
 }
 
 write.csv(genesSamplesStatistic,
-  paste0(pathSave, "ImmuCycRegFramework_Gene-Sample.csv"),
+  paste0(path_save, "ImmuCycRegFramework_Gene-Sample.csv"),
   row.names = FALSE
 )
 
 write.csv(tTestResInforAll,
-  paste0(pathSave, "T-test/T-test_results_information.csv"),
+  paste0(path_save, "T-test/T-test_results_information.csv"),
   row.names = FALSE
 )
 
 write.csv(edgeNumAll,
-  paste0(pathSave, "Gene_TFs_edge_num.csv"),
+  paste0(path_save, "Gene_TFs_edge_num.csv"),
   row.names = FALSE
 )
 
 write.csv(geneTFsNodeNumAll,
-  paste0(pathSave, "Gene_TFs_node_num.csv"),
+  paste0(path_save, "Gene_TFs_node_num.csv"),
   row.names = FALSE
 )
 
@@ -384,7 +384,7 @@ p3 <- p1 + p2 +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 
-ggsave(paste0(pathSave, "Figure/Supplementary Figure 4_bc.pdf"),
+ggsave(paste0(path_save, "Figure/Supplementary Figure 4_bc.pdf"),
   p3,
   width = 7.5,
   height = 3

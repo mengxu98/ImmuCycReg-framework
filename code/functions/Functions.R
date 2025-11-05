@@ -75,7 +75,7 @@ survival_data <- function(
     pathWay = NULL) {
   if (is.null(cancerType)) stop("Pleasure ensure the cancer type......")
   if (is.null(genes)) stop("Pleasure input a single gene or gene list......")
-  log_message("Choose '{.val {cancerType}}' and preparing data...")
+  log_message("Choose {.val {cancerType}} and preparing data...")
   check_packages("cgdsr")
   check_packages("DT")
   cgdsLoc <- cgdsr::CGDS("http://www.cbioportal.org/")

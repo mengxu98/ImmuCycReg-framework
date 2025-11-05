@@ -1,13 +1,10 @@
-rm(list = ls())
-
 source("code/functions/Functions.R")
 
-pathRead <- "data/"
-pathSave <- "results/"
+path_save <- "results/"
 
-load(paste0(pathSave, "TCGA-LUAD.Rdata"))
-genes2230 <- read.csv(paste0(pathRead, "genes2230.csv"))
-dataNMF <- tcga_luad[genes2230$Gene, ] %>% as.matrix()
+load(paste0(path_save, "TCGA-LUAD.Rdata"))
+genes2230 <- read.csv("data/Genes_2230.csv")
+dataNMF <- tcga_luad[genes2230$Gene, ] |> as.matrix()
 
 # --------------------------------------------------
 seed <- "20210101"
@@ -18,8 +15,9 @@ dataNMF <- dataNMF[rev(order(mads)), ]
 dataset <- dataNMF[1:genesNums, ]
 
 maxClusterNums <- 6
-title <- check_dir(paste0(pathSave, "NMF/"))
-results <- ConsensusClusterPlus(dataset,
+title <- check_dir(paste0(path_save, "NMF/"))
+results <- ConsensusClusterPlus(
+  dataset,
   maxK = maxClusterNums,
   reps = 50,
   pItem = 0.8,
@@ -60,18 +58,18 @@ optK <- Kvec[which.min(PAC)]
 
 table(results[[4]]$consensusClass)
 
-Cluster <- results[[4]]$consensusClass %>% as.data.frame()
+Cluster <- results[[4]]$consensusClass |> as.data.frame()
 Cluster$sample <- rownames(Cluster)
 
 survival_data(
   cancerType = "luad_tcga",
   genes = "IL2",
-  pathWay = pathSave
+  pathWay = path_save
 )
-load(paste0(pathSave, "survival_input.Rdata"))
+load(paste0(path_save, "survival_input.Rdata"))
 rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
 samples <- intersect(rownames(Cluster), rownames(clinicalData))
-Cluster <- Cluster[samples, ] %>% as.data.frame()
+Cluster <- Cluster[samples, ] |> as.data.frame()
 clinicalData <- clinicalData[samples, ]
 identical(rownames(Cluster), rownames(clinicalData))
 chooseColumns <- c(
@@ -102,7 +100,7 @@ ggsurvplot(sfit,
 )
 
 ###
-exp <- dataset %>% as.data.frame()
+exp <- dataset |> as.data.frame()
 colnames(exp) <- gsub("-", ".", colnames(exp))
 exp <- exp[, samples]
 

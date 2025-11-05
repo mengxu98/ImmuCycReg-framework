@@ -2,34 +2,46 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from rpy2 import robjects as ro
-from rpy2.robjects import pandas2ri
-from rpy2.robjects import default_converter
-from rpy2.robjects.conversion import localconverter
-from rpy2.robjects.packages import importr
+from pydeseq2.dds import DeseqDataSet
+from pydeseq2.ds import DeseqStats
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 
-def run_deseq2(tcga_cluster_df: pd.DataFrame, gtex_df: pd.DataFrame) -> pd.DataFrame:
-    deseq2 = importr('DESeq2')
-    base = importr('base')
-    
+def run_deseq2_pydeseq2(tcga_cluster_df: pd.DataFrame, gtex_df: pd.DataFrame) -> pd.DataFrame:
+    """Run DESeq2 analysis using PyDESeq2"""
     tcga_gtex = pd.concat([tcga_cluster_df, gtex_df], axis=1)
     group = ["C1"] * tcga_cluster_df.shape[1] + ["C2"] * gtex_df.shape[1]
-    group_df = pd.DataFrame({"groupInfo": group}, index=tcga_gtex.columns)
     
-    with localconverter(default_converter + pandas2ri.converter):
-        r_counts = ro.conversion.py2rpy(tcga_gtex.round().astype(int))
-        r_coldata = ro.conversion.py2rpy(group_df)
+    clinical_df = pd.DataFrame(
+        {"condition": group},
+        index=tcga_gtex.columns
+    )
     
-    dds = deseq2.DESeqDataSetFromMatrix(countData=r_counts, colData=r_coldata, design=ro.Formula("~ groupInfo"))
-    dds = deseq2.DESeq(dds)
-    res = deseq2.results(dds, contrast=ro.Vector(["groupInfo", "C1", "C2"]))
+    counts_df = tcga_gtex.round().astype(int)
+    counts_df = counts_df.fillna(0)
     
-    with localconverter(default_converter + pandas2ri.converter):
-        res_df = ro.conversion.rpy2py(res)
-    
-    res_df.index.name = 'gene'
-    return res_df
+    try:
+        dds = DeseqDataSet(
+            counts=counts_df,
+            clinical=clinical_df,
+            design_factors="condition",
+            refit_cooks=True,
+            min_mu=0.5
+        )
+        dds.deseq2()
+        
+        stat_res = DeseqStats(dds, contrast=["condition", "C1", "C2"])
+        stat_res.summary()
+        res_df = stat_res.results_df
+        
+        res_df.index.name = 'gene'
+        return res_df
+    except Exception as e:
+        print(f"Error in PyDESeq2: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def main():
@@ -54,7 +66,7 @@ def main():
         tcga = tcga.reindex(index=genes_249)
         gtex = gtex.reindex(index=genes_249)
     
-    VolcanoPlotList = []
+    volcano_plot_list = []
     
     for j in range(1, 5):
         print(f"Cluster {j} DESeq2 start......")
@@ -75,7 +87,12 @@ def main():
         tcga_cluster = tcga_cluster.loc[common_genes, :]
         gtex_cluster = gtex_cluster.loc[common_genes, :]
         
-        res_df = run_deseq2(tcga_cluster, gtex_cluster)
+        try:
+            res_df = run_deseq2_pydeseq2(tcga_cluster, gtex_cluster)
+        except Exception as e:
+            print(f"Error processing cluster {j}: {e}")
+            continue
+        
         res_df = res_df.sort_values(by='padj', na_last=True)
         
         padj_threshold = 0.05
@@ -96,7 +113,47 @@ def main():
         res_df = res_df[[col for col in col_order if col in res_df.columns]]
         
         res_df.to_csv(os.path.join(path_save, f"DESeq2_results_cluster{j}.csv"), index=False)
+        
+        data_plot = res_df.copy()
+        data_plot['change'] = 'no sig'
+        data_plot.loc[(data_plot['pvalue'] < padj_threshold) & (data_plot['log2FoldChange'] >= fold_change), 'change'] = 'Up (log2FC > 1, P-value < 0.05)'
+        data_plot.loc[(data_plot['pvalue'] < padj_threshold) & (data_plot['log2FoldChange'] <= -fold_change), 'change'] = 'Down (log2FC < -1, P-value < 0.05)'
+        data_plot['label'] = data_plot.apply(lambda x: x['gene'] if (x['pvalue'] < padj_threshold and abs(x['log2FoldChange']) >= 1) else '', axis=1)
+        
+        fig, ax = plt.subplots(figsize=(6, 6))
+        colors = {'Up (log2FC > 1, P-value < 0.05)': '#990033', 'no sig': '#d2dae2', 'Down (log2FC < -1, P-value < 0.05)': '#006699'}
+        for change_type in ['Up (log2FC > 1, P-value < 0.05)', 'no sig', 'Down (log2FC < -1, P-value < 0.05)']:
+            subset = data_plot[data_plot['change'] == change_type]
+            if len(subset) > 0:
+                ax.scatter(subset['log2FoldChange'], -np.log10(subset['pvalue'] + 1e-300), 
+                          c=colors[change_type], alpha=0.5, s=30, label=change_type)
+        
+        labeled = data_plot[data_plot['label'] != '']
+        if len(labeled) > 0:
+            for _, row in labeled.head(20).iterrows():
+                ax.annotate(row['label'], (row['log2FoldChange'], -np.log10(row['pvalue'] + 1e-300)),
+                           fontsize=8, bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.7))
+        
+        ax.axvline(x=-fold_change, linestyle='--', color='black', linewidth=0.8)
+        ax.axvline(x=fold_change, linestyle='--', color='black', linewidth=0.8)
+        ax.axhline(y=-np.log10(padj_threshold), linestyle='--', color='black', linewidth=0.8)
+        ax.set_xlabel('Log2FoldChange')
+        ax.set_ylabel('-Log10(P-value)')
+        ax.set_title(f'Cluster {j}')
+        ax.legend(loc='right')
+        ax.grid(True, alpha=0.3)
+        plt.tight_layout()
+        
+        volcano_plot_list.append(fig)
+        plt.close(fig)
+        
         print(f"Cluster {j} DESeq2 done......")
+    
+    if len(volcano_plot_list) > 0:
+        pdf_path = os.path.join(path_save, "Figures", "Figure 3.pdf")
+        with PdfPages(pdf_path) as pdf:
+            for fig in volcano_plot_list:
+                pdf.savefig(fig)
     
     return 0
 
