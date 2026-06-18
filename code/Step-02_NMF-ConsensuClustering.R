@@ -1,5 +1,9 @@
 #!/usr/bin/env Rscript
 
+# This script reproduces the final K=4 sample assignment distributed in
+# Supplementary Data 3 S1. Run Step-02a_NMF-rank-survey.R for the NMF rank
+# survey and rank-4 NMF consensus map used to evaluate the subtype number.
+
 if (!requireNamespace("ConsensusClusterPlus", quietly = TRUE)) {
   stop("Please install ConsensusClusterPlus before running this script.")
 }

@@ -50,11 +50,19 @@ Rscript code/convert_rdata_to_csv.R
 
 ### 步骤4: 运行后续步骤
 
-**Step-02 (聚类)**:
+**Step-02a (NMF rank survey / consensus map)**:
+```bash
+Rscript code/Step-02a_NMF-rank-survey.R
+```
+
+This script generates the NMF rank survey and rank-4 NMF consensus map used to evaluate the subtype number.
+
+**Step-02b (final subtype assignment)**:
 ```bash
 Rscript code/Step-02_NMF-ConsensuClustering.R
-python code/Step-02_NMF-ConsensuClustering.py
 ```
+
+This script reproduces the final K=4 TCGA-LUAD subtype assignment in Supplementary Data 3 S1 and writes `results/NMF/sample_cluster_4.csv`.
 
 **Step-05 (CNV相关性)**:
 ```bash
@@ -171,4 +179,3 @@ ls -la results/TCGA-LUAD.csv results/CNV-LUAD.csv
 **解决**: 
 - 安装缺失的Python包: `pip install <package>`
 - 安装缺失的R包: `install.packages("<package>")`
-
