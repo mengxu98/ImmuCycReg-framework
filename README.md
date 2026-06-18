@@ -30,6 +30,17 @@ The code repository is for paper: Integration of single sample and population an
 
 `https://github.com/mengxu98/ImmuCycReg-framework/tree/main/data/Supplementary%20Data`
 
+## Clustering reproduction
+
+The R workflow for subtype analysis is split into two scripts:
+
+```bash
+Rscript code/Step-02a_NMF-rank-survey.R
+Rscript code/Step-02_NMF-ConsensuClustering.R
+```
+
+`Step-02a_NMF-rank-survey.R` generates the NMF rank survey and rank-4 NMF consensus map used to evaluate the subtype number. `Step-02_NMF-ConsensuClustering.R` reproduces the final K=4 TCGA-LUAD subtype assignment in Supplementary Data 3 S1.
+
 ## The environment and softwares required:
 
 ``` r

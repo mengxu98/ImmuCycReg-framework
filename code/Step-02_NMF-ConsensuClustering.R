@@ -1,124 +1,114 @@
-source("code/functions/Functions.R")
+#!/usr/bin/env Rscript
 
-path_save <- "results/"
+# This script reproduces the final K=4 sample assignment distributed in
+# Supplementary Data 3 S1. Run Step-02a_NMF-rank-survey.R for the NMF rank
+# survey and rank-4 NMF consensus map used to evaluate the subtype number.
 
-load(paste0(path_save, "TCGA-LUAD.Rdata"))
-genes2230 <- read.csv("data/Genes_2230.csv")
-dataNMF <- tcga_luad[genes2230$Gene, ] |> as.matrix()
+if (!requireNamespace("ConsensusClusterPlus", quietly = TRUE)) {
+  stop("Please install ConsensusClusterPlus before running this script.")
+}
 
-# --------------------------------------------------
-seed <- "20210101"
-dataNMF <- log(dataNMF + 1, 10)
-genesNums <- 30
-mads <- apply(dataNMF, 1, mad)
-dataNMF <- dataNMF[rev(order(mads)), ]
-dataset <- dataNMF[1:genesNums, ]
+path_save <- "results"
+expr_file <- file.path(path_save, "TCGA-LUAD.Rdata")
+gene_file <- file.path("data", "Genes_2230.csv")
+out_dir <- file.path(path_save, "NMF")
 
-maxClusterNums <- 6
-title <- check_dir(paste0(path_save, "NMF/"))
-results <- ConsensusClusterPlus(
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+load(expr_file)
+if (!exists("tcga_luad")) {
+  stop("The input file must contain an object named 'tcga_luad'.")
+}
+
+genes2230 <- read.csv(gene_file, stringsAsFactors = FALSE)
+if (!"Gene" %in% colnames(genes2230)) {
+  stop("Genes_2230.csv must contain a 'Gene' column.")
+}
+
+tcga_luad <- tcga_luad[, !duplicated(colnames(tcga_luad))]
+genes <- genes2230$Gene
+missing_genes <- setdiff(genes, rownames(tcga_luad))
+if (length(missing_genes) > 0) {
+  stop(
+    "The following genes are missing from tcga_luad: ",
+    paste(missing_genes, collapse = ", ")
+  )
+}
+
+data_nmf <- as.matrix(tcga_luad[genes, ])
+data_nmf <- log(data_nmf + 1, 10)
+
+genes_nums <- 30
+mads <- apply(data_nmf, 1, mad)
+dataset <- data_nmf[rev(order(mads))[seq_len(genes_nums)], ]
+
+max_cluster_nums <- 6
+seed <- 135792468
+
+results <- ConsensusClusterPlus::ConsensusClusterPlus(
   dataset,
-  maxK = maxClusterNums,
+  maxK = max_cluster_nums,
   reps = 50,
   pItem = 0.8,
   pFeature = 0.8,
   clusterAlg = "pam",
   distance = "euclidean",
   seed = seed,
-  title = title,
+  title = out_dir,
   corUse = "complete.obs",
   plot = "pdf"
 )
-icl <- calcICL(results, title = title, plot = "pdf")
-icl[["itemConsensus"]][1:6, ]
 
-for (i in 2:maxClusterNums) {
-  write.table(results[[i]][["consensusClass"]],
-    file = paste0(title, "sample_cluster_", i, ".csv"),
-    na = "",
+icl <- ConsensusClusterPlus::calcICL(results, title = out_dir, plot = "pdf")
+
+for (k in 2:max_cluster_nums) {
+  cluster <- data.frame(
+    sample = names(results[[k]][["consensusClass"]]),
+    cluster = as.integer(results[[k]][["consensusClass"]]),
+    stringsAsFactors = FALSE
+  )
+  write.table(
+    cluster,
+    file = file.path(out_dir, paste0("sample_cluster_", k, ".csv")),
+    row.names = FALSE,
     col.names = FALSE,
     sep = ","
   )
 }
 
-Kvec <- 2:6
+Kvec <- 2:max_cluster_nums
 x1 <- 0.1
-x2 <- 0.9 # threshold defining the intermediate sub-interval
-PAC <- rep(NA, length(Kvec))
-names(PAC) <- paste0("K=", Kvec) # from 2 to maxK
+x2 <- 0.9
+PAC <- rep(NA_real_, length(Kvec))
+names(PAC) <- paste0("K=", Kvec)
 
-for (i in Kvec) {
-  M <- results[[i]]$consensusMatrix
+for (k in Kvec) {
+  M <- results[[k]]$consensusMatrix
   Fn <- ecdf(M[lower.tri(M)])
-  PAC[i - 1] <- Fn(x2) - Fn(x1)
+  PAC[k - 1] <- Fn(x2) - Fn(x1)
 }
 
-# The optimal K
-optK <- Kvec[which.min(PAC)]
-
-table(results[[4]]$consensusClass)
-
-Cluster <- results[[4]]$consensusClass |> as.data.frame()
-Cluster$sample <- rownames(Cluster)
-
-survival_data(
-  cancerType = "luad_tcga",
-  genes = "IL2",
-  pathWay = path_save
-)
-load(paste0(path_save, "survival_input.Rdata"))
-rownames(Cluster) <- gsub("-", ".", rownames(Cluster))
-samples <- intersect(rownames(Cluster), rownames(clinicalData))
-Cluster <- Cluster[samples, ] |> as.data.frame()
-clinicalData <- clinicalData[samples, ]
-identical(rownames(Cluster), rownames(clinicalData))
-chooseColumns <- c(
-  "AJCC_METASTASIS_PATHOLOGIC_PM",
-  "AJCC_NODES_PATHOLOGIC_PN",
-  "AJCC_PATHOLOGIC_TUMOR_STAGE",
-  "AJCC_TUMOR_PATHOLOGIC_PT",
-  "AGE",
-  "SEX",
-  "OS_STATUS",
-  "OS_MONTHS",
-  "DFS_MONTHS",
-  "DFS_STATUS"
-)
-clinicalData <- clinicalData[, chooseColumns]
-meta <- clinicalData
-meta$OS_STATUS <- gsub("1:DECEASED", "1", meta$OS_STATUS)
-meta$OS_STATUS <- gsub("0:LIVING", "0", meta$OS_STATUS)
-
-meta$Cluster <- as.character(Cluster$.)
-
-sfit <- survfit(Surv(OS_MONTHS, OS_STATUS == "1") ~ Cluster,
-  data = meta
-)
-ggsurvplot(sfit,
-  pval = TRUE,
-  palette = c("#0050ef", "#008a00", "#fa6800", "#ffff88")
+write.csv(
+  data.frame(K = Kvec, PAC = PAC),
+  file.path(out_dir, "pac_values.csv"),
+  row.names = FALSE
 )
 
-###
-exp <- dataset |> as.data.frame()
-colnames(exp) <- gsub("-", ".", colnames(exp))
-exp <- exp[, samples]
+writeLines(
+  c(
+    "ConsensusClusterPlus/PAM clustering",
+    paste("Input expression file:", expr_file),
+    paste("Input gene file:", gene_file),
+    paste("Samples after duplicate removal:", ncol(tcga_luad)),
+    paste("Feature genes:", length(genes)),
+    paste("MAD-selected genes:", paste(rownames(dataset), collapse = ", ")),
+    paste("Parameters: maxK=6, reps=50, pItem=0.8, pFeature=0.8, clusterAlg=pam, distance=euclidean, seed=", seed, sep = ""),
+    "K=4 cluster sizes:",
+    paste(capture.output(print(table(results[[4]][["consensusClass"]]))), collapse = "\n"),
+    paste("Optimal K by PAC:", Kvec[which.min(PAC)])
+  ),
+  file.path(out_dir, "run_summary.txt")
+)
 
-# PCA
-draw_pca(exp, Cluster$., addEllipses = F)
-# Tsne
-tsne_out <- Rtsne(t(exp), perplexity = 30)
-pdat <- data.frame(tsne_out$Y, factor(Cluster$.))
-colnames(pdat) <- c("Y1", "Y2", "group")
-
-ggplot(pdat, aes(Y1, Y2)) +
-  geom_point(aes(Y1, Y2, fill = group), shape = 21, color = "black") +
-  stat_ellipse(aes(color = group, fill = group),
-    geom = "polygon",
-    alpha = 0.3,
-    linetype = 2
-  ) +
-  scale_color_paletteer_d("RColorBrewer::Set3") +
-  scale_fill_paletteer_d("RColorBrewer::Set3") +
-  theme_bw() +
-  theme(legend.position = "top")
+print(icl[["itemConsensus"]][1:6, ])
+print(table(results[[4]][["consensusClass"]]))
